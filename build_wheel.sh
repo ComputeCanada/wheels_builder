@@ -2,7 +2,7 @@
 
 PYTHON_VERSIONS="python/2.7.13 python/3.5.2"
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime"
 
 PACKAGE=$1
 PYTHON_IMPORT_NAME="$PACKAGE"
@@ -36,13 +36,16 @@ elif [[ "$PACKAGE" == "bottleneck" ]]; then
 	PACKAGE_FOLDER_NAME="Bottleneck"
 elif [[ "$PACKAGE" == "tables" ]]; then
 	MODULE_DEPS="hdf5"
-	PYTHON_DEPS="h5py numpy numexpr six nose"
+	PYTHON_DEPS="h5py numpy numexpr six nose mock"
 	PYTHON_TESTS="tables.test()"
 elif [[ "$PACKAGE" == "pandas" ]]; then
-	PYTHON_DEPS="numpy python-dateutil pytz Cython numexpr bottleneck scipy tables matplotlib nose"
+	PYTHON_DEPS="numpy python-dateutil pytz Cython numexpr bottleneck scipy tables matplotlib nose pytest"
 	PYTHON_TESTS="pandas.test()"
 elif [[ "$PACKAGE" == "pyzmq" ]]; then
 	PYTHON_IMPORT_NAME="zmq"
+elif [[ "$PACKAGE" == "qiime" ]]; then
+	PYTHON_DEPS="numpy scipy matplotlib mock nose cycler decorator enum34 functools32 ipython matplotlib pexpect"
+	PYTHON_VERSIONS="python/2.7.13"
 fi
 
 
@@ -72,9 +75,9 @@ for pv in $PYTHON_VERSIONS; do
 
 	echo "Downloading source"
 	pip download --no-binary --no-deps $PACKAGE
-	ARCHNAME=$(ls $PACKAGE_FOLDER_NAME*)
+	ARCHNAME=$(ls $PACKAGE_FOLDER_NAME-[0-9]*)
 	mkdir $PVDIR
-	unzip $ARCHNAME -d $PVDIR || tar xfvz $ARCHNAME -C $PVDIR
+	unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
 	pushd $PVDIR/$PACKAGE_FOLDER_NAME*
 
 	echo "Building"
