@@ -12,7 +12,7 @@ if ! module -t list | grep -q python; then
    exit
 fi
 
-TEMP=$(getopt -o a:v: --longoptions version:,arch:,gpu -n $0 -- "$@")
+TEMP=$(getopt -o a:v: --longoptions version:,arch:,gpu,debug -n $0 -- "$@")
 eval set -- "$TEMP"
 ARG_VERSION=
 ARG_ARCH=
@@ -32,6 +32,8 @@ while true; do
                 "") ARG_ARCH=""; shift 2 ;;
                 *) ARG_ARCH=$2; shift 2 ;;
             esac;;
+        --debug)
+            ARG_DEBUG=1; shift ;;
         --) shift; break ;;
         *) echo "Unknown parameter $1"; usage; exit 1 ;;
     esac
@@ -50,7 +52,6 @@ elif [[ $ARG_ARCH == "sse3" ]]; then
 else
    usage; exit 1
 fi
-echo $CC_OPT_FLAGS
 
 module load gcc java bazel
 if [[ $ARG_GPU == 1 ]]; then
@@ -60,12 +61,15 @@ fi
 unset CPLUS_INCLUDE_PATH
 unset C_INCLUDE_PATH
 
-
 OPWD=$(pwd)
 TF_COMPILE_PATH=/dev/shm/${USER}/tf_$(date +'%s')
 export TMPDIR=$TF_COMPILE_PATH
 BAZEL_ROOT_PATH=$TF_COMPILE_PATH/bazel
 mkdir -p $TF_COMPILE_PATH; cd $TF_COMPILE_PATH
+
+if [[ $ARG_DEBUG == 1 ]]; then
+    echo "Debug mode - compilation results will be in: $TF_COMPILE_PATH"
+fi
 
 git clone https://github.com/tensorflow/tensorflow.git; cd tensorflow
 git checkout $ARG_VERSION
@@ -106,7 +110,7 @@ if [[ $ARG_GPU == 1 ]]; then
 else
    PKG_NAME="tensorflow_cpu"
 fi
-sed -i "s;setup.py bdist_wheel .* >/dev/null;setup.py bdist_wheel --project_name $PKG_NAME &> /dev/null;g" tensorflow/tools/pip_package/build_pip_package.sh
+sed -i "s;setup.py bdist_wheel .* >/dev/null;setup.py bdist_wheel --project_name $PKG_NAME > /dev/null;g" tensorflow/tools/pip_package/build_pip_package.sh
 
 virtualenv buildenv
 source buildenv/bin/activate
@@ -141,10 +145,13 @@ TF_ENABLE_XLA=0 \
 GCC_HOST_COMPILER_PATH=$(which gcc)
 ./configure
 
-bazel --output_user_root=$BAZEL_ROOT_PATH build --verbose_failures --config opt --config cuda //tensorflow/tools/pip_package:build_pip_package
+# --action_env=NIXUSER_PROFILE 
+bazel --output_user_root=$BAZEL_ROOT_PATH build --verbose_failures --config opt $CONFIG_XOPT //tensorflow/tools/pip_package:build_pip_package
 
 bazel-bin/tensorflow/tools/pip_package/build_pip_package $OPWD
 bazel --output_user_root=$BAZEL_ROOT_PATH shutdown
 
-echo "Build done, you can now remove $TF_COMPILE_PATH"
 echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/$ARG_ARCH and synchronize CVMFS"
+if [[ $ARG_DEBUG == 0 ]]; then
+    rm -rf $TF_COMPILE_PATH
+fi
