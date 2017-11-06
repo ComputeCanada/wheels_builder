@@ -2,11 +2,9 @@
 
 PYTHON_VERSIONS="python/2.7.13 python/3.5.2"
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib"
 
 PACKAGE=$1
-PYTHON_IMPORT_NAME="$PACKAGE"
-PACKAGE_FOLDER_NAME="$PACKAGE"
 if [[ "$PACKAGE" == "numpy" ]]; then
 	MODULE_DEPS="imkl"
 	PYTHON_DEPS="nose"
@@ -46,7 +44,21 @@ elif [[ "$PACKAGE" == "pyzmq" ]]; then
 elif [[ "$PACKAGE" == "qiime" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib mock nose cycler decorator enum34 functools32 ipython matplotlib pexpect"
 	PYTHON_VERSIONS="python/2.7.13"
+elif [[ "$PACKAGE" == "dlib-cpu" ]]; then
+	MODULE_DEPS="gcc/5.4.0 boost imkl"    # it does not work with Intel, and requires Boost
+	PRE_BUILD_COMMANDS='sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "cmake_find_blas.txt") '
+	PYTHON_VERSIONS="python/2.7.13"
+	PACKAGE="dlib"
+	PACKAGE_SUFFIX='-cpu'
+elif [[ "$PACKAGE" == "dlib-gpu" ]]; then
+	MODULE_DEPS="gcc/5.4.0 boost imkl cuda cudnn"    # it does not work with Intel, and requires Boost
+	PRE_BUILD_COMMANDS='export CUDNN_HOME=$EBROOTCUDNN; sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "cmake_find_blas.txt")'
+	PYTHON_VERSIONS="python/2.7.13"
+	PACKAGE="dlib"
+	PACKAGE_SUFFIX='-gpu'
 fi
+PYTHON_IMPORT_NAME="$PACKAGE"
+PACKAGE_FOLDER_NAME="$PACKAGE"
 
 
 DIR=tmp.$$
@@ -94,7 +106,11 @@ mkl_libs = mkl_rt
 lapack_libs =
 EOF
 	fi
-	$PRE_BUILD_COMMANDS
+	eval $PRE_BUILD_COMMANDS
+	# change the name of the wheel to add a suffix
+	if [[ -n "$PACKAGE_SUFFIX" ]]; then
+		sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
+	fi
 	$PYTHON_CMD setup.py bdist_wheel > build.log
 	pushd dist
 	WHEEL_NAME=$(ls *.whl)
@@ -110,7 +126,7 @@ EOF
 		module unload $MODULE_DEPS
 	fi
 	module list
-	pip install ../$WHEEL_NAME
+	pip install ../$WHEEL_NAME --no-index --no-cache
 	$PYTHON_CMD -c "import $PYTHON_IMPORT_NAME; $PYTHON_TESTS"
 	SUCCESS=$?
 	deactivate
@@ -124,5 +140,5 @@ done
 popd
 
 echo "Build done, you can now remove $DIR"
-echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/[generic,avx2] and synchronize CVMFS"
+echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/[generic,avx2,avx] and synchronize CVMFS"
 
