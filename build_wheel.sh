@@ -2,9 +2,10 @@
 
 PYTHON_VERSIONS="python/2.7.13 python/3.5.2"
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite"
 
 PACKAGE=$1
+VERSION=$2
 PYTHON_IMPORT_NAME="$PACKAGE"
 PACKAGE_FOLDER_NAME="$PACKAGE"
 if [[ "$PACKAGE" == "numpy" ]]; then
@@ -70,6 +71,14 @@ elif [[ "$PACKAGE" == "shapely" ]]; then
 elif [[ "$PACKAGE" == "rasterio" ]]; then
 	PYTHON_DEPS="numpy affine snuggs cligj click-plugins enum34"
 	MODULE_DEPS="gdal"
+elif [[ "$PACKAGE" == "numba" ]]; then
+	if [[ "$VERSION" == "0.31.0" ]]; then
+		PYTHON_DEPS="numpy enum34 llvmlite==0.16.0"
+	else
+		PYTHON_DEPS="numpy enum34 llvmlite"
+	fi
+elif [[ "$PACKAGE" == "llvmlite" ]]; then
+	PYTHON_DEPS="enum34"
 fi
 
 
@@ -98,7 +107,11 @@ for pv in $PYTHON_VERSIONS; do
 	pip freeze
 
 	echo "Downloading source"
-	pip download --no-binary --no-deps $PACKAGE
+	if [[ -n "$VERSION" ]]; then
+		pip download --no-binary --no-deps $PACKAGE==$VERSION
+	else
+		pip download --no-binary --no-deps $PACKAGE
+	fi
 	ARCHNAME=$(ls $PACKAGE_FOLDER_NAME-[0-9]*)
 	mkdir $PVDIR
 	unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
