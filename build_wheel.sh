@@ -2,9 +2,11 @@
 
 PYTHON_VERSIONS="python/2.7.13 python/3.5.2"
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely rasterio"
 
 PACKAGE=$1
+PYTHON_IMPORT_NAME="$PACKAGE"
+PACKAGE_FOLDER_NAME="$PACKAGE"
 if [[ "$PACKAGE" == "numpy" ]]; then
 	MODULE_DEPS="imkl"
 	PYTHON_DEPS="nose"
@@ -49,16 +51,25 @@ elif [[ "$PACKAGE" == "dlib-cpu" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "cmake_find_blas.txt") '
 	PYTHON_VERSIONS="python/2.7.13"
 	PACKAGE="dlib"
+	PYTHON_IMPORT_NAME="$PACKAGE"
+	PACKAGE_FOLDER_NAME="$PACKAGE"
 	PACKAGE_SUFFIX='-cpu'
 elif [[ "$PACKAGE" == "dlib-gpu" ]]; then
 	MODULE_DEPS="gcc/5.4.0 boost imkl cuda cudnn"    # it does not work with Intel, and requires Boost
 	PRE_BUILD_COMMANDS='export CUDNN_HOME=$EBROOTCUDNN; sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "cmake_find_blas.txt")'
 	PYTHON_VERSIONS="python/2.7.13"
 	PACKAGE="dlib"
+	PYTHON_IMPORT_NAME="$PACKAGE"
+	PACKAGE_FOLDER_NAME="$PACKAGE"
 	PACKAGE_SUFFIX='-gpu'
+elif [[ "$PACKAGE" == "shapely" ]]; then
+	MODULE_DEPS="geos"
+	# need to patch geos.py to find libgeos_c.so based on the module that was loaded at build time
+	PRE_BUILD_COMMANDS='sed -i -e "s;os.path.join(sys.prefix, \"lib\", \"libgeos_c.so\"),;\"$EBROOTGEOS/lib/libgeos_c.so\",;g" $(find . -name "geos.py")'
+	PACKAGE_FOLDER_NAME="Shapely"
+elif [[ "$PACKAGE" == "rasterio" ]]; then
+	PYTHON_DEPS="numpy"
 fi
-PYTHON_IMPORT_NAME="$PACKAGE"
-PACKAGE_FOLDER_NAME="$PACKAGE"
 
 
 DIR=tmp.$$
