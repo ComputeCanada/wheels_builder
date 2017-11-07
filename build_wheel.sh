@@ -2,7 +2,7 @@
 
 PYTHON_VERSIONS="python/2.7.13 python/3.5.2"
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely rasterio"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio"
 
 PACKAGE=$1
 PYTHON_IMPORT_NAME="$PACKAGE"
@@ -68,7 +68,8 @@ elif [[ "$PACKAGE" == "shapely" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "s;os.path.join(sys.prefix, \"lib\", \"libgeos_c.so\"),;\"$EBROOTGEOS/lib/libgeos_c.so\",;g" $(find . -name "geos.py")'
 	PACKAGE_FOLDER_NAME="Shapely"
 elif [[ "$PACKAGE" == "rasterio" ]]; then
-	PYTHON_DEPS="numpy"
+	PYTHON_DEPS="numpy affine snuggs cligj click-plugins enum34"
+	MODULE_DEPS="gdal"
 fi
 
 
