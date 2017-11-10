@@ -1,8 +1,10 @@
 #!/bin/env bash
 
-PYTHON_VERSIONS="python/2.7.13 python/3.5.2"
+if [[ -z "$PYTHON_VERSIONS" ]]; then
+	PYTHON_VERSIONS="python/2.7.13 python/3.5.2 python/3.6.3"
+fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto"
 
 PACKAGE=$1
 VERSION=$2
@@ -10,11 +12,11 @@ PYTHON_IMPORT_NAME="$PACKAGE"
 PACKAGE_FOLDER_NAME="$PACKAGE"
 if [[ "$PACKAGE" == "numpy" ]]; then
 	MODULE_DEPS="imkl"
-	PYTHON_DEPS="nose"
+	PYTHON_DEPS="nose pytest"
 	PYTHON_TESTS="numpy.__config__.show(); numpy.test()"
 elif [[ "$PACKAGE" == "scipy" ]]; then
 	MODULE_DEPS="imkl"
-	PYTHON_DEPS="nose numpy"
+	PYTHON_DEPS="nose numpy pytest"
 	PYTHON_TESTS="scipy.__config__.show(); scipy.test()"
 elif [[ "$PACKAGE" == "Cython" ]]; then
 	MODULE_DEPS=""
@@ -23,7 +25,6 @@ elif [[ "$PACKAGE" == "h5py" ]]; then
 	MODULE_DEPS="hdf5"
 	PYTHON_DEPS="nose numpy six Cython"
 	PYTHON_TESTS="h5py.run_tests()"
-	PRE_BUILD_COMMANDS="export HDF5_DIR=$(dirname $(dirname $(which h5dump)))"
 elif [[ "$PACKAGE" == "matplotlib" ]]; then
 	PYTHON_DEPS="pyparsing pytz six cycler python-dateutil numpy"
 elif [[ "$PACKAGE" == "python-dateutil" ]]; then
@@ -40,7 +41,7 @@ elif [[ "$PACKAGE" == "tables" ]]; then
 	PYTHON_DEPS="h5py numpy numexpr six nose mock"
 	PYTHON_TESTS="tables.test()"
 elif [[ "$PACKAGE" == "pandas" ]]; then
-	PYTHON_DEPS="numpy python-dateutil pytz Cython numexpr bottleneck scipy tables matplotlib nose pytest"
+	PYTHON_DEPS="numpy python-dateutil pytz Cython numexpr bottleneck scipy tables matplotlib nose pytest moto"
 	PYTHON_TESTS="pandas.test()"
 elif [[ "$PACKAGE" == "pyzmq" ]]; then
 	PYTHON_IMPORT_NAME="zmq"
@@ -79,6 +80,13 @@ elif [[ "$PACKAGE" == "numba" ]]; then
 	fi
 elif [[ "$PACKAGE" == "llvmlite" ]]; then
 	PYTHON_DEPS="enum34"
+elif [[ "$PACKAGE" == "scikit-learn" ]]; then
+	PYTHON_IMPORT_NAME="sklearn"
+	PYTHON_DEPS="numpy scipy"
+elif [[ "$PACKAGE" == "velocyto" ]]; then
+	PYTHON_DEPS="numpy scipy cython llvmlite==0.16.0 numba==0.31.0 matplotlib scikit-learn h5py click loompy"
+	PYTHON_VERSIONS="python/3.6.3"
+	unset PYTHON_IMPORT_NAME
 fi
 
 
@@ -152,7 +160,9 @@ EOF
 	fi
 	module list
 	pip install ../$WHEEL_NAME --no-index --no-cache
-	$PYTHON_CMD -c "import $PYTHON_IMPORT_NAME; $PYTHON_TESTS"
+	if [[ -n "$PYTHON_IMPORT_NAME" ]]; then
+		$PYTHON_CMD -c "import $PYTHON_IMPORT_NAME; $PYTHON_TESTS"
+	fi
 	SUCCESS=$?
 	deactivate
 	if [[ $SUCCESS -ne 0 ]]; then
