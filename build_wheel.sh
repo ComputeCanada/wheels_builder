@@ -4,7 +4,7 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS="python/2.7.13 python/3.5.2 python/3.6.3"
 fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py"
 
 PACKAGE=$1
 VERSION=$2
@@ -87,6 +87,12 @@ elif [[ "$PACKAGE" == "velocyto" ]]; then
 	PYTHON_DEPS="numpy scipy cython llvmlite==0.16.0 numba==0.31.0 matplotlib scikit-learn h5py click loompy"
 	PYTHON_VERSIONS="python/3.6.3"
 	unset PYTHON_IMPORT_NAME
+elif [[ "$PACKAGE" == "htseq" ]]; then
+	PYTHON_DEPS="numpy Cython pysam"
+	PACKAGE_FOLDER_NAME="HTSeq"
+	PYTHON_IMPORT_NAME="HTSeq"
+elif [[ "$PACKAGE" == "mpi4py" ]]; then
+	MODULE_DEPS="openmpi"
 fi
 
 
