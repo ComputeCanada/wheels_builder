@@ -1,4 +1,8 @@
 #!/bin/bash
+# Useful stack overflow thread
+# https://stackoverflow.com/questions/37761469/how-to-add-external-header-files-during-bazel-tensorflow-build
+# https://stackoverflow.com/questions/43921911/how-to-resolve-bazel-undeclared-inclusions-error
+# Successful build with VERBS, GDR and MPI : /dev/shm/fafor10/tf_1511368394/tensorflow
 set -e
 
 function usage() {
@@ -12,6 +16,7 @@ if ! module -t list | grep -q python; then
    exit
 fi
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TEMP=$(getopt -o a:v: --longoptions version:,arch:,gpu,debug -n $0 -- "$@")
 eval set -- "$TEMP"
 ARG_VERSION=
@@ -44,18 +49,18 @@ if [[ -z "$ARG_VERSION" ]]; then
 fi
 
 if [[ $ARG_ARCH == "avx2" ]]; then
-    export CC_OPT_FLAGS="-march=core-avx2 -O2"
+    export CC_OPT_FLAGS="-DOMPI_SKIP_MPICXX=1 -march=core-avx2 -O2"
 elif [[ $ARG_ARCH == "avx" ]]; then
-    export CC_OPT_FLAGS="-march=corei7-avx -O2"
+    export CC_OPT_FLAGS="-DOMPI_SKIP_MPICXX=1 -march=corei7-avx -O2"
 elif [[ $ARG_ARCH == "sse3" ]]; then
-    export CC_OPT_FLAGS="-march=nocona -mtune=generic -O2"
+    export CC_OPT_FLAGS="-DOMPI_SKIP_MPICXX=1 -march=nocona -mtune=generic -O2"
 else
    usage; exit 1
 fi
 
 module load gcc java bazel
 if [[ $ARG_GPU == 1 ]]; then
-    module load cuda/8.0.44 cudnn/5.1
+    module load cuda/8.0.44 cudnn/7.0
 fi
 
 unset CPLUS_INCLUDE_PATH
@@ -100,10 +105,6 @@ done
 sed -i -r "s;bazel (clean|fetch|query); bazel --output_user_root=$BAZEL_ROOT_PATH \1;g" configure
 sed -i -r "s;^_VERSION = '(.+)'$;_VERSION = '\1+computecanada';g" tensorflow/tools/pip_package/setup.py
 
-# pass -O options when generating dependency
-curl -L https://patch-diff.githubusercontent.com/raw/tensorflow/tensorflow/pull/10999.patch > 10999.patch
-git apply 10999.patch
-
 # setup our own project_name
 if [[ $ARG_GPU == 1 ]]; then
     PKG_NAME="tensorflow_gpu"
@@ -117,36 +118,62 @@ source buildenv/bin/activate
 pip install numpy wheel
 
 if [[ $ARG_GPU == 1 ]]; then
-    export\
+# Setup third party library from Nix files
+    mkdir -p third_party/rdma/include
+    ln -s $NIXUSER_PROFILE/include/rdma third_party/rdma/include/ 
+    ln -s $NIXUSER_PROFILE/include/infiniband third_party/rdma/include/
+
+    cat >> third_party/rdma/BUILD << EOF
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+cc_library(
+    name = "rdma",
+    hdrs = glob(["include/rdma/*.h", "include/infiniband/*.h"])
+)
+EOF
+    # Add dependency to third_party library
+    git apply $SCRIPT_DIR/rdma.patch
+
+    export \
     TF_NEED_CUDA=1 \
     TF_CUDA_VERSION=$(echo $EBVERSIONCUDA | grep -Po '\d.\d(?=.\d)') \
     CUDA_TOOLKIT_PATH=$CUDA_HOME \
     TF_CUDNN_VERSION=$(echo $EBVERSIONCUDNN | grep -Po '\d(?=.\d)') \
     CUDNN_INSTALL_PATH="$EBROOTCUDNN" \
     TF_CUDA_CLANG=0 \
-    TF_CUDA_COMPUTE_CAPABILITIES="3.5,3.7,5.2,6.0,6.1"
-    CONFIG_XOPT="--config cuda"
+    TF_CUDA_COMPUTE_CAPABILITIES="3.5,3.7,5.2,6.0,6.1" \
+    TF_NEED_MPI=1 \
+    TF_NEED_GDR=1 \
+    TF_NEED_VERBS=1 \
+    MPI_HOME="$EBROOTOPENMPI"
+    CONFIG_XOPT='--config cuda'
 else
-    export TF_NEED_CUDA=0
+    export \
+    TF_NEED_CUDA=0 \
+    TF_NEED_MPI=0 \
+    TF_NEED_GDR=0 \
+    TF_NEED_VERBS=0
     CONFIG_XOPT=""
 fi
 
 export \
 PYTHON_BIN_PATH=$(which python) \
 USE_DEFAULT_PYTHON_LIB_PATH=1 \
+TF_NEED_S3=0 \
 TF_NEED_GCP=0 \
 TF_NEED_HDFS=0 \
 TF_NEED_OPENCL=0 \
 TF_NEED_JEMALLOC=1 \
 TF_NEED_MKL=0 \
-TF_NEED_VERBS=0 \
-TF_NEED_MPI=0 \
+TF_DOWNLOAD_MKL=0 \
+MKL_INSTALL_PATH=$MKLROOT \
 TF_ENABLE_XLA=0 \
 GCC_HOST_COMPILER_PATH=$(which gcc)
 ./configure
 
-# --action_env=NIXUSER_PROFILE 
-bazel --output_user_root=$BAZEL_ROOT_PATH build --verbose_failures --config opt $CONFIG_XOPT //tensorflow/tools/pip_package:build_pip_package
+bazel --output_user_root=$BAZEL_ROOT_PATH build --verbose_failures --config opt $CONFIG_XOPT --copt="-Ithird_party/rdma/include" //tensorflow/tools/pip_package:build_pip_package
 
 bazel-bin/tensorflow/tools/pip_package/build_pip_package $OPWD
 bazel --output_user_root=$BAZEL_ROOT_PATH shutdown
