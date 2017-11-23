@@ -147,14 +147,16 @@ EOF
     TF_NEED_MPI=1 \
     TF_NEED_GDR=1 \
     TF_NEED_VERBS=1 \
-    MPI_HOME="$EBROOTOPENMPI"
-    CONFIG_XOPT='--config cuda'
+    GCC_HOST_COMPILER_PATH=$(which mpicc) \
+    MPI_HOME="$EBROOTOPENMPI" 
+    CONFIG_XOPT="--config cuda --copt=-Ithird_party/rdma/include --copt=-Wl,-rpath=$EBROOTOPENMPI/lib --config monolithic"
 else
     export \
     TF_NEED_CUDA=0 \
     TF_NEED_MPI=0 \
     TF_NEED_GDR=0 \
-    TF_NEED_VERBS=0
+    TF_NEED_VERBS=0 \
+    GCC_HOST_COMPILER_PATH=$(which gcc)
     CONFIG_XOPT=""
 fi
 
@@ -169,11 +171,10 @@ TF_NEED_JEMALLOC=1 \
 TF_NEED_MKL=0 \
 TF_DOWNLOAD_MKL=0 \
 MKL_INSTALL_PATH=$MKLROOT \
-TF_ENABLE_XLA=0 \
-GCC_HOST_COMPILER_PATH=$(which gcc)
+TF_ENABLE_XLA=0
 ./configure
 
-bazel --output_user_root=$BAZEL_ROOT_PATH build --verbose_failures --config opt $CONFIG_XOPT --copt="-Ithird_party/rdma/include" //tensorflow/tools/pip_package:build_pip_package
+bazel --output_user_root=$BAZEL_ROOT_PATH build --verbose_failures --config opt $(echo $CONFIG_XOPT) //tensorflow/tools/pip_package:build_pip_package
 
 bazel-bin/tensorflow/tools/pip_package/build_pip_package $OPWD
 bazel --output_user_root=$BAZEL_ROOT_PATH shutdown
