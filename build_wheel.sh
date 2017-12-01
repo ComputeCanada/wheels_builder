@@ -93,6 +93,20 @@ elif [[ "$PACKAGE" == "htseq" ]]; then
 	PYTHON_IMPORT_NAME="HTSeq"
 elif [[ "$PACKAGE" == "mpi4py" ]]; then
 	MODULE_DEPS="openmpi"
+elif [[ "$PACKAGE" == "pytorch-cpu" ]];then
+	PACKAGE="pytorch"
+	MODULE_DEPS="gcc/6.4.0 imkl/11.3.4.258"
+        PYTHON_DEPS="pyyaml numpy"
+        PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
+	PACKAGE_FOLDER_NAME="$PACKAGE"
+	PACKAGE_SUFFIX='-cpu'
+elif [[ "$PACKAGE" == "pytorch-gpu" ]];then
+	PACKAGE="pytorch"
+        MODULE_DEPS="imkl/11.3.4.258 gcc/5.4.0 magma/2.2.0 cuda/8.0.44 cudnn/7.0 magma/2.2.0"
+        PYTHON_DEPS="pyyaml numpy"
+        PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export LIBRARY_PATH=/cvmfs/soft.computecanada.ca/nix/lib/:$LIBRARY_PATH; export CMAKE_PREFIX_PATH=$EBROOTMAGMA; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
+        PACKAGE_FOLDER_NAME="$PACKAGE"
+        PACKAGE_SUFFIX='-gpu'
 fi
 
 
@@ -119,18 +133,26 @@ for pv in $PYTHON_VERSIONS; do
 		pip install $PYTHON_DEPS
 	fi
 	pip freeze
-
-	echo "Downloading source"
-	if [[ -n "$VERSION" ]]; then
-		pip download --no-binary --no-deps $PACKAGE==$VERSION
-	else
-		pip download --no-binary --no-deps $PACKAGE
-	fi
-	ARCHNAME=$(ls $PACKAGE_FOLDER_NAME-[0-9]*)
 	mkdir $PVDIR
-	unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
-	pushd $PVDIR/$PACKAGE_FOLDER_NAME*
-
+	pushd $PVDIR
+	echo "Downloading source"
+        if [[ $PACKAGE == "pytorch" ]];then
+		git clone https://github.com/pytorch/pytorch
+		pushd $PACKAGE_FOLDER_NAME*
+		if [[ -n "$VERSION" ]]; then
+			git checkout -b v$VERSION 
+		fi
+		git submodule update --init
+	else
+		if [[ -n "$VERSION" ]]; then
+			pip download --no-binary --no-deps $PACKAGE==$VERSION
+		else
+			pip download --no-binary --no-deps $PACKAGE
+		fi
+		ARCHNAME=$(ls $PACKAGE_FOLDER_NAME-[0-9]*)
+		unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
+		pushd $PACKAGE_FOLDER_NAME*
+	fi
 	echo "Building"
 	pwd
 	ls
@@ -146,9 +168,14 @@ lapack_libs =
 EOF
 	fi
 	eval $PRE_BUILD_COMMANDS
+	echo "$MAX_JOBS  $MKL_ROOT  $MKL_LIBRARY  $LIBRARY_PATH  $CMAKE_PREFIX_PATH  $CMAKE_LIBRARY_PATH"
 	# change the name of the wheel to add a suffix
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
+		if [[ $PACKAGE == "pytorch" ]];then
+		sed -i -e "s/name=\"torch\"/name=\"torch$PACKAGE_SUFFIX\"/g" setup.py
+		else
 		sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
+		fi
 	fi
 	$PYTHON_CMD setup.py bdist_wheel > build.log
 	pushd dist
@@ -159,6 +186,7 @@ EOF
 	cp $WHEEL_NAME ../../../..
 	popd
 	popd
+        popd
 
 	echo "Testing..."
 	if [[ -n "$MODULE_DEPS" ]]; then
