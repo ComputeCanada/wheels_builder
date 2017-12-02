@@ -168,7 +168,6 @@ lapack_libs =
 EOF
 	fi
 	eval $PRE_BUILD_COMMANDS
-	echo "$MAX_JOBS  $MKL_ROOT  $MKL_LIBRARY  $LIBRARY_PATH  $CMAKE_PREFIX_PATH  $CMAKE_LIBRARY_PATH"
 	# change the name of the wheel to add a suffix
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
 		if [[ $PACKAGE == "pytorch" ]];then
