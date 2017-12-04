@@ -1,10 +1,10 @@
 #!/bin/env bash
 
 if [[ -z "$PYTHON_VERSIONS" ]]; then
-	PYTHON_VERSIONS="python/2.7.13 python/3.5.2 python/3.6.3"
+	PYTHON_VERSIONS="python/2.7.14 python/3.5.4 python/3.6.3"
 fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython"
 
 PACKAGE=$1
 VERSION=$2
@@ -107,6 +107,39 @@ elif [[ "$PACKAGE" == "pytorch-gpu" ]];then
         PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export LIBRARY_PATH=/cvmfs/soft.computecanada.ca/nix/lib/:$LIBRARY_PATH; export CMAKE_PREFIX_PATH=$EBROOTMAGMA; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
         PACKAGE_FOLDER_NAME="$PACKAGE"
         PACKAGE_SUFFIX='-gpu'
+elif [[ "$PACKAGE" == "mpmath" ]]; then
+	# need to patch it so it supports bdist_wheel
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "paycheck" ]]; then
+	# need to patch it so it supports bdist_wheel
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "bitstring" ]]; then
+	# need to patch it so it supports bdist_wheel
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "pandocfilters" ]]; then
+	# need to patch it so it supports bdist_wheel
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "pysqlite" ]]; then
+	# need to patch it so it supports bdist_wheel
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+	PYTHON_IMPORT_NAME="pysqlite2"
+	PYTHON_VERSIONS="python/2.7.14"
+elif [[ "$PACKAGE" == "iptest" ]]; then
+	PACKAGE_FOLDER_NAME="IPTest"
+	PYTHON_VERSIONS="python/2.7.14"
+elif [[ "$PACKAGE" == "sympy" ]]; then
+	PYTHON_DEPS="mpmath"
+elif [[ "$PACKAGE" == "cffi" ]]; then
+	PYTHON_DEPS="pycparser"
+elif [[ "$PACKAGE" == "ipaddress" ]]; then
+	PYTHON_VERSIONS="python/2.7.14"
+elif [[ "$PACKAGE" == "pynacl" ]]; then
+	PACKAGE_FOLDER_NAME="PyNaCl"
+	PYTHON_IMPORT_NAME="nacl"
+elif [[ "$PACKAGE" == "functools32" ]]; then
+	PYTHON_VERSIONS="python/2.7.14"
+elif [[ "$PACKAGE" == "MarkupSafe" ]]; then
+	PYTHON_IMPORT_NAME="markupsafe"
 fi
 
 
@@ -133,10 +166,10 @@ for pv in $PYTHON_VERSIONS; do
 		pip install $PYTHON_DEPS
 	fi
 	pip freeze
-	mkdir $PVDIR
-	pushd $PVDIR
 	echo "Downloading source"
+	mkdir $PVDIR
         if [[ $PACKAGE == "pytorch" ]];then
+		pushd $PVDIR
 		git clone https://github.com/pytorch/pytorch
 		pushd $PACKAGE_FOLDER_NAME*
 		if [[ -n "$VERSION" ]]; then
@@ -149,8 +182,14 @@ for pv in $PYTHON_VERSIONS; do
 		else
 			pip download --no-binary --no-deps $PACKAGE
 		fi
-		ARCHNAME=$(ls $PACKAGE_FOLDER_NAME-[0-9]*)
+		ARCHNAME=$(ls $PACKAGE_FOLDER_NAME-[0-9]*{.zip,.tar.gz})
+		# skip packages that are already in whl format
+		if [[ $ARCHNAME == *.whl ]]; then
+			cp $ARCHNAME ..
+			continue
+		fi
 		unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
+		pushd $PVDIR
 		pushd $PACKAGE_FOLDER_NAME*
 	fi
 	echo "Building"
