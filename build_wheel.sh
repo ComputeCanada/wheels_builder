@@ -4,7 +4,7 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS="python/2.7.14 python/3.5.4 python/3.6.3"
 fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow olefile seaborn"
 
 PACKAGE=$1
 VERSION=$2
@@ -26,7 +26,7 @@ elif [[ "$PACKAGE" == "h5py" ]]; then
 	PYTHON_DEPS="nose numpy six Cython"
 	PYTHON_TESTS="h5py.run_tests()"
 elif [[ "$PACKAGE" == "matplotlib" ]]; then
-	PYTHON_DEPS="pyparsing pytz six cycler python-dateutil numpy"
+	PYTHON_DEPS="pyparsing pytz six cycler python-dateutil numpy backports.functools-lru-cache"
 elif [[ "$PACKAGE" == "python-dateutil" ]]; then
 	PYTHON_IMPORT_NAME="dateutil"
 elif [[ "$PACKAGE" == "numexpr" ]]; then
@@ -34,7 +34,7 @@ elif [[ "$PACKAGE" == "numexpr" ]]; then
 	PYTHON_TESTS="numexpr.test()"
 elif [[ "$PACKAGE" == "bottleneck" ]]; then
 	PYTHON_DEPS="numpy nose"
-	PYTHON_TESTS="bottleneck.test(); bottleneck.bench()"
+	PYTHON_TESTS="bottleneck.test();" # bottleneck.bench()"
 	PACKAGE_FOLDER_NAME="Bottleneck"
 elif [[ "$PACKAGE" == "tables" ]]; then
 	MODULE_DEPS="hdf5"
@@ -142,7 +142,20 @@ elif [[ "$PACKAGE" == "MarkupSafe" ]]; then
 	PYTHON_IMPORT_NAME="markupsafe"
 elif [[ "$PACKAGE" == "pygame" ]]; then
 	PRE_BUILD_COMMANDS="export LOCALBASE=$NIXUSER_PROFILE"
-#	MODULE_DEPS="sdl/1.2.15"
+elif [[ "$PACKAGE" == "pyyaml" ]]; then
+	PACKAGE_FOLDER_NAME="PyYAML"
+	PYTHON_IMPORT_NAME="yaml"
+elif [[ "$PACKAGE" == "pillow" ]]; then
+	PYTHON_DEPS="olefile"
+	PACKAGE_FOLDER_NAME="Pillow"
+	PYTHON_IMPORT_NAME="PIL"
+elif [[ "$PACKAGE" == "olefile" ]]; then
+	# need to patch it so it supports bdist_wheel
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "fuel" ]]; then
+	PYTHON_DEPS="numpy six picklable_itertools pyyaml h5py tables progressbar2 pyzmq scipy pillow numexpr" 
+elif [[ "$PACKAGE" == "seaborn" ]]; then
+	PYTHON_DEPS="numpy scipy matplotlib pandas"
 fi
 
 
