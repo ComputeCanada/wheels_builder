@@ -42,7 +42,7 @@ elif [[ "$PACKAGE" == "tables" ]]; then
 	PYTHON_TESTS="tables.test()"
 elif [[ "$PACKAGE" == "pandas" ]]; then
 	PYTHON_DEPS="numpy python-dateutil pytz Cython numexpr bottleneck scipy tables matplotlib nose pytest moto"
-	PYTHON_TESTS="pandas.test()"
+#	PYTHON_TESTS="pandas.test()"
 elif [[ "$PACKAGE" == "pyzmq" ]]; then
 	PYTHON_IMPORT_NAME="zmq"
 elif [[ "$PACKAGE" == "qiime" ]]; then
@@ -158,6 +158,8 @@ elif [[ "$PACKAGE" == "fuel" ]]; then
 	PYTHON_DEPS="numpy six picklable_itertools pyyaml h5py tables progressbar2 pyzmq scipy pillow numexpr" 
 elif [[ "$PACKAGE" == "seaborn" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib pandas"
+elif [[ "$PACKAGE" == "backports.functools-lru-cache" ]]; then
+	PYTHON_IMPORT_NAME="backports.functools_lru_cache"
 fi
 
 
