@@ -78,6 +78,7 @@ fi
 
 git clone https://github.com/tensorflow/tensorflow.git; cd tensorflow
 git checkout $ARG_VERSION
+git cherry-pick -n 136697ecdc
 
 GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
@@ -105,7 +106,7 @@ sed -i -r "s;^_VERSION = '(.+)'$;_VERSION = '\1+computecanada';g" tensorflow/too
 if [[ $ARG_GPU == 1 ]]; then
     PKG_NAME="tensorflow_gpu"
 else
-   PKG_NAME="tensorflow_cpu"
+    PKG_NAME="tensorflow_cpu"
 fi
 sed -i "s;setup.py bdist_wheel .* >/dev/null;setup.py bdist_wheel --project_name $PKG_NAME > /dev/null;g" tensorflow/tools/pip_package/build_pip_package.sh
 
