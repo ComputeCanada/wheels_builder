@@ -82,25 +82,23 @@ git checkout $ARG_VERSION
 GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
     CROSSTOOL_FILE=third_party/gpus/crosstool/CROSSTOOL_nvcc.tpl
-else
-    CROSSTOOL_FILE=third_party/toolchains/cpus/CROSSTOOL
-fi
 
-sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$GCC_PREFIX/lib64\"" $CROSSTOOL_FILE
-sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$GCC_PREFIX/lib\"" $CROSSTOOL_FILE
-sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$NIXUSER_PROFILE/lib\"" $CROSSTOOL_FILE
-if [[ $ARG_GPU == 1 ]]; then
-    sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$EBROOTCUDNN/lib64\"" $CROSSTOOL_FILE
-    sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$EBROOTCUDA/lib64\"" $CROSSTOOL_FILE
-fi
-sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-B$NIXUSER_PROFILE/lib\"" $CROSSTOOL_FILE
-sed -i "s;/usr/bin;$NIXUSER_PROFILE/bin;g" $CROSSTOOL_FILE
+    sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$GCC_PREFIX/lib64\"" $CROSSTOOL_FILE
+    sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$GCC_PREFIX/lib\"" $CROSSTOOL_FILE
+    sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$NIXUSER_PROFILE/lib\"" $CROSSTOOL_FILE
+    if [[ $ARG_GPU == 1 ]]; then
+        sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$EBROOTCUDNN/lib64\"" $CROSSTOOL_FILE
+        sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$EBROOTCUDA/lib64\"" $CROSSTOOL_FILE
+    fi
+    sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-B$NIXUSER_PROFILE/lib\"" $CROSSTOOL_FILE
+    sed -i "s;/usr/bin;$NIXUSER_PROFILE/bin;g" $CROSSTOOL_FILE
 
-include_paths=$(echo | gcc -xc++ -E -v - 2>&1 | grep '/include' | grep -v -P '(ignoring|#)' | xargs realpath)
-for path in $include_paths ${CPATH//:/ }; do
-    sed -i "\;cxx_flag: \"-std=c++11\"; a \
+    include_paths=$(echo | gcc -xc++ -E -v - 2>&1 | grep '/include' | grep -v -P '(ignoring|#)' | xargs realpath)
+    for path in $include_paths ${CPATH//:/ }; do
+        sed -i "\;cxx_flag: \"-std=c++11\"; a \
 \ \ cxx_builtin_include_directory: \"$path\"" $CROSSTOOL_FILE
-done
+    done
+fi
 
 sed -i -r "s;bazel (clean|fetch|query); bazel --output_user_root=$BAZEL_ROOT_PATH \1;g" configure
 sed -i -r "s;^_VERSION = '(.+)'$;_VERSION = '\1+computecanada';g" tensorflow/tools/pip_package/setup.py
