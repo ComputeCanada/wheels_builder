@@ -49,11 +49,11 @@ if [[ -z "$ARG_VERSION" ]]; then
 fi
 
 if [[ $ARG_ARCH == "avx2" ]]; then
-    export CC_OPT_FLAGS="-DOMPI_SKIP_MPICXX=1 -march=core-avx2 -O2"
+    export CC_OPT_FLAGS="-march=core-avx2 -O2"
 elif [[ $ARG_ARCH == "avx" ]]; then
-    export CC_OPT_FLAGS="-DOMPI_SKIP_MPICXX=1 -march=corei7-avx -O2"
+    export CC_OPT_FLAGS="-march=corei7-avx -O2"
 elif [[ $ARG_ARCH == "sse3" ]]; then
-    export CC_OPT_FLAGS="-DOMPI_SKIP_MPICXX=1 -march=nocona -mtune=generic -O2"
+    export CC_OPT_FLAGS="-march=nocona -mtune=generic -O2"
 else
    usage; exit 1
 fi
@@ -118,7 +118,10 @@ source buildenv/bin/activate
 pip install numpy wheel
 
 if [[ $ARG_GPU == 1 ]]; then
-# Setup third party library from Nix files
+    # CC MPI is not compiled with C++ API
+    export CC_OPT_FLAGS="$CC_OPT_FLAGS -DOMPI_SKIP_MPICXX=1 "
+
+    # Setup third party library from Nix files
     mkdir -p third_party/rdma/include
     ln -s $NIXUSER_PROFILE/include/rdma third_party/rdma/include/ 
     ln -s $NIXUSER_PROFILE/include/infiniband third_party/rdma/include/
