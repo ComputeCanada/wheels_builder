@@ -60,7 +60,8 @@ fi
 
 module load gcc java bazel
 if [[ $ARG_GPU == 1 ]]; then
-    module load cuda/8.0.44 cudnn/7.0
+    #module load cuda/8.0.44 cudnn/7.0
+    module load cuda/9.0.176 cudnn/7.0
 fi
 
 unset CPLUS_INCLUDE_PATH
@@ -79,6 +80,7 @@ fi
 git clone https://github.com/tensorflow/tensorflow.git; cd tensorflow
 git checkout $ARG_VERSION
 git cherry-pick -n 136697ecdc
+git cherry-pick -n 9415984
 
 GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
@@ -149,7 +151,7 @@ EOF
     TF_NEED_VERBS=1 \
     GCC_HOST_COMPILER_PATH=$(which mpicc) \
     MPI_HOME="$EBROOTOPENMPI" 
-    CONFIG_XOPT="--config cuda --copt=-Ithird_party/rdma/include --copt=-Wl,-rpath=$EBROOTOPENMPI/lib --config monolithic"
+    CONFIG_XOPT="--config cuda --copt=-Ithird_party/rdma/include --copt=-Wl,-rpath=$EBROOTOPENMPI/lib"
 else
     export \
     TF_NEED_CUDA=0 \
@@ -169,14 +171,14 @@ TF_NEED_HDFS=0 \
 TF_NEED_OPENCL=0 \
 TF_NEED_OPENCL_SYCL=0 \
 TF_NEED_JEMALLOC=1 \
-TF_NEED_MKL=0 \
-TF_DOWNLOAD_MKL=0 \
-MKL_INSTALL_PATH=$MKLROOT \
 TF_SET_ANDROID_WORKSPACE=0 \
+TF_NEED_OPENCL_SYCL=0 \
 TF_ENABLE_XLA=0
 ./configure
 
-bazel --output_user_root=$BAZEL_ROOT_PATH build --verbose_failures --config opt $(echo $CONFIG_XOPT) //tensorflow/tools/pip_package:build_pip_package
+#export TF_MKL_ROOT="$MKLROOT"
+#export TF_MKL_ROOT="/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/imkl/11.3.4.258"
+bazel --output_user_root=$BAZEL_ROOT_PATH build --verbose_failures --config opt $(echo $CONFIG_XOPT) --config mkl //tensorflow/tools/pip_package:build_pip_package
 
 bazel-bin/tensorflow/tools/pip_package/build_pip_package $OPWD
 bazel --output_user_root=$BAZEL_ROOT_PATH shutdown
