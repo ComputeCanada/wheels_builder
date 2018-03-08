@@ -4,7 +4,7 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
 fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow olefile seaborn theano Amara"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver"
 
 PACKAGE=$1
 VERSION=$2
@@ -21,12 +21,17 @@ elif [[ "$PACKAGE" == "scipy" ]]; then
 elif [[ "$PACKAGE" == "Cython" ]]; then
 	MODULE_DEPS=""
 	PYTHON_DEPS=""
+elif [[ "$PACKAGE" == "cutadapt" ]]; then
+	PYTHON_DEPS="xopen"
+elif [[ "$PACKAGE" == "cgat" ]]; then
+	PYTHON_IMPORT_NAME="cgat"
+	PYTHON_DEPS="numpy cython pysam setuptools pyparsing pyaml alignlib-lite matplotlib biopython"
 elif [[ "$PACKAGE" == "h5py" ]]; then
 	MODULE_DEPS="hdf5"
 	PYTHON_DEPS="nose numpy six Cython"
 	PYTHON_TESTS="h5py.run_tests()"
 elif [[ "$PACKAGE" == "matplotlib" ]]; then
-	PYTHON_DEPS="pyparsing pytz six cycler python-dateutil numpy backports.functools-lru-cache"
+	PYTHON_DEPS="pyparsing pytz six cycler python-dateutil numpy backports.functools-lru-cache kiwisolver"
 elif [[ "$PACKAGE" == "python-dateutil" ]]; then
 	PYTHON_IMPORT_NAME="dateutil"
 elif [[ "$PACKAGE" == "numexpr" ]]; then
@@ -40,6 +45,12 @@ elif [[ "$PACKAGE" == "tables" ]]; then
 	MODULE_DEPS="hdf5"
 	PYTHON_DEPS="h5py numpy numexpr six nose mock"
 	PYTHON_TESTS="tables.test()"
+elif [[ "$PACKAGE" == "bx-python" ]]; then
+	PYTHON_DEPS="numpy python-lzo six"
+	PYTHON_IMPORT_NAME="bx"
+elif [[ "$PACKAGE" == "RSeQC" ]]; then
+	PYTHON_DEPS="bx-python"
+	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "pandas" ]]; then
 	PYTHON_DEPS="numpy python-dateutil pytz Cython numexpr bottleneck scipy tables matplotlib nose pytest moto"
 #	PYTHON_TESTS="pandas.test()"
@@ -47,11 +58,11 @@ elif [[ "$PACKAGE" == "pyzmq" ]]; then
 	PYTHON_IMPORT_NAME="zmq"
 elif [[ "$PACKAGE" == "qiime" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib mock nose cycler decorator enum34 functools32 ipython matplotlib pexpect"
-	PYTHON_VERSIONS="python/2.7.13"
+	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "dlib-cpu" ]]; then
 	MODULE_DEPS="gcc/5.4.0 boost imkl"    # it does not work with Intel, and requires Boost
 	PRE_BUILD_COMMANDS='sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "cmake_find_blas.txt") '
-	PYTHON_VERSIONS="python/2.7.13"
+	PYTHON_VERSIONS="python/2.7"
 	PACKAGE="dlib"
 	PYTHON_IMPORT_NAME="$PACKAGE"
 	PACKAGE_FOLDER_NAME="$PACKAGE"
@@ -59,7 +70,7 @@ elif [[ "$PACKAGE" == "dlib-cpu" ]]; then
 elif [[ "$PACKAGE" == "dlib-gpu" ]]; then
 	MODULE_DEPS="gcc/5.4.0 boost imkl cuda cudnn"    # it does not work with Intel, and requires Boost
 	PRE_BUILD_COMMANDS='export CUDNN_HOME=$EBROOTCUDNN; sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "cmake_find_blas.txt")'
-	PYTHON_VERSIONS="python/2.7.13"
+	PYTHON_VERSIONS="python/2.7"
 	PACKAGE="dlib"
 	PYTHON_IMPORT_NAME="$PACKAGE"
 	PACKAGE_FOLDER_NAME="$PACKAGE"
@@ -131,6 +142,9 @@ elif [[ "$PACKAGE" == "pysqlite" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 	PYTHON_IMPORT_NAME="pysqlite2"
 	PYTHON_VERSIONS="python/2.7"
+elif [[ "$PACKAGE" == "python-lzo" ]]; then
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" -e "s;/usr/include;$NIXUSER_PROFILE/include;g" setup.py'
+	PYTHON_IMPORT_NAME="lzo"
 elif [[ "$PACKAGE" == "iptest" ]]; then
 	PACKAGE_FOLDER_NAME="IPTest"
 	PYTHON_VERSIONS="python/2.7"
@@ -210,7 +224,7 @@ for pv in $PYTHON_VERSIONS; do
 		else
 			pip download --no-binary --no-deps $PACKAGE
 		fi
-		ARCHNAME=$(ls $PACKAGE_FOLDER_NAME-[0-9]*{.zip,.tar.gz})
+		ARCHNAME=$(ls $PACKAGE_FOLDER_NAME-[0-9]*{.zip,.tar.gz,.whl})
 		# skip packages that are already in whl format
 		if [[ $ARCHNAME == *.whl ]]; then
 			cp $ARCHNAME ..
