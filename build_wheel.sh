@@ -18,6 +18,9 @@ elif [[ "$PACKAGE" == "scipy" ]]; then
 	MODULE_DEPS="imkl"
 	PYTHON_DEPS="nose numpy pytest"
 	PYTHON_TESTS="scipy.__config__.show(); scipy.test()"
+elif [[ "$PACKAGE" == "netCDF4" ]]; then
+	MODULE_DEPS="hdf5-mpi netcdf-mpi"
+	PYTHON_DEPS="numpy Cython"
 elif [[ "$PACKAGE" == "arboretum" ]]; then
 	PYTHON_DEPS="numpy scipy scikit-learn pandas dask distributed"
 elif [[ "$PACKAGE" == "Cython" ]]; then
