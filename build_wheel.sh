@@ -10,6 +10,7 @@ PACKAGE=$1
 VERSION=$2
 PYTHON_IMPORT_NAME="$PACKAGE"
 PACKAGE_FOLDER_NAME="$PACKAGE"
+RPATH_TO_ADD=""
 if [[ "$PACKAGE" == "numpy" ]]; then
 	MODULE_DEPS="imkl"
 	PYTHON_DEPS="nose pytest"
@@ -21,6 +22,8 @@ elif [[ "$PACKAGE" == "scipy" ]]; then
 elif [[ "$PACKAGE" == "netCDF4" ]]; then
 	MODULE_DEPS="hdf5-mpi netcdf-mpi"
 	PYTHON_DEPS="numpy Cython"
+	PRE_BUILD_COMMANDS='module load mpi4py; export HDF5_DIR=$EBROOTHDF5; export NETCDF4_DIR=$EBROOTNETCDF'
+	RPATH_TO_ADD="$EBROOTOPENMPI/lib"
 elif [[ "$PACKAGE" == "arboretum" ]]; then
 	PYTHON_DEPS="numpy scipy scikit-learn pandas dask distributed"
 elif [[ "$PACKAGE" == "Cython" ]]; then
@@ -271,6 +274,10 @@ EOF
 	$PYTHON_CMD setup.py bdist_wheel > build.log
 	pushd dist
 	WHEEL_NAME=$(ls *.whl)
+	if [[ -n "$RPATH_TO_ADD" ]]; then
+		echo "Running /cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path $WHEEL_NAME --add_path=$RPATH_TO_ADD --any_interpreter"
+		/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path $WHEEL_NAME --add_path $RPATH_TO_ADD --any_interpreter
+	fi
 	pwd
 	ls
 	echo cp $WHEEL_NAME ../../../..
