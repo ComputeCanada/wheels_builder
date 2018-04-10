@@ -115,7 +115,7 @@ elif [[ "$PACKAGE" == "mpi4py" ]]; then
 elif [[ "$PACKAGE" == "pytorch-cpu" ]];then
 	PACKAGE="pytorch"
 	MODULE_DEPS="gcc/6.4.0 imkl/11.3.4.258"
-    PYTHON_DEPS="pyyaml numpy"
+    PYTHON_DEPS="pyyaml numpy typing"
     PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
 	PACKAGE_FOLDER_NAME="$PACKAGE"
 	PACKAGE_SUFFIX='-cpu'
