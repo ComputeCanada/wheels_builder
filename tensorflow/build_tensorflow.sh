@@ -79,8 +79,8 @@ fi
 
 git clone https://github.com/tensorflow/tensorflow.git; cd tensorflow
 git checkout $ARG_VERSION
-git cherry-pick -n 136697ecdc
-git cherry-pick -n 9415984
+#git cherry-pick -n 136697ecdc
+#git cherry-pick -n 9415984
 
 GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
@@ -95,7 +95,8 @@ if [[ $ARG_GPU == 1 ]]; then
     sed -i "s;/usr/bin;$NIXUSER_PROFILE/bin;g" $CROSSTOOL_FILE
 
     include_paths=$(echo | gcc -xc++ -E -v - 2>&1 | grep '/include' | grep -v -P '(ignoring|#)' | xargs realpath)
-    for path in $include_paths ${CPATH//:/ }; do
+    include_paths_gcc=$(find -L $(dirname $(dirname $(which gcc))) -name include\* -type d)
+    for path in $include_paths $include_paths_gcc ${CPATH//:/ }; do
         sed -i "\;cxx_flag: \"-std=c++11\"; a \
 \ \ cxx_builtin_include_directory: \"$path\"" $CROSSTOOL_FILE
     done
