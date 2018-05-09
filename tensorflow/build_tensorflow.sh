@@ -147,12 +147,14 @@ EOF
     CUDNN_INSTALL_PATH="$EBROOTCUDNN" \
     TF_CUDA_CLANG=0 \
     TF_CUDA_COMPUTE_CAPABILITIES="3.5,3.7,5.2,6.0,6.1" \
-    TF_NEED_MPI=1 \
-    TF_NEED_GDR=1 \
-    TF_NEED_VERBS=1 \
+    TF_NEED_MPI=0 \
+    TF_NEED_GDR=0 \
+    TF_NEED_VERBS=0 \
     GCC_HOST_COMPILER_PATH=$(which mpicc) \
-    MPI_HOME="$EBROOTOPENMPI" 
-    CONFIG_XOPT="--config cuda --copt=-Ithird_party/rdma/include --copt=-Wl,-rpath=$EBROOTOPENMPI/lib"
+    TF_NCCL_VERSION="1.3"
+    #MPI_HOME="$EBROOTOPENMPI" 
+    #CONFIG_XOPT="--config cuda --copt=-Ithird_party/rdma/include --copt=-Wl,-rpath=$EBROOTOPENMPI/lib"
+    CONFIG_XOPT="--config cuda"
 else
     export \
     TF_NEED_CUDA=0 \
@@ -173,7 +175,8 @@ TF_NEED_OPENCL=0 \
 TF_NEED_OPENCL_SYCL=0 \
 TF_NEED_JEMALLOC=1 \
 TF_SET_ANDROID_WORKSPACE=0 \
-TF_NEED_OPENCL_SYCL=0 \
+TF_NEED_KAFKA=0 \
+TF_NEED_TENSORRT=0 \
 TF_ENABLE_XLA=0
 ./configure
 
