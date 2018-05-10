@@ -4,7 +4,7 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
 fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz eco CVXcanon CoffeeScript PyExecJS"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder"
 
 PACKAGE=$1
 VERSION=$2
@@ -21,6 +21,8 @@ if [[ "$PACKAGE" == "numpy" ]]; then
 	MODULE_DEPS="imkl"
 	PYTHON_DEPS="nose pytest"
 	PYTHON_TESTS="numpy.__config__.show(); numpy.test()"
+elif [[ "$PACKAGE" == "msmbuilder" ]]; then
+	PYTHON_DEPS="numpy scipy scikit-learn mdtraj pandas cython<0.28 cvxopt nose"
 elif [[ "$PACKAGE" == "ray" ]]; then
 	if [[ -z "$VERSION" ]]; then
 		VERSION="0.4.0"
@@ -32,6 +34,9 @@ elif [[ "$PACKAGE" == "ray" ]]; then
 	PRE_BUILD_COMMANDS="pwd; sed -i -e 's/-DPARQUET_BUILD_TESTS=off/-DPARQUET_BUILD_TESTS=off -DCMAKE_SKIP_RPATH=ON -DCMAKE_SKIP_INSTALL_RPATH=ON/g' ../thirdparty/scripts/build_parquet.sh && sed -i -e 's/-DARROW_WITH_ZSTD=off/-DARROW_WITH_ZSTD=off  -DCMAKE_SKIP_RPATH=ON -DCMAKE_SKIP_INSTALL_RPATH=ON/g' ../thirdparty/scripts/build_arrow.sh"
 elif [[ "$PACKAGE" == "scs" ]]; then
 	PYTHON_DEPS="numpy scipy"
+elif [[ "$PACKAGE" == "pygdal" ]]; then
+	PYTHON_DEPS="numpy"
+	MODULE_DEPS="gcc gdal"
 elif [[ "$PACKAGE" == "absl-py" ]]; then
 	PYTHON_IMPORT_NAME="absl"
 elif [[ "$PACKAGE" == "CoffeeScript" ]]; then
@@ -39,6 +44,8 @@ elif [[ "$PACKAGE" == "CoffeeScript" ]]; then
 elif [[ "$PACKAGE" == "PyExecJS" ]]; then
 	PYTHON_IMPORT_NAME="execjs"
 elif [[ "$PACKAGE" == "CVXcanon" ]]; then
+	PYTHON_DEPS="numpy scipy"
+elif [[ "$PACKAGE" == "ecos" ]]; then
 	PYTHON_DEPS="numpy scipy"
 elif [[ "$PACKAGE" == "cvxpy" ]]; then
 	PYTHON_DEPS="numpy multiprocess scs fastcache scipy six toolz CVXcanon dill"
