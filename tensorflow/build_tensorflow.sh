@@ -22,6 +22,7 @@ eval set -- "$TEMP"
 ARG_VERSION=
 ARG_ARCH=
 ARG_GPU=0
+ARG_DEBUG=0
 
 while true; do
     case "$1" in
@@ -115,7 +116,7 @@ sed -i "s;setup.py bdist_wheel .* >/dev/null;setup.py bdist_wheel --project_name
 
 virtualenv buildenv
 source buildenv/bin/activate
-pip install numpy wheel
+pip install numpy wheel enum34 mock
 
 if [[ $ARG_GPU == 1 ]]; then
     # CC MPI is not compiled with C++ API
@@ -133,7 +134,8 @@ licenses(["notice"])
 
 cc_library(
     name = "rdma",
-    hdrs = glob(["include/rdma/*.h", "include/infiniband/*.h"])
+    hdrs = glob(["include/rdma/*.h", "include/infiniband/*.h"]),
+    includes = [".", "include"]
 )
 EOF
     # Add dependency to third_party library
@@ -148,8 +150,8 @@ EOF
     TF_CUDA_CLANG=0 \
     TF_CUDA_COMPUTE_CAPABILITIES="3.5,3.7,5.2,6.0,6.1" \
     TF_NEED_MPI=0 \
-    TF_NEED_GDR=0 \
-    TF_NEED_VERBS=0 \
+    TF_NEED_GDR=1 \
+    TF_NEED_VERBS=1 \
     GCC_HOST_COMPILER_PATH=$(which mpicc) \
     TF_NCCL_VERSION="1.3"
     #MPI_HOME="$EBROOTOPENMPI" 
@@ -177,6 +179,7 @@ TF_NEED_JEMALLOC=1 \
 TF_SET_ANDROID_WORKSPACE=0 \
 TF_NEED_KAFKA=0 \
 TF_NEED_TENSORRT=0 \
+TF_DOWNLOAD_CLANG=0 \
 TF_ENABLE_XLA=0
 ./configure
 

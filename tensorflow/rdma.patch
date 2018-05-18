@@ -6,7 +6,7 @@ index bebcf07..56b5a9f 100644
          "//tensorflow/core:gpu_runtime",
          "//tensorflow/core:lib",
          "//tensorflow/core:lib_internal",
-+        "//third_party/rdma",
++        "//third_party/rdma:rdma",
      ],
  )
  
@@ -14,7 +14,7 @@ index bebcf07..56b5a9f 100644
          "//tensorflow/core/distributed_runtime:worker_cache",
          "//tensorflow/core/distributed_runtime:worker_env",
          "//tensorflow/core/distributed_runtime:worker_interface",
-+        "//third_party/rdma",
++        "//third_party/rdma:rdma",
      ],
  )
  
@@ -26,7 +26,7 @@ index 746ff38..195f42d 100644
          "//tensorflow/core/distributed_runtime:rendezvous_mgr_interface",
          "//tensorflow/core/distributed_runtime:session_mgr",
          "//tensorflow/core/distributed_runtime:worker_env",
-+        "//third_party/rdma",
++        "//third_party/rdma:rdma",
      ],
  )
  
