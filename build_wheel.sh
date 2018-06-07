@@ -321,7 +321,6 @@ lapack_libs =
 EOF
 	fi
 	eval $PRE_BUILD_COMMANDS
-	eval $PRE_BUILD_COMMANDS
 	# change the name of the wheel to add a suffix
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
 		if [[ $PACKAGE == "pytorch" ]];then
