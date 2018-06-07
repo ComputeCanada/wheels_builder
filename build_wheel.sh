@@ -6,17 +6,19 @@ fi
 
 ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip"
 
-PACKAGE=$1
+PACKAGE=${1?Missing package name}
 VERSION=$2
 PYTHON_IMPORT_NAME="$PACKAGE"
 PACKAGE_FOLDER_NAME="$PACKAGE"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE"
+RPATH_TO_ADD=""
+
 if [[ -n "$VERSION" ]]; then
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE==$VERSION"
 else
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
 fi
-RPATH_TO_ADD=""
+
 if [[ "$PACKAGE" == "numpy" ]]; then
 	MODULE_DEPS="imkl"
 	PYTHON_DEPS="nose pytest"
