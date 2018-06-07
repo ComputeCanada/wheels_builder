@@ -243,7 +243,7 @@ elif [[ "$PACKAGE" == "olefile" ]]; then
 	# need to patch it so it supports bdist_wheel
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "fuel" ]]; then
-	PYTHON_DEPS="numpy six picklable_itertools pyyaml h5py tables progressbar2 pyzmq scipy pillow numexpr" 
+	PYTHON_DEPS="numpy six picklable_itertools pyyaml h5py tables progressbar2 pyzmq scipy pillow numexpr"
 elif [[ "$PACKAGE" == "seaborn" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib pandas"
 elif [[ "$PACKAGE" == "backports.functools-lru-cache" ]]; then
@@ -291,7 +291,7 @@ for pv in $PYTHON_VERSIONS; do
 		git clone https://github.com/pytorch/pytorch
 		pushd $PACKAGE_FOLDER_NAME*
 		if [[ -n "$VERSION" ]]; then
-			git checkout -b v$VERSION 
+			git checkout -b v$VERSION
 		fi
 		git submodule update --init
 	else
@@ -366,5 +366,4 @@ done
 popd
 
 echo "Build done, you can now remove $DIR"
-echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/[generic,avx2,avx] and synchronize CVMFS"
-
+echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/[generic,avx2,avx,sse3] and synchronize CVMFS"
