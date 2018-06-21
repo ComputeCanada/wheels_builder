@@ -36,6 +36,12 @@ elif [[ "$PACKAGE" == "ray" ]]; then
 	PRE_BUILD_COMMANDS="pwd; sed -i -e 's/-DPARQUET_BUILD_TESTS=off/-DPARQUET_BUILD_TESTS=off -DCMAKE_SKIP_RPATH=ON -DCMAKE_SKIP_INSTALL_RPATH=ON/g' ../thirdparty/scripts/build_parquet.sh && sed -i -e 's/-DARROW_WITH_ZSTD=off/-DARROW_WITH_ZSTD=off  -DCMAKE_SKIP_RPATH=ON -DCMAKE_SKIP_INSTALL_RPATH=ON/g' ../thirdparty/scripts/build_arrow.sh"
 elif [[ "$PACKAGE" == "scs" ]]; then
 	PYTHON_DEPS="numpy scipy"
+elif [[ "$PACKAGE" == "PyWavelets" ]]; then
+	PYTHON_DEPS="numpy"
+	PYTHON_IMPORT_NAME="pywt"
+elif [[ "$PACKAGE" == "scikit-image" ]]; then
+	PYTHON_DEPS="numpy cython scipy"
+	PYTHON_IMPORT_NAME="skimage"
 elif [[ "$PACKAGE" == "pygdal" ]]; then
 	PYTHON_DEPS="numpy"
 	MODULE_DEPS="gcc gdal"
