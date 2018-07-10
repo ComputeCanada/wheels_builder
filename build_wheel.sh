@@ -45,6 +45,15 @@ elif [[ "$PACKAGE" == "scikit-image" ]]; then
 elif [[ "$PACKAGE" == "pygdal" ]]; then
 	PYTHON_DEPS="numpy"
 	MODULE_DEPS="gcc gdal"
+elif [[ "$PACKAGE" == "keras-vis" ]]; then
+	PYTHON_IMPORT_NAME="vis"
+	PACKAGE_DOWNLOAD_NAME="keras_vis"
+elif [[ "$PACKAGE" == "keras-applications" ]]; then
+	PYTHON_IMPORT_NAME="keras.applications"
+	PACKAGE_DOWNLOAD_NAME="Keras_Applications"
+elif [[ "$PACKAGE" == "keras-preprocessing" ]]; then
+	PYTHON_IMPORT_NAME="keras.preprocessing"
+	PACKAGE_DOWNLOAD_NAME="Keras_Preprocessing"
 elif [[ "$PACKAGE" == "absl-py" ]]; then
 	PYTHON_IMPORT_NAME="absl"
 elif [[ "$PACKAGE" == "CoffeeScript" ]]; then
@@ -92,7 +101,7 @@ elif [[ "$PACKAGE" == "cgat" ]]; then
 	PYTHON_DEPS="numpy cython pysam setuptools pyparsing pyaml alignlib-lite matplotlib biopython"
 elif [[ "$PACKAGE" == "h5py" ]]; then
 	MODULE_DEPS="hdf5"
-	PYTHON_DEPS="nose numpy six Cython"
+	PYTHON_DEPS="nose numpy six Cython unittest2"
 	PYTHON_TESTS="h5py.run_tests()"
 elif [[ "$PACKAGE" == "matplotlib" ]]; then
 	PYTHON_DEPS="pyparsing pytz six cycler python-dateutil numpy backports.functools-lru-cache kiwisolver"
@@ -194,6 +203,9 @@ elif [[ "$PACKAGE" == "pytorch-gpu" ]];then
 elif [[ "$PACKAGE" == "mpmath" ]]; then
 	# need to patch it so it supports bdist_wheel
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "preprocess" ]]; then
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "paycheck" ]]; then
 	# need to patch it so it supports bdist_wheel
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
