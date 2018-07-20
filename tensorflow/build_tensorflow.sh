@@ -61,7 +61,6 @@ fi
 
 module load gcc java bazel
 if [[ $ARG_GPU == 1 ]]; then
-    #module load cuda/8.0.44 cudnn/7.0
     module load cuda/9.0.176 cudnn/7.0
 fi
 
@@ -80,29 +79,19 @@ fi
 
 git clone https://github.com/tensorflow/tensorflow.git; cd tensorflow
 git checkout $ARG_VERSION
-#git cherry-pick -n 136697ecdc
-#git cherry-pick -n 9415984
 
 GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
-    CROSSTOOL_FILE=third_party/gpus/crosstool/CROSSTOOL_nvcc.tpl
-
-    sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$GCC_PREFIX/lib64\"" $CROSSTOOL_FILE
-    sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$GCC_PREFIX/lib\"" $CROSSTOOL_FILE
-    sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$NIXUSER_PROFILE/lib\"" $CROSSTOOL_FILE
-    sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$EBROOTCUDNN/lib64\"" $CROSSTOOL_FILE
-    sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-Wl,-rpath=$EBROOTCUDA/lib64\"" $CROSSTOOL_FILE
-    sed -i "\;linker_flag: \"-B/usr/bin/\";a \ \ linker_flag: \"-B$NIXUSER_PROFILE/lib\"" $CROSSTOOL_FILE
+    CROSSTOOL_FILE=third_party/gpus/crosstool/CROSSTOOL.tpl
+    sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$EBROOTCUDNN/lib64\"" $CROSSTOOL_FILE
+    sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$EBROOTCUDA/lib64\"" $CROSSTOOL_FILE
+    sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin\"" $CROSSTOOL_FILE
+    sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-B$NIXUSER_PROFILE/lib/\"" $CROSSTOOL_FILE
     sed -i "s;/usr/bin;$NIXUSER_PROFILE/bin;g" $CROSSTOOL_FILE
-
-    include_paths=$(echo | gcc -xc++ -E -v - 2>&1 | grep '/include' | grep -v -P '(ignoring|#)' | xargs realpath)
-    include_paths_gcc=$(find -L $(dirname $(dirname $(which gcc))) -name include\* -type d)
-    for path in $include_paths $include_paths_gcc ${CPATH//:/ }; do
-        sed -i "\;cxx_flag: \"-std=c++11\"; a \
-\ \ cxx_builtin_include_directory: \"$path\"" $CROSSTOOL_FILE
-    done
 fi
 
+sed -i -r "/libiomp5/d" third_party/mkl/mkl.BUILD
+sed -i -r "s/\"include\/\*\"/\"include\/\*.h\"/g" third_party/mkl/mkl.BUILD
 sed -i -r "s;bazel (clean|fetch|query); bazel --output_user_root=$BAZEL_ROOT_PATH \1;g" configure
 sed -i -r "s;^_VERSION = '(.+)'$;_VERSION = '\1+computecanada';g" tensorflow/tools/pip_package/setup.py
 
@@ -112,11 +101,19 @@ if [[ $ARG_GPU == 1 ]]; then
 else
     PKG_NAME="tensorflow_cpu"
 fi
+
 sed -i "s;setup.py bdist_wheel .* >/dev/null;setup.py bdist_wheel --project_name $PKG_NAME > /dev/null;g" tensorflow/tools/pip_package/build_pip_package.sh
 
 virtualenv buildenv
 source buildenv/bin/activate
 pip install numpy wheel enum34 mock
+
+# Download MKL-ML and patch it
+sed -n -e 's;"\(https://github.com/intel/mkl-dnn/.*lnx.*\)";\1;p' tensorflow/workspace.bzl | xargs wget -O $TF_COMPILE_PATH/mklml_lnx.tgz
+mkdir $TF_COMPILE_PATH/mklml_lnx
+tar xf $TF_COMPILE_PATH/mklml_lnx.tgz -C $TF_COMPILE_PATH/mklml_lnx --strip-components 1
+rm $TF_COMPILE_PATH/mklml_lnx/lib/libiomp5.so
+setrpaths.sh --path $TF_COMPILE_PATH/mklml_lnx/lib --add_path $EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin
 
 if [[ $ARG_GPU == 1 ]]; then
     # CC MPI is not compiled with C++ API
@@ -140,6 +137,8 @@ cc_library(
 EOF
     # Add dependency to third_party library
     git apply $SCRIPT_DIR/rdma.patch
+    # TF 1.9.0: Patch for MPI collectives
+    git cherry-pick -m 1 -n 5ac1bd7836e0f1a4d3b02f9538c4277914c8e5f5
 
     export \
     TF_NEED_CUDA=1 \
@@ -149,13 +148,12 @@ EOF
     CUDNN_INSTALL_PATH="$EBROOTCUDNN" \
     TF_CUDA_CLANG=0 \
     TF_CUDA_COMPUTE_CAPABILITIES="3.5,3.7,5.2,6.0,6.1" \
-    TF_NEED_MPI=0 \
+    TF_NEED_MPI=1 \
     TF_NEED_GDR=1 \
     TF_NEED_VERBS=1 \
     GCC_HOST_COMPILER_PATH=$(which mpicc) \
-    TF_NCCL_VERSION="1.3"
-    #MPI_HOME="$EBROOTOPENMPI" 
-    #CONFIG_XOPT="--config cuda --copt=-Ithird_party/rdma/include --copt=-Wl,-rpath=$EBROOTOPENMPI/lib"
+    TF_NCCL_VERSION="1.3" \
+    MPI_HOME="$EBROOTOPENMPI"
     CONFIG_XOPT="--config cuda"
 else
     export \
@@ -180,11 +178,10 @@ TF_SET_ANDROID_WORKSPACE=0 \
 TF_NEED_KAFKA=0 \
 TF_NEED_TENSORRT=0 \
 TF_DOWNLOAD_CLANG=0 \
+TF_MKL_ROOT="$TF_COMPILE_PATH/mklml_lnx" \
 TF_ENABLE_XLA=0
 ./configure
 
-#export TF_MKL_ROOT="$MKLROOT"
-#export TF_MKL_ROOT="/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/imkl/11.3.4.258"
 bazel --output_user_root=$BAZEL_ROOT_PATH build --verbose_failures --config opt $(echo $CONFIG_XOPT) --config mkl //tensorflow/tools/pip_package:build_pip_package
 
 bazel-bin/tensorflow/tools/pip_package/build_pip_package $OPWD
