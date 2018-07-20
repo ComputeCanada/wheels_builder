@@ -27,6 +27,8 @@ elif [[ "$PACKAGE" == "qutip" ]]; then
 	PYTHON_DEPS="Cython numpy scipy matplotlib"
 elif [[ "$PACKAGE" == "msmbuilder" ]]; then
 	PYTHON_DEPS="numpy scipy scikit-learn mdtraj pandas cython<0.28 cvxopt nose"
+elif [[ "$PACKAGE" == "deepchem" ]]; then
+	PYTHON_DEPS="numpy pandas rdkit"
 elif [[ "$PACKAGE" == "ray" ]]; then
 	if [[ -z "$VERSION" ]]; then
 		VERSION="0.4.0"
