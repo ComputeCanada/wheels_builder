@@ -4,19 +4,21 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
 fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision-cpu torchvision-gpu dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip"
 
-PACKAGE=$1
+PACKAGE=${1?Missing package name}
 VERSION=$2
 PYTHON_IMPORT_NAME="$PACKAGE"
 PACKAGE_FOLDER_NAME="$PACKAGE"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE"
+RPATH_TO_ADD=""
+
 if [[ -n "$VERSION" ]]; then
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE==$VERSION"
 else
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
 fi
-RPATH_TO_ADD=""
+
 if [[ "$PACKAGE" == "numpy" ]]; then
 	MODULE_DEPS="imkl"
 	PYTHON_DEPS="nose pytest"
@@ -185,21 +187,21 @@ elif [[ "$PACKAGE" == "mpi4py" ]]; then
 elif [[ "$PACKAGE" == "pytorch-cpu" ]];then
 	PACKAGE="pytorch"
 	MODULE_DEPS="gcc/6.4.0 imkl/11.3.4.258"
-    PYTHON_DEPS="pyyaml numpy typing"
-    PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
+	PYTHON_DEPS="pyyaml numpy typing"
+	PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
 	PACKAGE_FOLDER_NAME="$PACKAGE"
 	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
 	PACKAGE_SUFFIX='-cpu'
 	PYTHON_IMPORT_NAME="torch"
 elif [[ "$PACKAGE" == "pytorch-gpu" ]];then
 	PACKAGE="pytorch"
-    MODULE_DEPS="imkl/11.3.4.258 gcc/5.4.0 magma/2.2.0 cuda/8.0.44 cudnn/7.0 magma/2.2.0"
-    PYTHON_DEPS="pyyaml numpy typing"
-    PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export LIBRARY_PATH=/cvmfs/soft.computecanada.ca/nix/lib/:$LIBRARY_PATH; export CMAKE_PREFIX_PATH=$EBROOTMAGMA; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
-    PACKAGE_FOLDER_NAME="$PACKAGE"
+	MODULE_DEPS="imkl/11.3.4.258 gcc/5.4.0 magma/2.2.0 cuda/8.0.44 cudnn/7.0 magma/2.2.0"
+	PYTHON_DEPS="pyyaml numpy typing"
+	PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export LIBRARY_PATH=/cvmfs/soft.computecanada.ca/nix/lib/:$LIBRARY_PATH; export CMAKE_PREFIX_PATH=$EBROOTMAGMA; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
+	PACKAGE_FOLDER_NAME="$PACKAGE"
 	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
-    PACKAGE_SUFFIX='-gpu'
-    PYTHON_IMPORT_NAME="torch"
+	PACKAGE_SUFFIX='-gpu'
+	PYTHON_IMPORT_NAME="torch"
 elif [[ "$PACKAGE" == "mpmath" ]]; then
 	# need to patch it so it supports bdist_wheel
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
@@ -257,11 +259,16 @@ elif [[ "$PACKAGE" == "pillow" ]]; then
 	PACKAGE_FOLDER_NAME="Pillow"
 	PACKAGE_DOWNLOAD_NAME="Pillow"
 	PYTHON_IMPORT_NAME="PIL"
+elif [[ "$PACKAGE" == "pillow-simd" ]]; then
+	PACKAGE_FOLDER_NAME="Pillow-SIMD"
+	PACKAGE_DOWNLOAD_NAME="Pillow-SIMD"
+	PRE_BUILD_COMMANDS="export CC=\"cc -mavx2\""
+	PYTHON_IMPORT_NAME="PIL"
 elif [[ "$PACKAGE" == "olefile" ]]; then
 	# need to patch it so it supports bdist_wheel
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "fuel" ]]; then
-	PYTHON_DEPS="numpy six picklable_itertools pyyaml h5py tables progressbar2 pyzmq scipy pillow numexpr" 
+	PYTHON_DEPS="numpy six picklable_itertools pyyaml h5py tables progressbar2 pyzmq scipy pillow numexpr"
 elif [[ "$PACKAGE" == "seaborn" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib pandas"
 elif [[ "$PACKAGE" == "backports.functools-lru-cache" ]]; then
@@ -272,8 +279,12 @@ elif [[ "$PACKAGE" == "theano" ]]; then
 	PYTHON_DEPS="numpy scipy six"
 elif [[ "$PACKAGE" == "alignlib-lite" ]]; then
 	MODULE_DEPS="boost"
-elif [[ "$PACKAGE" == "torchvision" ]]; then
-	PYTHON_DEPS="numpy torch-gpu Pillow"
+elif [[ "$PACKAGE" == "torchvision-cpu" ]]; then
+	PYTHON_DEPS="numpy pillow-simd torch-cpu"
+	PACKAGE_SUFFIX="-cpu"
+elif [[ "$PACKAGE" == "torchvision-gpu" ]]; then
+	PYTHON_DEPS="numpy pillow-simd torch-gpu"
+	PACKAGE_SUFFIX="-gpu"
 elif [[ "$PACKAGE" == "Pillow" ]]; then
 	PYTHON_IMPORT_NAME="PIL"
 fi
@@ -304,12 +315,12 @@ for pv in $PYTHON_VERSIONS; do
 	pip freeze
 	echo "Downloading source"
 	mkdir $PVDIR
-        if [[ $PACKAGE == "pytorch" ]];then
+	if [[ $PACKAGE == "pytorch" ]];then
 		pushd $PVDIR
 		git clone https://github.com/pytorch/pytorch
 		pushd $PACKAGE_FOLDER_NAME*
 		if [[ -n "$VERSION" ]]; then
-			git checkout -b v$VERSION 
+			git checkout -b v$VERSION
 		fi
 		git submodule update --init
 	else
@@ -339,7 +350,6 @@ lapack_libs =
 EOF
 	fi
 	eval $PRE_BUILD_COMMANDS
-	eval $PRE_BUILD_COMMANDS
 	# change the name of the wheel to add a suffix
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
 		if [[ $PACKAGE == "pytorch" ]];then
@@ -361,7 +371,7 @@ EOF
 	cp $WHEEL_NAME ../../../..
 	popd
 	popd
-        popd
+	popd
 
 	echo "Testing..."
 	if [[ -n "$MODULE_DEPS" ]]; then
@@ -384,5 +394,4 @@ done
 popd
 
 echo "Build done, you can now remove $DIR"
-echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/[generic,avx2,avx] and synchronize CVMFS"
-
+echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/[generic,avx2,avx,sse3] and synchronize CVMFS"
