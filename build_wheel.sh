@@ -28,6 +28,23 @@ elif [[ "$PACKAGE" == "cogent" ]]; then
 	PYTHON_DEPS="numpy"
 	PYTHON_VERSIONS="python/2.7"
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "gdata" ]]; then
+	PYTHON_DEPS="numpy"
+	PYTHON_VERSIONS="python/2.7"
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "scikit-bio" ]]; then
+	PYTHON_DEPS="numpy natsort"
+	PYTHON_IMPORT_NAME="skbio"
+elif [[ "$PACKAGE" == "qcli" ]]; then
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+	PYTHON_VERSIONS="python/2.7"
+elif [[ "$PACKAGE" == "emperor" ]]; then
+	PYTHON_DEPS="qcli"
+	PYTHON_VERSIONS="python/2.7"
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "pynast" ]]; then
+	PYTHON_DEPS="cogent>=1.5.3 numpy"
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "qutip" ]]; then
 	PYTHON_DEPS="Cython numpy scipy matplotlib"
 elif [[ "$PACKAGE" == "msmbuilder" ]]; then
@@ -155,7 +172,7 @@ elif [[ "$PACKAGE" == "pandas" ]]; then
 elif [[ "$PACKAGE" == "pyzmq" ]]; then
 	PYTHON_IMPORT_NAME="zmq"
 elif [[ "$PACKAGE" == "qiime" ]]; then
-	PYTHON_DEPS="numpy scipy matplotlib mock nose cycler decorator enum34 functools32 ipython matplotlib pexpect"
+	PYTHON_DEPS="numpy scipy matplotlib mock nose cycler decorator enum34 functools32 ipython matplotlib pexpect emperor qcli natsort<4.0.0"
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "dlib-cpu" ]]; then
 	MODULE_DEPS="gcc/5.4.0 boost imkl"    # it does not work with Intel, and requires Boost
