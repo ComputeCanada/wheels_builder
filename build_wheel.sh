@@ -1,7 +1,7 @@
 #!/bin/env bash
 
 if [[ -z "$PYTHON_VERSIONS" ]]; then
-	PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
+	PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6 python/3.7"
 fi
 
 ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext"
@@ -12,6 +12,7 @@ PYTHON_IMPORT_NAME="$PACKAGE"
 PACKAGE_FOLDER_NAME="$PACKAGE"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE"
 RPATH_TO_ADD=""
+PRE_DOWNLOAD_COMMANDS=""
 
 if [[ -n "$VERSION" ]]; then
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE==$VERSION"
@@ -23,12 +24,45 @@ if [[ "$PACKAGE" == "numpy" ]]; then
 	MODULE_DEPS="imkl"
 	PYTHON_DEPS="nose pytest"
 	PYTHON_TESTS="numpy.__config__.show(); numpy.test()"
+elif [[ "$PACKAGE" == "cogent" ]]; then
+	PYTHON_DEPS="numpy"
+	PYTHON_VERSIONS="python/2.7"
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "gdata" ]]; then
+	PYTHON_DEPS="numpy"
+	PYTHON_VERSIONS="python/2.7"
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "scikit-bio" ]]; then
+	PYTHON_DEPS="numpy natsort"
+	PYTHON_IMPORT_NAME="skbio"
+elif [[ "$PACKAGE" == "qcli" ]]; then
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+	PYTHON_VERSIONS="python/2.7"
+elif [[ "$PACKAGE" == "emperor" ]]; then
+	PYTHON_DEPS="qcli"
+	PYTHON_VERSIONS="python/2.7"
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "pynast" ]]; then
+	PYTHON_DEPS="cogent>=1.5.3 numpy"
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "qutip" ]]; then
 	PYTHON_DEPS="Cython numpy scipy matplotlib"
 elif [[ "$PACKAGE" == "msmbuilder" ]]; then
 	PYTHON_DEPS="numpy scipy scikit-learn mdtraj pandas cython<0.28 cvxopt nose"
+elif [[ "$PACKAGE" == "fastrlock" ]]; then
+	# need to patch it so it supports bdist_wheel
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "cupy" ]]; then
+	PYTHON_DEPS="numpy fastrlock"
+	MODULE_DEPS="gcc/5.4.0 cuda/9.0 cudnn/7.0"
+	# needed otherwise it does not find libcuda.so
+	PRE_DOWNLOAD_COMMANDS='export LDFLAGS="-L$EBROOTCUDA/lib64/stubs"'
 elif [[ "$PACKAGE" == "deepchem" ]]; then
 	PYTHON_DEPS="numpy pandas rdkit"
+elif [[ "$PACKAGE" == "prometheus-client" ]]; then
+	PACKAGE_DOWNLOAD_NAME="prometheus_client"
+	PACKAGE_FOLDER_NAME=$PACKAGE_DOWNLOAD_NAME
+	PYTHON_IMPORT_NAME=$PACKAGE_DOWNLOAD_NAME
 elif [[ "$PACKAGE" == "ray" ]]; then
 	if [[ -z "$VERSION" ]]; then
 		VERSION="0.4.0"
@@ -71,7 +105,7 @@ elif [[ "$PACKAGE" == "ecos" ]]; then
 elif [[ "$PACKAGE" == "cvxpy" ]]; then
 	PYTHON_DEPS="numpy multiprocess scs fastcache scipy six toolz CVXcanon dill"
 elif [[ "$PACKAGE" == "cvxopt" ]]; then
-	MODULE_DEPS="suitesparse fftw imkl"
+	MODULE_DEPS="gcc suitesparse fftw imkl"
 	PRE_BUILD_COMMANDS="export CVXOPT_LAPACK_LIB=mkl_rt; export CVXOPT_BLAS_LIB=mkl_rt; export CVXOPT_BLAS_LIB_DIR=$MKLROOT/lib; export CVXOPT_SUITESPARSE_LIB_DIR=$EBROOTSUITESPARSE/lib; export CVXOPT_SUITESPARSE_INC_DIR=$EBROOTSUITESPARSE/include; "
 elif [[ "$PACKAGE" == "multiprocess" ]]; then
 	PYTHON_DEPS="dill"
@@ -83,13 +117,16 @@ elif [[ "$PACKAGE" == "scipy" ]]; then
 	MODULE_DEPS="imkl"
 	PYTHON_DEPS="nose numpy pytest"
 	PYTHON_TESTS="scipy.__config__.show(); scipy.test()"
+	if [[ "$VERSION" == "0.13.3" ]]; then
+		PRE_BUILD_COMMANDS='sed -i -e "s/numpy.distutils.core/setuptools/g" setup.py'
+	fi
 elif [[ "$PACKAGE" == "mdtraj" ]]; then
 	PYTHON_DEPS="cython numpy scipy pandas"
 elif [[ "$PACKAGE" == "biom-format" ]]; then
 	PYTHON_DEPS="scipy"
 	PACKAGE_DOWNLOAD_NAME="biom_format"
 elif [[ "$PACKAGE" == "netCDF4" ]]; then
-	MODULE_DEPS="hdf5-mpi netcdf-mpi"
+	MODULE_DEPS="gcc openmpi hdf5-mpi netcdf-mpi"
 	PYTHON_DEPS="numpy Cython"
 	PRE_BUILD_COMMANDS='module load mpi4py; export HDF5_DIR=$EBROOTHDF5; export NETCDF4_DIR=$EBROOTNETCDF'
 	RPATH_TO_ADD="$EBROOTOPENMPI/lib"
@@ -104,7 +141,7 @@ elif [[ "$PACKAGE" == "cgat" ]]; then
 	PYTHON_IMPORT_NAME="cgat"
 	PYTHON_DEPS="numpy cython pysam setuptools pyparsing pyaml alignlib-lite matplotlib biopython"
 elif [[ "$PACKAGE" == "h5py" ]]; then
-	MODULE_DEPS="hdf5"
+	MODULE_DEPS="gcc hdf5"
 	PYTHON_DEPS="nose numpy six Cython unittest2"
 	PYTHON_TESTS="h5py.run_tests()"
 elif [[ "$PACKAGE" == "matplotlib" ]]; then
@@ -120,7 +157,7 @@ elif [[ "$PACKAGE" == "bottleneck" ]]; then
 	PACKAGE_DOWNLOAD_NAME="Bottleneck"
 	PACKAGE_FOLDER_NAME="Bottleneck"
 elif [[ "$PACKAGE" == "tables" ]]; then
-	MODULE_DEPS="hdf5"
+	MODULE_DEPS="gcc hdf5"
 	PYTHON_DEPS="h5py numpy numexpr six nose mock"
 	PYTHON_TESTS="tables.test()"
 elif [[ "$PACKAGE" == "bx-python" ]]; then
@@ -135,7 +172,7 @@ elif [[ "$PACKAGE" == "pandas" ]]; then
 elif [[ "$PACKAGE" == "pyzmq" ]]; then
 	PYTHON_IMPORT_NAME="zmq"
 elif [[ "$PACKAGE" == "qiime" ]]; then
-	PYTHON_DEPS="numpy scipy matplotlib mock nose cycler decorator enum34 functools32 ipython matplotlib pexpect"
+	PYTHON_DEPS="numpy scipy matplotlib mock nose cycler decorator enum34 functools32 ipython matplotlib pexpect emperor qcli natsort<4.0.0"
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "dlib-cpu" ]]; then
 	MODULE_DEPS="gcc/5.4.0 boost imkl"    # it does not work with Intel, and requires Boost
@@ -156,14 +193,14 @@ elif [[ "$PACKAGE" == "dlib-gpu" ]]; then
 	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
 	PACKAGE_SUFFIX='-gpu'
 elif [[ "$PACKAGE" == "shapely" ]]; then
-	MODULE_DEPS="geos"
+	MODULE_DEPS="gcc geos"
 	# need to patch geos.py to find libgeos_c.so based on the module that was loaded at build time
 	PRE_BUILD_COMMANDS='sed -i -e "s;os.path.join(sys.prefix, \"lib\", \"libgeos_c.so\"),;\"$EBROOTGEOS/lib/libgeos_c.so\",;g" $(find . -name "geos.py")'
 	PACKAGE_FOLDER_NAME="Shapely"
 	PACKAGE_DOWNLOAD_NAME="Shapely"
 elif [[ "$PACKAGE" == "rasterio" ]]; then
 	PYTHON_DEPS="numpy affine snuggs cligj click-plugins enum34"
-	MODULE_DEPS="gdal"
+	MODULE_DEPS="gcc gdal"
 elif [[ "$PACKAGE" == "numba" ]]; then
 	if [[ "$VERSION" == "0.31.0" ]]; then
 		PYTHON_DEPS="numpy enum34 llvmlite==0.16.0"
@@ -172,6 +209,7 @@ elif [[ "$PACKAGE" == "numba" ]]; then
 	fi
 elif [[ "$PACKAGE" == "llvmlite" ]]; then
 	PYTHON_DEPS="enum34"
+	MODULE_DEPS="llvm"
 elif [[ "$PACKAGE" == "scikit-learn" ]]; then
 	PYTHON_IMPORT_NAME="sklearn"
 	PYTHON_DEPS="numpy scipy"
@@ -179,13 +217,15 @@ elif [[ "$PACKAGE" == "velocyto" ]]; then
 	PYTHON_DEPS="numpy scipy cython llvmlite==0.16.0 numba==0.31.0 matplotlib scikit-learn h5py click loompy"
 	PYTHON_VERSIONS="python/3.6"
 	unset PYTHON_IMPORT_NAME
+elif [[ "$PACKAGE" == "Send2Trash" ]]; then
+	PYTHON_IMPORT_NAME="send2trash"
 elif [[ "$PACKAGE" == "htseq" ]]; then
 	PYTHON_DEPS="numpy Cython pysam"
 	PACKAGE_FOLDER_NAME="HTSeq"
 	PACKAGE_DOWNLOAD_NAME="HTSeq"
 	PYTHON_IMPORT_NAME="HTSeq"
 elif [[ "$PACKAGE" == "mpi4py" ]]; then
-	MODULE_DEPS="openmpi"
+	MODULE_DEPS="intel openmpi"
 elif [[ "$PACKAGE" == "pytorch-cpu" ]];then
 	PACKAGE="pytorch"
 	MODULE_DEPS="gcc/6.4.0 imkl/11.3.4.258"
@@ -205,6 +245,9 @@ elif [[ "$PACKAGE" == "pytorch-gpu" ]];then
 	PACKAGE_SUFFIX='-gpu'
 	PYTHON_IMPORT_NAME="torch"
 elif [[ "$PACKAGE" == "mpmath" ]]; then
+	# need to patch it so it supports bdist_wheel
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "backcall" ]]; then
 	# need to patch it so it supports bdist_wheel
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "preprocess" ]]; then
@@ -282,13 +325,13 @@ elif [[ "$PACKAGE" == "theano" ]]; then
 elif [[ "$PACKAGE" == "alignlib-lite" ]]; then
 	MODULE_DEPS="boost"
 elif [[ "$PACKAGE" == "torchvision" ]]; then
-        # torch_cpu is only for testing purposes. It is not in torchvision requirements.
-        # torchvision should be installed along with : torch-[cg]pu
+    # torch_cpu is only for testing purposes. It is not in torchvision requirements.
+    # torchvision should be installed along with : torch-[cg]pu
 	PYTHON_DEPS="numpy six pillow-simd torch-cpu"
-        
-        # Remove torch requirements from wheel as the user need to either install torch-[cg]pu wheel
-        # Otherwise, it does not install because torchvision has a `torch` requirement, and no pypi version is supplied, thus failing.
-        PATCH_WHEEL_COMMANDS="sed -i -e 's/Requires-Dist: torch//' torchvision-*.dist-info/METADATA; sed -i -e 's/, \"torch\"//' torchvision-*.dist-info/metadata.json"
+
+    # Remove torch requirements from wheel as the user need to either install torch-[cg]pu wheel
+    # Otherwise, it does not install because torchvision has a `torch` requirement, and no pypi version is supplied, thus failing.
+    PATCH_WHEEL_COMMANDS="sed -i -e 's/Requires-Dist: torch//' torchvision-*.dist-info/METADATA; sed -i -e 's/, \"torch\"//' torchvision-*.dist-info/metadata.json"
 elif [[ "$PACKAGE" == "Pillow" ]]; then
 	PYTHON_IMPORT_NAME="PIL"
 elif [[ "$PACKAGE" == "biopython" ]]; then
@@ -297,17 +340,20 @@ elif [[ "$PACKAGE" == "biopython" ]]; then
 elif [[ "$PACKAGE" == "torchtext" ]]; then
         # torch_cpu, six and numpy are only for testing purposes. They are not in torchtext requirements.
         # torchtext should be installed along with : numpy, six, torch-[cg]pu
-        PYTHON_DEPS="certifi urllib3 chardet idna requests tqdm six numpy torch_cpu" 
+        PYTHON_DEPS="certifi urllib3 chardet idna requests tqdm six numpy torch_cpu"
 fi
 
 DIR=tmp.$$
 mkdir $DIR
 pushd $DIR
+module --force purge
+module load nixpkgs
 for pv in $PYTHON_VERSIONS; do
 	if [[ -n "$MODULE_DEPS" ]]; then
 		module load $MODULE_DEPS
 	fi
 	module load $pv
+	module list
 
 	if [[ $pv =~ python/2 ]]; then
 		PYTHON_CMD=python2
@@ -323,6 +369,7 @@ for pv in $PYTHON_VERSIONS; do
 		pip install $PYTHON_DEPS
 	fi
 	pip freeze
+	eval $PRE_DOWNLOAD_COMMANDS
 	echo "Downloading source"
 	mkdir $PVDIR
 	if [[ $PACKAGE == "pytorch" ]];then
@@ -335,11 +382,11 @@ for pv in $PYTHON_VERSIONS; do
 		git submodule update --init
 	else
 		# Do not collect binaries and don't install dependencies
-                pip download --no-binary $PACKAGE_DOWNLOAD_ARGUMENT --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
-		ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.whl})
+		pip download --no-binary $PACKAGE_DOWNLOAD_ARGUMENT --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
+		ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl})
 		# skip packages that are already in whl format
 		if [[ $ARCHNAME == *.whl ]]; then
-                        # Patch the content of the wheel file (eg remove `torch` dependency as torch 
+                        # Patch the content of the wheel file (eg remove `torch` dependency as torch
                         # has no pypi wheel and we build [cg]pu wheel versions).
                         if [[ -n "$PATCH_WHEEL_COMMANDS" ]]; then
                             unzip $ARCHNAME
