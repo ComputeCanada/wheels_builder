@@ -389,7 +389,7 @@ for pv in $PYTHON_VERSIONS; do
                         # Patch the content of the wheel file (eg remove `torch` dependency as torch
                         # has no pypi wheel and we build [cg]pu wheel versions).
                         if [[ -n "$PATCH_WHEEL_COMMANDS" ]]; then
-                            unzip $ARCHNAME
+                            unzip -o $ARCHNAME
                             eval $PATCH_WHEEL_COMMANDS
                             zip -u $ARCHNAME -r $PACKAGE $PACKAGE-*.dist-info
                         fi
