@@ -1,10 +1,10 @@
 #!/bin/env bash
 
 if [[ -z "$PYTHON_VERSIONS" ]]; then
-	PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6 python/3.7"
+    PYTHON_VERSIONS=$(ls -1 /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/ | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision-cpu torchvision-gpu dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext"
 
 PACKAGE=${1?Missing package name}
 VERSION=$2
@@ -323,17 +323,25 @@ elif [[ "$PACKAGE" == "theano" ]]; then
 	PACKAGE_DOWNLOAD_NAME="Theano"
 	PYTHON_DEPS="numpy scipy six"
 elif [[ "$PACKAGE" == "alignlib-lite" ]]; then
-	MODULE_DEPS="gcc boost"
-elif [[ "$PACKAGE" == "torchvision-cpu" ]]; then
-	PYTHON_DEPS="numpy pillow-simd torch-cpu"
-	PACKAGE_SUFFIX="-cpu"
-elif [[ "$PACKAGE" == "torchvision-gpu" ]]; then
-	PYTHON_DEPS="numpy pillow-simd torch-gpu"
-	PACKAGE_SUFFIX="-gpu"
+	MODULE_DEPS="boost"
+elif [[ "$PACKAGE" == "torchvision" ]]; then
+    # torch_cpu is only for testing purposes. It is not in torchvision requirements.
+    # torchvision should be installed along with : torch-[cg]pu
+	PYTHON_DEPS="numpy six pillow-simd torch-cpu"
+
+    # Remove torch requirements from wheel as the user need to either install torch-[cg]pu wheel
+    # Otherwise, it does not install because torchvision has a `torch` requirement, and no pypi version is supplied, thus failing.
+    PATCH_WHEEL_COMMANDS="sed -i -e 's/Requires-Dist: torch//' torchvision-*.dist-info/METADATA; sed -i -e 's/, \"torch\"//' torchvision-*.dist-info/metadata.json"
 elif [[ "$PACKAGE" == "Pillow" ]]; then
 	PYTHON_IMPORT_NAME="PIL"
+elif [[ "$PACKAGE" == "biopython" ]]; then
+        PYTHON_DEPS="numpy"
+        PYTHON_IMPORT_NAME="Bio"
+elif [[ "$PACKAGE" == "torchtext" ]]; then
+        # torch_cpu, six and numpy are only for testing purposes. They are not in torchtext requirements.
+        # torchtext should be installed along with : numpy, six, torch-[cg]pu
+        PYTHON_DEPS="certifi urllib3 chardet idna requests tqdm six numpy torch_cpu"
 fi
-
 
 DIR=tmp.$$
 mkdir $DIR
@@ -373,10 +381,18 @@ for pv in $PYTHON_VERSIONS; do
 		fi
 		git submodule update --init
 	else
-		pip download --no-binary :all: --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
+		# Do not collect binaries and don't install dependencies
+		pip download --no-binary $PACKAGE_DOWNLOAD_ARGUMENT --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
 		ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl})
 		# skip packages that are already in whl format
 		if [[ $ARCHNAME == *.whl ]]; then
+                        # Patch the content of the wheel file (eg remove `torch` dependency as torch
+                        # has no pypi wheel and we build [cg]pu wheel versions).
+                        if [[ -n "$PATCH_WHEEL_COMMANDS" ]]; then
+                            unzip -o $ARCHNAME
+                            eval $PATCH_WHEEL_COMMANDS
+                            zip -u $ARCHNAME -r $PACKAGE $PACKAGE-*.dist-info
+                        fi
 			cp $ARCHNAME ..
 			continue
 		fi
