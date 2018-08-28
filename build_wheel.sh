@@ -28,6 +28,12 @@ elif [[ "$PACKAGE" == "cogent" ]]; then
 	PYTHON_DEPS="numpy"
 	PYTHON_VERSIONS="python/2.7"
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "Sphinx" ]]; then
+	PYTHON_IMPORT_NAME="sphinx"
+elif [[ "$PACKAGE" == "OBITools" ]]; then
+	PYTHON_DEPS="Cython Sphinx ipython virtualenv"
+	PYTHON_IMPORT_NAME="obitools"
+	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "gdata" ]]; then
 	PYTHON_DEPS="numpy"
 	PYTHON_VERSIONS="python/2.7"
