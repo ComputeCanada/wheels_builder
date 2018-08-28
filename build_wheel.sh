@@ -58,6 +58,10 @@ elif [[ "$PACKAGE" == "msmbuilder" ]]; then
 elif [[ "$PACKAGE" == "fastrlock" ]]; then
 	# need to patch it so it supports bdist_wheel
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "openslide-python" ]]; then
+	PYTHON_IMPORT_NAME="openslide"
+	MODULE_DEPS="intel/2016.4 openslide"
+	PRE_BUILD_COMMANDS='sed -i -e "/import sys/a import os" -e "s;.libopenslide.so.0.;os.environ.get(\"EBROOTOPENSLIDE\",\"$EBROOTOPENSLIDE\") + \"/lib/libopenslide.so.0\";g" $(find . -name "lowlevel.py")'
 elif [[ "$PACKAGE" == "cupy" ]]; then
 	PYTHON_DEPS="numpy fastrlock"
 	MODULE_DEPS="gcc/5.4.0 cuda/9.0 cudnn/7.0"
