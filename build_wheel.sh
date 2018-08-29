@@ -236,24 +236,6 @@ elif [[ "$PACKAGE" == "htseq" ]]; then
 	PYTHON_IMPORT_NAME="HTSeq"
 elif [[ "$PACKAGE" == "mpi4py" ]]; then
 	MODULE_DEPS="intel openmpi"
-elif [[ "$PACKAGE" == "pytorch-cpu" ]];then
-	PACKAGE="pytorch"
-	MODULE_DEPS="gcc/6.4.0 imkl/11.3.4.258"
-	PYTHON_DEPS="pyyaml numpy typing"
-	PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
-	PACKAGE_FOLDER_NAME="$PACKAGE"
-	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
-	PACKAGE_SUFFIX='-cpu'
-	PYTHON_IMPORT_NAME="torch"
-elif [[ "$PACKAGE" == "pytorch-gpu" ]];then
-	PACKAGE="pytorch"
-	MODULE_DEPS="imkl/11.3.4.258 gcc/5.4.0 magma/2.2.0 cuda/8.0.44 cudnn/7.0 magma/2.2.0"
-	PYTHON_DEPS="pyyaml numpy typing"
-	PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export LIBRARY_PATH=/cvmfs/soft.computecanada.ca/nix/lib/:$LIBRARY_PATH; export CMAKE_PREFIX_PATH=$EBROOTMAGMA; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
-	PACKAGE_FOLDER_NAME="$PACKAGE"
-	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
-	PACKAGE_SUFFIX='-gpu'
-	PYTHON_IMPORT_NAME="torch"
 elif [[ "$PACKAGE" == "mpmath" ]]; then
 	# need to patch it so it supports bdist_wheel
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
@@ -405,34 +387,24 @@ for pv in $PYTHON_VERSIONS; do
 	eval $PRE_DOWNLOAD_COMMANDS
 	echo "Downloading source"
 	mkdir $PVDIR
-	if [[ $PACKAGE == "pytorch" ]];then
-		pushd $PVDIR
-		git clone https://github.com/pytorch/pytorch
-		pushd $PACKAGE_FOLDER_NAME*
-		if [[ -n "$VERSION" ]]; then
-			git checkout -b v$VERSION
-		fi
-		git submodule update --init
-	else
-		# Do not collect binaries and don't install dependencies
-		pip download --no-binary $PACKAGE_DOWNLOAD_ARGUMENT --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
-		ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl})
-		# skip packages that are already in whl format
-		if [[ $ARCHNAME == *.whl ]]; then
-                        # Patch the content of the wheel file (eg remove `torch` dependency as torch
-                        # has no pypi wheel and we build [cg]pu wheel versions).
-                        if [[ -n "$PATCH_WHEEL_COMMANDS" ]]; then
-                            unzip -o $ARCHNAME
-                            eval $PATCH_WHEEL_COMMANDS
-                            zip -u $ARCHNAME -r $PACKAGE $PACKAGE-*.dist-info
-                        fi
-			cp $ARCHNAME ..
-			continue
-		fi
-		unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
-		pushd $PVDIR
-		pushd $PACKAGE_FOLDER_NAME*
-	fi
+        # Do not collect binaries and don't install dependencies
+        pip download --no-binary $PACKAGE_DOWNLOAD_ARGUMENT --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
+        ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl})
+        # skip packages that are already in whl format
+        if [[ $ARCHNAME == *.whl ]]; then
+                # Patch the content of the wheel file (eg remove `torch` dependency as torch
+                # has no pypi wheel and we build [cg]pu wheel versions).
+                if [[ -n "$PATCH_WHEEL_COMMANDS" ]]; then
+                    unzip -o $ARCHNAME
+                    eval $PATCH_WHEEL_COMMANDS
+                    zip -u $ARCHNAME -r $PACKAGE $PACKAGE-*.dist-info
+                fi
+                cp $ARCHNAME ..
+                continue
+        fi
+        unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
+        pushd $PVDIR
+        pushd $PACKAGE_FOLDER_NAME*
 	echo "Building"
 	pwd
 	ls
@@ -450,11 +422,7 @@ EOF
 	eval $PRE_BUILD_COMMANDS
 	# change the name of the wheel to add a suffix
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
-		if [[ $PACKAGE == "pytorch" ]];then
-		sed -i -e "s/name=\"torch\"/name=\"torch$PACKAGE_SUFFIX\"/g" setup.py
-		else
-		sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
-		fi
+            sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
 	fi
 	$PYTHON_CMD setup.py bdist_wheel > build.log
 	pushd dist
