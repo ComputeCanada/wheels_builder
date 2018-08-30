@@ -4,7 +4,7 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
     PYTHON_VERSIONS=$(ls -1 /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/ | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext wxPython"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext wxPython bz2file smart_open gensim hypothesis murmurhash cymem preshed msgpack_python msgpack_numpy cytoolz wrapt plac thinc ujson regex spacy"
 
 PACKAGE=${1?Missing package name}
 VERSION=$2
@@ -236,24 +236,6 @@ elif [[ "$PACKAGE" == "htseq" ]]; then
 	PYTHON_IMPORT_NAME="HTSeq"
 elif [[ "$PACKAGE" == "mpi4py" ]]; then
 	MODULE_DEPS="intel openmpi"
-elif [[ "$PACKAGE" == "pytorch-cpu" ]];then
-	PACKAGE="pytorch"
-	MODULE_DEPS="gcc/6.4.0 imkl/11.3.4.258"
-	PYTHON_DEPS="pyyaml numpy typing"
-	PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
-	PACKAGE_FOLDER_NAME="$PACKAGE"
-	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
-	PACKAGE_SUFFIX='-cpu'
-	PYTHON_IMPORT_NAME="torch"
-elif [[ "$PACKAGE" == "pytorch-gpu" ]];then
-	PACKAGE="pytorch"
-	MODULE_DEPS="imkl/11.3.4.258 gcc/5.4.0 magma/2.2.0 cuda/8.0.44 cudnn/7.0 magma/2.2.0"
-	PYTHON_DEPS="pyyaml numpy typing"
-	PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export LIBRARY_PATH=/cvmfs/soft.computecanada.ca/nix/lib/:$LIBRARY_PATH; export CMAKE_PREFIX_PATH=$EBROOTMAGMA; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
-	PACKAGE_FOLDER_NAME="$PACKAGE"
-	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
-	PACKAGE_SUFFIX='-gpu'
-	PYTHON_IMPORT_NAME="torch"
 elif [[ "$PACKAGE" == "mpmath" ]]; then
 	# need to patch it so it supports bdist_wheel
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
@@ -356,6 +338,24 @@ elif [[ "$PACKAGE" == "wxPython" ]]; then
         PYTHON_DEPS="six typing PyPubSub"
         PRE_BUILD_COMMANDS='export LDFLAGS=-Wl,-rpath,\$ORIGIN,-rpath,$EBROOTGTKPLUS3/lib'
         PYTHON_IMPORT_NAME="wx"
+elif [[ "$PACKAGE" == "bz2file" ]]; then
+        PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "smart_open" ]]; then
+        PYTHON_DEPS="boto>=2.32 bz2file requests boto3"
+elif [[ "$PACKAGE" == "gensim" ]]; then
+        PYTHON_DEPS="numpy>=1.11.3 scipy>=0.18.1 six>=1.5.0 smart_open>=1.2.1"
+elif [[ "$PACKAGE" == "preshed" ]]; then
+        PYTHON_DEPS="cymem>=1.30,<1.32.0"
+elif [[ "$PACKAGE" == "cytoolz" ]]; then
+        PYTHON_DEPS="toolz>=0.8.0"
+elif [[ "$PACKAGE" == "wrapt" ]]; then
+        PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "msgpack-python" ]]; then
+        PYTHON_IMPORT_NAME="msgpack"
+elif [[ "$PACKAGE" == "thinc" ]]; then
+        PYTHON_DEPS="cython>=0.25.0 numpy>=1.7.0 msgpack>=0.5.6,<1.0.0 msgpack-numpy==0.4.1 murmurhash>=0.28.0,<0.29.0 cymem>=1.30.0,<1.32.0 preshed>=1.0.0,<2.0.0 cytoolz>=0.9.0,<0.10 wrapt>=1.10.0,<1.11.0 plac>=0.9.6,<1.0.0 tqdm>=4.10.0,<5.0.0 six>=1.10.0,<2.0.0 hypothesis<3,>=2 dill>=0.2.7,<0.3.0 pathlib==1.0.1;python_version<'3.4'"
+elif [[ "$PACKAGE" == "spacy" ]]; then
+        PYTHON_DEPS="cython>=0.24,<0.28.0 numpy>=1.7 murmurhash>=0.28,<0.29 cymem<1.32,>=1.30 preshed>=1.0.0,<2.0.0 thinc>=6.10.3,<6.11.0 plac<1.0.0,>=0.9.6 ujson>=1.35 dill>=0.2,<0.3 regex==2017.4.5 requests>=2.13.0,<3.0.0 pathlib==1.0.1;python_version<'3.4'"
 fi
 
 DIR=tmp.$$
@@ -387,34 +387,24 @@ for pv in $PYTHON_VERSIONS; do
 	eval $PRE_DOWNLOAD_COMMANDS
 	echo "Downloading source"
 	mkdir $PVDIR
-	if [[ $PACKAGE == "pytorch" ]];then
-		pushd $PVDIR
-		git clone https://github.com/pytorch/pytorch
-		pushd $PACKAGE_FOLDER_NAME*
-		if [[ -n "$VERSION" ]]; then
-			git checkout -b v$VERSION
-		fi
-		git submodule update --init
-	else
-		# Do not collect binaries and don't install dependencies
-		pip download --no-binary $PACKAGE_DOWNLOAD_ARGUMENT --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
-		ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl})
-		# skip packages that are already in whl format
-		if [[ $ARCHNAME == *.whl ]]; then
-                        # Patch the content of the wheel file (eg remove `torch` dependency as torch
-                        # has no pypi wheel and we build [cg]pu wheel versions).
-                        if [[ -n "$PATCH_WHEEL_COMMANDS" ]]; then
-                            unzip -o $ARCHNAME
-                            eval $PATCH_WHEEL_COMMANDS
-                            zip -u $ARCHNAME -r $PACKAGE $PACKAGE-*.dist-info
-                        fi
-			cp $ARCHNAME ..
-			continue
-		fi
-		unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
-		pushd $PVDIR
-		pushd $PACKAGE_FOLDER_NAME*
-	fi
+        # Do not collect binaries and don't install dependencies
+        pip download --no-binary $PACKAGE_DOWNLOAD_ARGUMENT --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
+        ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl})
+        # skip packages that are already in whl format
+        if [[ $ARCHNAME == *.whl ]]; then
+                # Patch the content of the wheel file (eg remove `torch` dependency as torch
+                # has no pypi wheel and we build [cg]pu wheel versions).
+                if [[ -n "$PATCH_WHEEL_COMMANDS" ]]; then
+                    unzip -o $ARCHNAME
+                    eval $PATCH_WHEEL_COMMANDS
+                    zip -u $ARCHNAME -r $PACKAGE $PACKAGE-*.dist-info
+                fi
+                cp $ARCHNAME ..
+                continue
+        fi
+        unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
+        pushd $PVDIR
+        pushd $PACKAGE_FOLDER_NAME*
 	echo "Building"
 	pwd
 	ls
@@ -432,11 +422,7 @@ EOF
 	eval $PRE_BUILD_COMMANDS
 	# change the name of the wheel to add a suffix
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
-		if [[ $PACKAGE == "pytorch" ]];then
-		sed -i -e "s/name=\"torch\"/name=\"torch$PACKAGE_SUFFIX\"/g" setup.py
-		else
-		sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
-		fi
+            sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
 	fi
 	$PYTHON_CMD setup.py bdist_wheel > build.log
 	pushd dist
