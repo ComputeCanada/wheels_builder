@@ -85,7 +85,7 @@ elif [[ "$PACKAGE" == "ray" ]]; then
 elif [[ "$PACKAGE" == "scs" ]]; then
 	PYTHON_DEPS="numpy scipy"
 elif [[ "$PACKAGE" == "PyWavelets" ]]; then
-	PYTHON_DEPS="numpy"
+	PYTHON_DEPS="numpy cython"
 	PYTHON_IMPORT_NAME="pywt"
 elif [[ "$PACKAGE" == "scikit-image" ]]; then
 	PYTHON_DEPS="numpy cython scipy"
