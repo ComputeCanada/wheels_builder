@@ -59,7 +59,7 @@ else
    usage; exit 1
 fi
 
-module load gcc java bazel
+module load gcc java bazel imkl
 if [[ $ARG_GPU == 1 ]]; then
     module load cuda/9.0.176 cudnn/7.0
 fi
