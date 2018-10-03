@@ -68,9 +68,10 @@ unset CPLUS_INCLUDE_PATH
 unset C_INCLUDE_PATH
 
 OPWD=$(pwd)
-TF_COMPILE_PATH=/dev/shm/${USER}/tf_$(date +'%s')
+export TF_COMPILE_PATH=/dev/shm/${USER}/tf_$(date +'%s')
 export TMPDIR=$TF_COMPILE_PATH
-BAZEL_ROOT_PATH=$TF_COMPILE_PATH/bazel
+export TMP=$TMPDIR
+export BAZEL_ROOT_PATH=$TF_COMPILE_PATH/bazel
 mkdir -p $TF_COMPILE_PATH; cd $TF_COMPILE_PATH
 
 if [[ $ARG_DEBUG == 1 ]]; then
@@ -107,9 +108,10 @@ sed -i "s;setup.py bdist_wheel .* >/dev/null;setup.py bdist_wheel --project_name
 virtualenv buildenv
 source buildenv/bin/activate
 pip install numpy wheel enum34 mock
+pip install keras_applications keras_preprocessing
 
 # Download MKL-ML and patch it
-sed -n -e 's;"\(https://github.com/intel/mkl-dnn/.*lnx.*\)";\1;p' tensorflow/workspace.bzl | xargs wget -O $TF_COMPILE_PATH/mklml_lnx.tgz
+sed -n -e 's;"\(https://github.com/intel/mkl-dnn/.*lnx.*\.tgz\)";\1;p' tensorflow/workspace.bzl | tr ',' ' ' | xargs wget -O $TF_COMPILE_PATH/mklml_lnx.tgz
 mkdir $TF_COMPILE_PATH/mklml_lnx
 tar xf $TF_COMPILE_PATH/mklml_lnx.tgz -C $TF_COMPILE_PATH/mklml_lnx --strip-components 1
 rm $TF_COMPILE_PATH/mklml_lnx/lib/libiomp5.so
@@ -138,7 +140,10 @@ EOF
     # Add dependency to third_party library
     git apply $SCRIPT_DIR/rdma.patch
     # TF 1.9.0: Patch for MPI collectives
-    git cherry-pick -m 1 -n 5ac1bd7836e0f1a4d3b02f9538c4277914c8e5f5
+    #git cherry-pick -m 1 -n 5ac1bd7836e0f1a4d3b02f9538c4277914c8e5f5
+    # TF 1.11.0 ISSUE 21999
+    git cherry-pick -n c67ded664a20f27b4e90020bf76a097b462182b1
+    git apply $SCRIPT_DIR/tensorflow-mpi.patch
 
     export \
     TF_NEED_CUDA=1 \
@@ -168,6 +173,8 @@ fi
 export \
 PYTHON_BIN_PATH=$(which python) \
 USE_DEFAULT_PYTHON_LIB_PATH=1 \
+TF_NEED_AWS=0 \
+TF_NEED_NGRAPH=0 \
 TF_NEED_S3=0 \
 TF_NEED_GCP=0 \
 TF_NEED_HDFS=0 \
@@ -182,7 +189,7 @@ TF_MKL_ROOT="$TF_COMPILE_PATH/mklml_lnx" \
 TF_ENABLE_XLA=0
 ./configure
 
-bazel --output_user_root=$BAZEL_ROOT_PATH build --verbose_failures --config opt $(echo $CONFIG_XOPT) --config mkl //tensorflow/tools/pip_package:build_pip_package
+bazel --output_user_root=$BAZEL_ROOT_PATH build --action_env=LD_LIBRARY_PATH=/usr/lib64/nvidia --verbose_failures --config opt $(echo $CONFIG_XOPT) --config mkl //tensorflow/tools/pip_package:build_pip_package
 
 bazel-bin/tensorflow/tools/pip_package/build_pip_package $OPWD
 bazel --output_user_root=$BAZEL_ROOT_PATH shutdown
