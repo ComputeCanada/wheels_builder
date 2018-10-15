@@ -64,9 +64,9 @@ elif [[ "$PACKAGE" == "openslide-python" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "/import sys/a import os" -e "s;.libopenslide.so.0.;os.environ.get(\"EBROOTOPENSLIDE\",\"$EBROOTOPENSLIDE\") + \"/lib/libopenslide.so.0\";g" $(find . -name "lowlevel.py")'
 elif [[ "$PACKAGE" == "cupy" ]]; then
 	PYTHON_DEPS="numpy fastrlock"
-	MODULE_DEPS="gcc/5.4.0 cuda/9.0 cudnn/7.0"
+	MODULE_DEPS="gcc/5.4.0 cuda/9.0 cudnn/7.0 nccl/2.3.5"
 	# needed otherwise it does not find libcuda.so
-	PRE_DOWNLOAD_COMMANDS='export LDFLAGS="-L$EBROOTCUDA/lib64/stubs"'
+	PRE_DOWNLOAD_COMMANDS='export LDFLAGS="-L$EBROOTCUDA/lib64/stubs -L$EBROOTNCCL/lib" ; export CFLAGS="-I$EBROOTNCCL/include/"'
 elif [[ "$PACKAGE" == "deepchem" ]]; then
 	PYTHON_DEPS="numpy pandas rdkit"
 elif [[ "$PACKAGE" == "prometheus-client" ]]; then
