@@ -67,6 +67,11 @@ elif [[ "$PACKAGE" == "cupy" ]]; then
 	MODULE_DEPS="gcc/5.4.0 cuda/9.0 cudnn/7.0 nccl/2.3.5"
 	# needed otherwise it does not find libcuda.so
 	PRE_DOWNLOAD_COMMANDS='export LDFLAGS="-L$EBROOTCUDA/lib64/stubs -L$EBROOTNCCL/lib" ; export CFLAGS="-I$EBROOTNCCL/include/"'
+elif [[ "$PACKAGE" == "chainer" ]]; then
+        PYTHON_DEPS="filelock"
+elif [[ "$PACKAGE" == "chainermn" ]]; then
+        PYTHON_DEPS="chainer"
+        PRE_BUILD_COMMANDS='module load mpi4py'
 elif [[ "$PACKAGE" == "deepchem" ]]; then
 	PYTHON_DEPS="numpy pandas rdkit"
 elif [[ "$PACKAGE" == "prometheus-client" ]]; then
