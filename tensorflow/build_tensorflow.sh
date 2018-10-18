@@ -85,7 +85,10 @@ GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
     CROSSTOOL_FILE=third_party/gpus/crosstool/CROSSTOOL.tpl
     sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$EBROOTCUDNN/lib64\"" $CROSSTOOL_FILE
-    sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$EBROOTCUDA/lib64\"" $CROSSTOOL_FILE
+    for path in $(find $EBROOTCUDA -name lib64); do
+        sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$path\"" $CROSSTOOL_FILE
+    done
+    sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=/usr/lib64/nvidia\"" $CROSSTOOL_FILE
     sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin\"" $CROSSTOOL_FILE
     sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-B$NIXUSER_PROFILE/lib/\"" $CROSSTOOL_FILE
     sed -i "s;/usr/bin;$NIXUSER_PROFILE/bin;g" $CROSSTOOL_FILE
@@ -166,8 +169,8 @@ else
     TF_NEED_MPI=0 \
     TF_NEED_GDR=0 \
     TF_NEED_VERBS=0 \
-    GCC_HOST_COMPILER_PATH=$(which gcc)
-    CONFIG_XOPT=""
+    GCC_HOST_COMPILER_PATH=$(which gcc) \
+    CONFIG_XOPT="--linkopt=-Wl,-rpath,$EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin"
 fi
 
 export \
@@ -189,7 +192,7 @@ TF_MKL_ROOT="$TF_COMPILE_PATH/mklml_lnx" \
 TF_ENABLE_XLA=0
 ./configure
 
-bazel --output_user_root=$BAZEL_ROOT_PATH build --action_env=LD_LIBRARY_PATH=/usr/lib64/nvidia --verbose_failures --config opt $(echo $CONFIG_XOPT) --config mkl //tensorflow/tools/pip_package:build_pip_package
+bazel --io_nice_level=4 --output_user_root=$BAZEL_ROOT_PATH build --jobs 28 --ram_utilization_factor 40 --action_env=LD_LIBRARY_PATH=/usr/lib64/nvidia --verbose_failures --config opt $(echo $CONFIG_XOPT) --config mkl //tensorflow/tools/pip_package:build_pip_package
 
 bazel-bin/tensorflow/tools/pip_package/build_pip_package $OPWD
 bazel --output_user_root=$BAZEL_ROOT_PATH shutdown
