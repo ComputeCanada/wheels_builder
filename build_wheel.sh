@@ -13,6 +13,7 @@ PACKAGE_FOLDER_NAME="$PACKAGE"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE"
 RPATH_TO_ADD=""
 PRE_DOWNLOAD_COMMANDS=""
+TMP_WHEELHOUSE=$(pwd)
 
 if [[ -n "$VERSION" ]]; then
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE==$VERSION"
@@ -395,7 +396,7 @@ for pv in $PYTHON_VERSIONS; do
 	virtualenv build_$PVDIR || pyvenv build_$PVDIR
 	source build_$PVDIR/bin/activate
 	if [[ -n "$PYTHON_DEPS" ]]; then
-		pip install $PYTHON_DEPS
+		pip install $PYTHON_DEPS --find-links=$TMP_WHEELHOUSE
 	fi
 	pip freeze
 	eval $PRE_DOWNLOAD_COMMANDS
@@ -447,8 +448,7 @@ EOF
 	fi
 	pwd
 	ls
-	echo cp $WHEEL_NAME ../../../..
-	cp $WHEEL_NAME ../../../..
+	cp -v $WHEEL_NAME $TMP_WHEELHOUSE
 	popd
 	popd
 	popd
@@ -458,7 +458,7 @@ EOF
 		module unload $MODULE_DEPS
 	fi
 	module list
-	pip install ../$WHEEL_NAME --no-index --no-cache
+	pip install ../$WHEEL_NAME --no-index --no-cache --find-links=$TMP_WHEELHOUSE
 	if [[ -n "$PYTHON_IMPORT_NAME" ]]; then
 		$PYTHON_CMD -c "import $PYTHON_IMPORT_NAME; $PYTHON_TESTS"
 	fi
