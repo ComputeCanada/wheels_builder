@@ -59,7 +59,7 @@ else
    usage; exit 1
 fi
 
-module load gcc java bazel
+module load gcc java bazel imkl
 if [[ $ARG_GPU == 1 ]]; then
     module load cuda/9.0.176 cudnn/7.0
 fi
@@ -68,29 +68,35 @@ unset CPLUS_INCLUDE_PATH
 unset C_INCLUDE_PATH
 
 OPWD=$(pwd)
-TF_COMPILE_PATH=/dev/shm/${USER}/tf_$(date +'%s')
+export TF_COMPILE_PATH=/dev/shm/${USER}/tf_$(date +'%s')
 export TMPDIR=$TF_COMPILE_PATH
-BAZEL_ROOT_PATH=$TF_COMPILE_PATH/bazel
+export TMP=$TMPDIR
+export BAZEL_ROOT_PATH=$TF_COMPILE_PATH/bazel
 mkdir -p $TF_COMPILE_PATH; cd $TF_COMPILE_PATH
 
 if [[ $ARG_DEBUG == 1 ]]; then
     echo "Debug mode - compilation results will be in: $TF_COMPILE_PATH"
 fi
 
-git clone https://github.com/tensorflow/tensorflow.git; cd tensorflow
-git checkout $ARG_VERSION
+#git clone https://github.com/tensorflow/tensorflow.git; cd tensorflow
+#git checkout $ARG_VERSION
+git clone -b $ARG_VERSION --single-branch --depth 1 https://github.com/tensorflow/tensorflow.git
+cd tensorflow
 
 GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
     CROSSTOOL_FILE=third_party/gpus/crosstool/CROSSTOOL.tpl
     sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$EBROOTCUDNN/lib64\"" $CROSSTOOL_FILE
-    sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$EBROOTCUDA/lib64\"" $CROSSTOOL_FILE
+    for path in $(find $EBROOTCUDA -name lib64); do
+        sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$path\"" $CROSSTOOL_FILE
+    done
+    sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=/usr/lib64/nvidia\"" $CROSSTOOL_FILE
     sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin\"" $CROSSTOOL_FILE
     sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-B$NIXUSER_PROFILE/lib/\"" $CROSSTOOL_FILE
     sed -i "s;/usr/bin;$NIXUSER_PROFILE/bin;g" $CROSSTOOL_FILE
 fi
 
-sed -i -r "/libiomp5/d" third_party/mkl/mkl.BUILD
+#sed -i -r "/libiomp5/d" third_party/mkl/mkl.BUILD
 sed -i -r "s/\"include\/\*\"/\"include\/\*.h\"/g" third_party/mkl/mkl.BUILD
 sed -i -r "s;bazel (clean|fetch|query); bazel --output_user_root=$BAZEL_ROOT_PATH \1;g" configure
 sed -i -r "s;^_VERSION = '(.+)'$;_VERSION = '\1+computecanada';g" tensorflow/tools/pip_package/setup.py
@@ -107,12 +113,13 @@ sed -i "s;setup.py bdist_wheel .* >/dev/null;setup.py bdist_wheel --project_name
 virtualenv buildenv
 source buildenv/bin/activate
 pip install numpy wheel enum34 mock
+pip install keras_applications keras_preprocessing
 
 # Download MKL-ML and patch it
-sed -n -e 's;"\(https://github.com/intel/mkl-dnn/.*lnx.*\)";\1;p' tensorflow/workspace.bzl | xargs wget -O $TF_COMPILE_PATH/mklml_lnx.tgz
+sed -n -e 's;"\(https://github.com/intel/mkl-dnn/.*lnx.*\.tgz\)";\1;p' tensorflow/workspace.bzl | tr ',' ' ' | xargs wget -O $TF_COMPILE_PATH/mklml_lnx.tgz
 mkdir $TF_COMPILE_PATH/mklml_lnx
 tar xf $TF_COMPILE_PATH/mklml_lnx.tgz -C $TF_COMPILE_PATH/mklml_lnx --strip-components 1
-rm $TF_COMPILE_PATH/mklml_lnx/lib/libiomp5.so
+#rm $TF_COMPILE_PATH/mklml_lnx/lib/libiomp5.so
 setrpaths.sh --path $TF_COMPILE_PATH/mklml_lnx/lib --add_path $EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin
 
 if [[ $ARG_GPU == 1 ]]; then
@@ -138,7 +145,10 @@ EOF
     # Add dependency to third_party library
     git apply $SCRIPT_DIR/rdma.patch
     # TF 1.9.0: Patch for MPI collectives
-    git cherry-pick -m 1 -n 5ac1bd7836e0f1a4d3b02f9538c4277914c8e5f5
+    #git cherry-pick -m 1 -n 5ac1bd7836e0f1a4d3b02f9538c4277914c8e5f5
+    # TF 1.11.0 ISSUE 21999
+    git cherry-pick -n c67ded664a20f27b4e90020bf76a097b462182b1
+    git apply $SCRIPT_DIR/tensorflow-mpi.patch
 
     export \
     TF_NEED_CUDA=1 \
@@ -161,13 +171,15 @@ else
     TF_NEED_MPI=0 \
     TF_NEED_GDR=0 \
     TF_NEED_VERBS=0 \
-    GCC_HOST_COMPILER_PATH=$(which gcc)
-    CONFIG_XOPT=""
+    GCC_HOST_COMPILER_PATH=$(which gcc) #\
+#    CONFIG_XOPT="--cxxopt=-Wl,-rpath,$EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin"
 fi
 
 export \
 PYTHON_BIN_PATH=$(which python) \
 USE_DEFAULT_PYTHON_LIB_PATH=1 \
+TF_NEED_AWS=0 \
+TF_NEED_NGRAPH=0 \
 TF_NEED_S3=0 \
 TF_NEED_GCP=0 \
 TF_NEED_HDFS=0 \
@@ -182,10 +194,18 @@ TF_MKL_ROOT="$TF_COMPILE_PATH/mklml_lnx" \
 TF_ENABLE_XLA=0
 ./configure
 
-bazel --output_user_root=$BAZEL_ROOT_PATH build --verbose_failures --config opt $(echo $CONFIG_XOPT) --config mkl //tensorflow/tools/pip_package:build_pip_package
-
+bazel --io_nice_level=4 --output_user_root=$BAZEL_ROOT_PATH build --jobs 28 --ram_utilization_factor 40 --action_env=LD_LIBRARY_PATH=/usr/lib64/nvidia --verbose_failures --config opt $(echo $CONFIG_XOPT) --config mkl //tensorflow/tools/pip_package:build_pip_package
 bazel-bin/tensorflow/tools/pip_package/build_pip_package $OPWD
 bazel --output_user_root=$BAZEL_ROOT_PATH shutdown
+
+WHEEL_REBUILD_FOLDER=$(mktemp -d -p .)
+TARGET_WHEEL=$(ls -Art $OPWD/*.whl | tail -n 1)
+cd $WHEEL_REBUILD_FOLDER
+unzip $TARGET_WHEEL 
+find . -name libiomp5.so -exec ln -sf $EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin/libiomp5.so {} \;
+zip --symlinks -r $TARGET_WHEEL *.data/ *.dist-info/
+cd ..
+rm -rf $WHEEL_REBUILD_FOLDER
 
 echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/$ARG_ARCH and synchronize CVMFS"
 if [[ $ARG_DEBUG == 0 ]]; then

@@ -1,0 +1,70 @@
+diff --git a/BUILD b/BUILD
+index 957b7fe..3da7ce8 100644
+--- a/BUILD
++++ b/BUILD
+@@ -863,6 +863,7 @@ cc_library(
+     copts = IOQ3_COMMON_COPTS,
+     defines = IOQ3_COMMON_DEFINES,
+     linkopts = [
++        "-L/usr/lib64/nvidia/",
+         "-lEGL",
+         "-lGL",
+     ],
+diff --git a/WORKSPACE b/WORKSPACE
+index 82e9edd..8aee93b 100644
+--- a/WORKSPACE
++++ b/WORKSPACE
+@@ -90,17 +90,17 @@ new_http_archive(
+ new_local_repository(
+     name = "lua_system",
+     build_file = "lua.BUILD",
+-    path = "/usr",
++    path = "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/",
+ )
+ 
+ new_local_repository(
+     name = "sdl_system",
+     build_file = "sdl.BUILD",
+-    path = "/usr",
++    path = "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/",
+ )
+ 
+ new_local_repository(
+     name = "python_system",
+     build_file = "python.BUILD",
+-    path = "/usr",
++    path = "/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/",
+ )
+diff --git a/lua.BUILD b/lua.BUILD
+index e7aa4d2..48934cb 100644
+--- a/lua.BUILD
++++ b/lua.BUILD
+@@ -6,8 +6,8 @@
+ 
+ cc_library(
+     name = "lua",
+-    hdrs = glob(["include/lua5.1/*.h"]),
+-    includes = ["include/lua5.1"],
+-    linkopts = ["-llua5.1"],
++    hdrs = glob(["include/*.h", "include/lauxlib.h"]),
++    includes = ["include"],
++    linkopts = ["-llua"],
+     visibility = ["//visibility:public"],
+ )
+diff --git a/python.BUILD b/python.BUILD
+index f0b3f9a..55f2832 100644
+--- a/python.BUILD
++++ b/python.BUILD
+@@ -5,7 +5,10 @@
+ 
+ cc_library(
+     name = "python",
+-    hdrs = glob(["include/python2.7/*.h"]),
+-    includes = ["include/python2.7"],
++    hdrs = glob([
++        "python/2.7.14/include/python2.7/*.h",
++        "scipy-stack/2018b/lib/python2.7/site-packages/numpy/core/include/**/*.h"
++    ]),
++    includes = ["python/2.7.14/include/python2.7", "scipy-stack/2018b/lib/python2.7/site-packages/numpy/core/include"],
+     visibility = ["//visibility:public"],
+ )
