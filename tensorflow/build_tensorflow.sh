@@ -22,7 +22,7 @@ eval set -- "$TEMP"
 ARG_VERSION=
 ARG_ARCH=
 ARG_GPU=0
-ARG_DEBUG=0
+export ARG_DEBUG=0
 
 while true; do
     case "$1" in
