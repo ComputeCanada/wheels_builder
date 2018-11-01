@@ -21,13 +21,64 @@ else
 fi
 
 if [[ "$PACKAGE" == "numpy" ]]; then
-	MODULE_DEPS="imkl"
+	MODULE_BUILD_DEPS="imkl/2018.3.222"
 	PYTHON_DEPS="nose pytest"
 	PYTHON_TESTS="numpy.__config__.show(); numpy.test()"
+elif [[ "$PACKAGE" == "atari_py" ]]; then
+	PACKAGE_DOWNLOAD_NAME="atari-py"
+	PACKAGE_FOLDER_NAME="atari-py"
+elif [[ "$PACKAGE" == "PyOpenGL" ]]; then
+	PYTHON_IMPORT_NAME="OpenGL"
+	PYTHON_TESTS="from OpenGL.GL.ARB.shader_objects import *; from OpenGL.GL.ARB.fragment_shader import *; from OpenGL.GL.ARB.vertex_shader import *; from OpenGL.GL import *; from OpenGL.GLU import *"
+elif [[ "$PACKAGE" == "msprime" ]]; then
+	MODULE_BUILD_DEPS="intel/2016.4 imkl/2018.3.222 gsl/1.16"
+	PYTHON_DEPS="numpy"
+	RPATH_TO_ADD="$EBROOTIMKL/lib/intel64"
+elif [[ "$PACKAGE" == "Box2D-kengz" ]]; then
+	PYTHON_IMPORT_NAME="Box2D"
+elif [[ "$PACKAGE" == "pyslurm" ]]; then
+	PYTHON_DEPS="cython"
+	PRE_BUILD_COMMANDS='sed -i -e "s;SLURM_INC = \"\";SLURM_INC = \"/opt/software/slurm/include/include\";g" -e "s;SLURM_LIB = \"\";SLURM_LIB = \"/opt/software/slurm/lib\";g" setup.py'
 elif [[ "$PACKAGE" == "cogent" ]]; then
 	PYTHON_DEPS="numpy"
 	PYTHON_VERSIONS="python/2.7"
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "termcolor" ]]; then
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "ScientificPython" ]]; then
+	PYTHON_DEPS="numpy"
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "snakemake" ]]; then
+	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
+elif [[ "$PACKAGE" == "protobuf" ]]; then
+	PYTHON_IMPORT_NAME="google.protobuf"
+elif [[ "$PACKAGE" == "pyani" ]]; then
+	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
+elif [[ "$PACKAGE" == "cherrypy" ]]; then
+	PACKAGE_DOWNLOAD_NAME="CherryPy"
+elif [[ "$PACKAGE" == "EukRep" ]]; then
+	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
+elif [[ "$PACKAGE" == "kPAL" ]]; then
+	PYTHON_IMPORT_NAME="kpal"
+elif [[ "$PACKAGE" == "configargparse" ]]; then
+	PACKAGE_DOWNLOAD_NAME="ConfigArgParse"
+	PACKAGE_FOLDER_NAME="ConfigArgParse"
+#elif [[ "$PACKAGE" == "mageck-vispr" ]]; then
+#	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
+#	PACKAGE_DOWNLOAD_ARGUMENT="https://bitbucket.org/liulab/mageck-vispr/get/v0.5.4.tar.gz"
+#	PACKAGE_DOWNLOAD_NAME="v0.5.4"
+#	PACKAGE_FOLDER_NAME="liulab-mageck-vispr"
+#	PYTHON_IMPORT_NAME=""
+elif [[ "$PACKAGE" == "statsmodels" ]]; then
+	PYTHON_DEPS="numpy"
+elif [[ "$PACKAGE" == "anvio" ]]; then
+	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
+	PYTHON_DEPS="numpy Cython statsmodels==0.9.0"
+	MODULE_BUILD_DEPS="gcc/5.4.0 gsl/2.3"
+elif [[ "$PACKAGE" == "django" ]]; then
+	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
+	PACKAGE_DOWNLOAD_NAME="Django"
+	PACKAGE_FOLDER_NAME="Django"
 elif [[ "$PACKAGE" == "Sphinx" ]]; then
 	PYTHON_IMPORT_NAME="sphinx"
 elif [[ "$PACKAGE" == "OBITools" ]]; then
@@ -60,7 +111,7 @@ elif [[ "$PACKAGE" == "fastrlock" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "openslide-python" ]]; then
 	PYTHON_IMPORT_NAME="openslide"
-	MODULE_DEPS="intel/2016.4 openslide"
+	MODULE_BUILD_DEPS="intel/2016.4 openslide"
 	PRE_BUILD_COMMANDS='sed -i -e "/import sys/a import os" -e "s;.libopenslide.so.0.;os.environ.get(\"EBROOTOPENSLIDE\",\"$EBROOTOPENSLIDE\") + \"/lib/libopenslide.so.0\";g" $(find . -name "lowlevel.py")'
 elif [[ "$PACKAGE" == "cupy" ]]; then
 	PYTHON_DEPS="numpy fastrlock"
@@ -73,7 +124,8 @@ elif [[ "$PACKAGE" == "chainermn" ]]; then
         PYTHON_DEPS="chainer"
         PRE_BUILD_COMMANDS='module load mpi4py'
 elif [[ "$PACKAGE" == "deepchem" ]]; then
-	PYTHON_DEPS="numpy pandas rdkit"
+	PYTHON_DEPS="numpy pandas joblib scikit-learn tensorflow_gpu pillow simdna"
+	MODULE_RUNTIME_DEPS="gcc/5.4.0 rdkit/2018.03.3"
 elif [[ "$PACKAGE" == "prometheus-client" ]]; then
 	PACKAGE_DOWNLOAD_NAME="prometheus_client"
 	PACKAGE_FOLDER_NAME=$PACKAGE_DOWNLOAD_NAME
@@ -83,7 +135,7 @@ elif [[ "$PACKAGE" == "ray" ]]; then
 		VERSION="0.4.0"
 	fi
 	PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/ray-project/ray/archive/ray-$VERSION.tar.gz"
-	MODULE_DEPS="gcc/5.4.0 qt/5.10.1"
+	MODULE_BUILD_DEPS="gcc/5.4.0 qt/5.10.1"
 	PYTHON_DEPS="numpy scipy cython"
 	PACKAGE_FOLDER_NAME="ray-ray-*/python"
 	PRE_BUILD_COMMANDS="pwd; sed -i -e 's/-DPARQUET_BUILD_TESTS=off/-DPARQUET_BUILD_TESTS=off -DCMAKE_SKIP_RPATH=ON -DCMAKE_SKIP_INSTALL_RPATH=ON/g' ../thirdparty/scripts/build_parquet.sh && sed -i -e 's/-DARROW_WITH_ZSTD=off/-DARROW_WITH_ZSTD=off  -DCMAKE_SKIP_RPATH=ON -DCMAKE_SKIP_INSTALL_RPATH=ON/g' ../thirdparty/scripts/build_arrow.sh"
@@ -97,7 +149,7 @@ elif [[ "$PACKAGE" == "scikit-image" ]]; then
 	PYTHON_IMPORT_NAME="skimage"
 elif [[ "$PACKAGE" == "pygdal" ]]; then
 	PYTHON_DEPS="numpy"
-	MODULE_DEPS="gcc gdal"
+	MODULE_BUILD_DEPS="gcc gdal"
 elif [[ "$PACKAGE" == "keras-vis" ]]; then
 	PYTHON_IMPORT_NAME="vis"
 	PACKAGE_DOWNLOAD_NAME="keras_vis"
@@ -120,7 +172,7 @@ elif [[ "$PACKAGE" == "ecos" ]]; then
 elif [[ "$PACKAGE" == "cvxpy" ]]; then
 	PYTHON_DEPS="numpy multiprocess scs fastcache scipy six toolz CVXcanon dill"
 elif [[ "$PACKAGE" == "cvxopt" ]]; then
-	MODULE_DEPS="gcc suitesparse fftw imkl"
+	MODULE_BUILD_DEPS="gcc suitesparse fftw imkl"
 	PRE_BUILD_COMMANDS="export CVXOPT_LAPACK_LIB=mkl_rt; export CVXOPT_BLAS_LIB=mkl_rt; export CVXOPT_BLAS_LIB_DIR=$MKLROOT/lib; export CVXOPT_SUITESPARSE_LIB_DIR=$EBROOTSUITESPARSE/lib; export CVXOPT_SUITESPARSE_INC_DIR=$EBROOTSUITESPARSE/include; "
 elif [[ "$PACKAGE" == "multiprocess" ]]; then
 	PYTHON_DEPS="dill"
@@ -129,7 +181,7 @@ elif [[ "$PACKAGE" == "grpcio" ]]; then
 elif [[ "$PACKAGE" == "metasv" ]]; then
 	PYTHON_DEPS="cython pysam"
 elif [[ "$PACKAGE" == "scipy" ]]; then
-	MODULE_DEPS="imkl"
+	MODULE_BUILD_DEPS="imkl"
 	PYTHON_DEPS="nose numpy pytest"
 	PYTHON_TESTS="scipy.__config__.show(); scipy.test()"
 	if [[ "$VERSION" == "0.13.3" ]]; then
@@ -141,14 +193,14 @@ elif [[ "$PACKAGE" == "biom-format" ]]; then
 	PYTHON_DEPS="scipy"
 	PACKAGE_DOWNLOAD_NAME="biom_format"
 elif [[ "$PACKAGE" == "netCDF4" ]]; then
-	MODULE_DEPS="gcc openmpi hdf5-mpi netcdf-mpi"
+	MODULE_BUILD_DEPS="gcc openmpi hdf5-mpi netcdf-mpi"
 	PYTHON_DEPS="numpy Cython"
 	PRE_BUILD_COMMANDS='module load mpi4py; export HDF5_DIR=$EBROOTHDF5; export NETCDF4_DIR=$EBROOTNETCDF'
 	RPATH_TO_ADD="$EBROOTOPENMPI/lib"
 elif [[ "$PACKAGE" == "arboretum" ]]; then
 	PYTHON_DEPS="numpy scipy scikit-learn pandas dask distributed"
 elif [[ "$PACKAGE" == "Cython" ]]; then
-	MODULE_DEPS=""
+	MODULE_BUILD_DEPS=""
 	PYTHON_DEPS=""
 elif [[ "$PACKAGE" == "cutadapt" ]]; then
 	PYTHON_DEPS="xopen"
@@ -156,7 +208,7 @@ elif [[ "$PACKAGE" == "cgat" ]]; then
 	PYTHON_IMPORT_NAME="cgat"
 	PYTHON_DEPS="numpy cython pysam setuptools pyparsing pyaml alignlib-lite matplotlib biopython"
 elif [[ "$PACKAGE" == "h5py" ]]; then
-	MODULE_DEPS="gcc hdf5"
+	MODULE_BUILD_DEPS="gcc hdf5"
 	PYTHON_DEPS="nose numpy six Cython unittest2"
 	PYTHON_TESTS="h5py.run_tests()"
 elif [[ "$PACKAGE" == "matplotlib" ]]; then
@@ -172,7 +224,7 @@ elif [[ "$PACKAGE" == "bottleneck" ]]; then
 	PACKAGE_DOWNLOAD_NAME="Bottleneck"
 	PACKAGE_FOLDER_NAME="Bottleneck"
 elif [[ "$PACKAGE" == "tables" ]]; then
-	MODULE_DEPS="gcc hdf5"
+	MODULE_BUILD_DEPS="gcc hdf5"
 	PYTHON_DEPS="h5py numpy numexpr six nose mock"
 	PYTHON_TESTS="tables.test()"
 elif [[ "$PACKAGE" == "bx-python" ]]; then
@@ -190,7 +242,7 @@ elif [[ "$PACKAGE" == "qiime" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib mock nose cycler decorator enum34 functools32 ipython matplotlib pexpect emperor qcli natsort<4.0.0"
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "dlib-cpu" ]]; then
-	MODULE_DEPS="gcc/5.4.0 boost imkl"    # it does not work with Intel, and requires Boost
+	MODULE_BUILD_DEPS="gcc/5.4.0 boost imkl"    # it does not work with Intel, and requires Boost
 	PRE_BUILD_COMMANDS='sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "cmake_find_blas.txt") '
 	PYTHON_VERSIONS="python/2.7"
 	PACKAGE="dlib"
@@ -199,7 +251,7 @@ elif [[ "$PACKAGE" == "dlib-cpu" ]]; then
 	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
 	PACKAGE_SUFFIX='-cpu'
 elif [[ "$PACKAGE" == "dlib-gpu" ]]; then
-	MODULE_DEPS="gcc/5.4.0 boost imkl cuda cudnn"    # it does not work with Intel, and requires Boost
+	MODULE_BUILD_DEPS="gcc/5.4.0 boost imkl cuda cudnn"    # it does not work with Intel, and requires Boost
 	PRE_BUILD_COMMANDS='export CUDNN_HOME=$EBROOTCUDNN; sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "cmake_find_blas.txt")'
 	PYTHON_VERSIONS="python/2.7"
 	PACKAGE="dlib"
@@ -208,14 +260,14 @@ elif [[ "$PACKAGE" == "dlib-gpu" ]]; then
 	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
 	PACKAGE_SUFFIX='-gpu'
 elif [[ "$PACKAGE" == "shapely" ]]; then
-	MODULE_DEPS="gcc geos"
+	MODULE_BUILD_DEPS="gcc geos"
 	# need to patch geos.py to find libgeos_c.so based on the module that was loaded at build time
 	PRE_BUILD_COMMANDS='sed -i -e "s;os.path.join(sys.prefix, \"lib\", \"libgeos_c.so\"),;\"$EBROOTGEOS/lib/libgeos_c.so\",;g" $(find . -name "geos.py")'
 	PACKAGE_FOLDER_NAME="Shapely"
 	PACKAGE_DOWNLOAD_NAME="Shapely"
 elif [[ "$PACKAGE" == "rasterio" ]]; then
 	PYTHON_DEPS="numpy affine snuggs cligj click-plugins enum34"
-	MODULE_DEPS="gcc gdal"
+	MODULE_BUILD_DEPS="gcc gdal"
 elif [[ "$PACKAGE" == "numba" ]]; then
 	if [[ "$VERSION" == "0.31.0" ]]; then
 		PYTHON_DEPS="numpy enum34 llvmlite==0.16.0"
@@ -224,7 +276,7 @@ elif [[ "$PACKAGE" == "numba" ]]; then
 	fi
 elif [[ "$PACKAGE" == "llvmlite" ]]; then
 	PYTHON_DEPS="enum34"
-	MODULE_DEPS="llvm"
+	MODULE_BUILD_DEPS="llvm"
 elif [[ "$PACKAGE" == "scikit-learn" ]]; then
 	PYTHON_IMPORT_NAME="sklearn"
 	PYTHON_DEPS="numpy scipy"
@@ -240,7 +292,25 @@ elif [[ "$PACKAGE" == "htseq" ]]; then
 	PACKAGE_DOWNLOAD_NAME="HTSeq"
 	PYTHON_IMPORT_NAME="HTSeq"
 elif [[ "$PACKAGE" == "mpi4py" ]]; then
-	MODULE_DEPS="intel openmpi"
+	MODULE_BUILD_DEPS="intel openmpi"
+elif [[ "$PACKAGE" == "pytorch-cpu" ]];then
+	PACKAGE="pytorch"
+	MODULE_BUILD_DEPS="gcc/6.4.0 imkl/11.3.4.258"
+	PYTHON_DEPS="pyyaml numpy typing"
+	PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
+	PACKAGE_FOLDER_NAME="$PACKAGE"
+	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
+	PACKAGE_SUFFIX='-cpu'
+	PYTHON_IMPORT_NAME="torch"
+elif [[ "$PACKAGE" == "pytorch-gpu" ]];then
+	PACKAGE="pytorch"
+	MODULE_BUILD_DEPS="imkl/11.3.4.258 gcc/5.4.0 magma/2.2.0 cuda/8.0.44 cudnn/7.0 magma/2.2.0"
+	PYTHON_DEPS="pyyaml numpy typing"
+	PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export LIBRARY_PATH=/cvmfs/soft.computecanada.ca/nix/lib/:$LIBRARY_PATH; export CMAKE_PREFIX_PATH=$EBROOTMAGMA; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
+	PACKAGE_FOLDER_NAME="$PACKAGE"
+	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
+	PACKAGE_SUFFIX='-gpu'
+	PYTHON_IMPORT_NAME="torch"
 elif [[ "$PACKAGE" == "mpmath" ]]; then
 	# need to patch it so it supports bdist_wheel
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
@@ -320,7 +390,7 @@ elif [[ "$PACKAGE" == "theano" ]]; then
 	PACKAGE_DOWNLOAD_NAME="Theano"
 	PYTHON_DEPS="numpy scipy six"
 elif [[ "$PACKAGE" == "alignlib-lite" ]]; then
-	MODULE_DEPS="boost"
+	MODULE_BUILD_DEPS="boost"
 elif [[ "$PACKAGE" == "torchvision" ]]; then
     # torch_cpu is only for testing purposes. It is not in torchvision requirements.
     # torchvision should be installed along with : torch-[cg]pu
@@ -376,8 +446,11 @@ pushd $DIR
 module --force purge
 module load nixpkgs
 for pv in $PYTHON_VERSIONS; do
-	if [[ -n "$MODULE_DEPS" ]]; then
-		module load $MODULE_DEPS
+	if [[ -n "$MODULE_BUILD_DEPS" ]]; then
+		module load $MODULE_BUILD_DEPS
+	fi
+	if [[ -n "$MODULE_RUNTIME_DEPS" ]]; then
+		module load $MODULE_RUNTIME_DEPS
 	fi
 	module load $pv
 	module list
@@ -437,7 +510,7 @@ EOF
             sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
 	fi
 	$PYTHON_CMD setup.py bdist_wheel > build.log
-	pushd dist
+	pushd dist || cat build.log
 	WHEEL_NAME=$(ls *.whl)
 	if [[ -n "$RPATH_TO_ADD" ]]; then
 		echo "Running /cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path $WHEEL_NAME --add_path=$RPATH_TO_ADD --any_interpreter"
@@ -452,8 +525,8 @@ EOF
 	popd
 
 	echo "Testing..."
-	if [[ -n "$MODULE_DEPS" ]]; then
-		module unload $MODULE_DEPS
+	if [[ -n "$MODULE_BUILD_DEPS" ]]; then
+		module unload $MODULE_BUILD_DEPS
 	fi
 	module list
 	pip install ../$WHEEL_NAME --no-index --no-cache
