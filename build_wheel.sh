@@ -4,7 +4,7 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
     PYTHON_VERSIONS=$(ls -1 /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/ | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext wxPython bz2file smart_open gensim hypothesis murmurhash cymem preshed msgpack_python msgpack_numpy cytoolz wrapt plac thinc ujson regex spacy bigfloat"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext wxPython bz2file smart_open gensim hypothesis murmurhash cymem preshed msgpack_python msgpack_numpy cytoolz wrapt plac thinc ujson regex spacy bigfloat aiozmq python-utils progressbar2 fast5_research sphinx-argparse"
 
 PACKAGE=${1?Missing package name}
 VERSION=$2
@@ -13,6 +13,7 @@ PACKAGE_FOLDER_NAME="$PACKAGE"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE"
 RPATH_TO_ADD=""
 PRE_DOWNLOAD_COMMANDS=""
+TMP_WHEELHOUSE=$(pwd)
 
 if [[ -n "$VERSION" ]]; then
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE==$VERSION"
@@ -438,6 +439,14 @@ elif [[ "$PACKAGE" == "spacy" ]]; then
 elif [[ "$PACKAGE" == "bigfloat" ]]; then
     PYTHON_DEPS="cython"
     PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "python-utils" ]]; then
+    PYTHON_IMPORT_NAME="python_utils"
+elif [[ "$PACKAGE" == "progressbar2" ]]; then
+    PYTHON_IMPORT_NAME="progressbar"
+elif [[ "$PACKAGE" == "fast5_research" ]]; then
+    PYTHON_DEPS="numpy h5py"
+elif [[ "$PACKAGE" == "sphinx-argparse" ]]; then
+    PYTHON_IMPORT_NAME="sphinxarg"
 fi
 
 DIR=tmp.$$
@@ -466,7 +475,7 @@ for pv in $PYTHON_VERSIONS; do
 	virtualenv build_$PVDIR || pyvenv build_$PVDIR
 	source build_$PVDIR/bin/activate
 	if [[ -n "$PYTHON_DEPS" ]]; then
-		pip install $PYTHON_DEPS
+		pip install $PYTHON_DEPS --find-links=$TMP_WHEELHOUSE
 	fi
 	pip freeze
 	eval $PRE_DOWNLOAD_COMMANDS
@@ -518,8 +527,7 @@ EOF
 	fi
 	pwd
 	ls
-	echo cp $WHEEL_NAME ../../../..
-	cp $WHEEL_NAME ../../../..
+	cp -v $WHEEL_NAME $TMP_WHEELHOUSE
 	popd
 	popd
 	popd
@@ -529,7 +537,7 @@ EOF
 		module unload $MODULE_BUILD_DEPS
 	fi
 	module list
-	pip install ../$WHEEL_NAME --no-index --no-cache
+	pip install ../$WHEEL_NAME --no-index --no-cache --find-links=$TMP_WHEELHOUSE
 	if [[ -n "$PYTHON_IMPORT_NAME" ]]; then
 		$PYTHON_CMD -c "import $PYTHON_IMPORT_NAME; $PYTHON_TESTS"
 	fi

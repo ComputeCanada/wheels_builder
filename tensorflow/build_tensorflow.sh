@@ -22,7 +22,7 @@ eval set -- "$TEMP"
 ARG_VERSION=
 ARG_ARCH=
 ARG_GPU=0
-ARG_DEBUG=0
+export ARG_DEBUG=0
 
 while true; do
     case "$1" in
@@ -78,10 +78,10 @@ if [[ $ARG_DEBUG == 1 ]]; then
     echo "Debug mode - compilation results will be in: $TF_COMPILE_PATH"
 fi
 
-#git clone https://github.com/tensorflow/tensorflow.git; cd tensorflow
-#git checkout $ARG_VERSION
-git clone -b $ARG_VERSION --single-branch --depth 1 https://github.com/tensorflow/tensorflow.git
-cd tensorflow
+git clone https://github.com/tensorflow/tensorflow.git; cd tensorflow
+git checkout $ARG_VERSION
+#git clone -b $ARG_VERSION --single-branch --depth 1 https://github.com/tensorflow/tensorflow.git
+#cd tensorflow
 
 GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
