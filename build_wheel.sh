@@ -174,7 +174,7 @@ elif [[ "$PACKAGE" == "cvxpy" ]]; then
 	PYTHON_DEPS="numpy multiprocess scs fastcache scipy six toolz CVXcanon dill"
 elif [[ "$PACKAGE" == "cvxopt" ]]; then
 	MODULE_BUILD_DEPS="gcc suitesparse fftw imkl"
-	PRE_BUILD_COMMANDS="export CVXOPT_LAPACK_LIB=mkl_rt; export CVXOPT_BLAS_LIB=mkl_rt; export CVXOPT_BLAS_LIB_DIR=$MKLROOT/lib; export CVXOPT_SUITESPARSE_LIB_DIR=$EBROOTSUITESPARSE/lib; export CVXOPT_SUITESPARSE_INC_DIR=$EBROOTSUITESPARSE/include; "
+	PRE_BUILD_COMMANDS="export CVXOPT_LAPACK_LIB=mkl_rt; export CVXOPT_BLAS_LIB=mkl_rt; export CVXOPT_BLAS_LIB_DIR=$MKLROOT/lib; export CVXOPT_SUITESPARSE_LIB_DIR=$EBROOTSUITESPARSE/lib; export CVXOPT_SUITESPARSE_INC_DIR=$EBROOTSUITESPARSE/include; export CVXOPT_BUILD_FFTW=1; export CVXOPT_FFTW_LIB_DIR=$EBROOTFFTW/lib; export  CVXOPT_FFTW_INC_DIR=$EBROOTFFTW/include; "
 elif [[ "$PACKAGE" == "multiprocess" ]]; then
 	PYTHON_DEPS="dill"
 elif [[ "$PACKAGE" == "grpcio" ]]; then
