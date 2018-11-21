@@ -80,20 +80,23 @@ fi
 
 git clone https://github.com/tensorflow/tensorflow.git; cd tensorflow
 git checkout $ARG_VERSION
-#git clone -b $ARG_VERSION --single-branch --depth 1 https://github.com/tensorflow/tensorflow.git
-#cd tensorflow
 
 GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
     CROSSTOOL_FILE=third_party/gpus/crosstool/CROSSTOOL.tpl
-    sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$EBROOTCUDNN/lib64\"" $CROSSTOOL_FILE
-    for path in $(find $EBROOTCUDA -name lib64); do
-        sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$path\"" $CROSSTOOL_FILE
+    RPATH_TO_ADD="$EBROOTCUDNN/lib64 $(find $EBROOTCUDA -name lib64) /usr/lib64/nvidia $EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin"
+    for path in $RPATH_TO_ADD; do
+        sed -i "\;flag: \"-Wl,-no-as-needed\"; a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$path\"" $CROSSTOOL_FILE
     done
-    sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=/usr/lib64/nvidia\"" $CROSSTOOL_FILE
-    sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin\"" $CROSSTOOL_FILE
-    sed -i -r "\;^ *flag: \"-B/usr/bin/\";a \ \ \ \ \ \ \ \ flag: \"-B$NIXUSER_PROFILE/lib/\"" $CROSSTOOL_FILE
-    sed -i "s;/usr/bin;$NIXUSER_PROFILE/bin;g" $CROSSTOOL_FILE
+
+    sed -i "s;-B/usr/bin;-B$NIXUSER_PROFILE/bin;g" third_party/gpus/cuda_configure.bzl
+    sed -i "\;%{linker_bin_path_flag}; a \ \ \ \ \ \ \ \ flag: \"-B$NIXUSER_PROFILE/lib/\"" $CROSSTOOL_FILE
+
+    sed -i "\;linking_mode_flags { mode: DYNAMIC }; a \
+\ \ cxx_builtin_include_directory: \"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-5.4.0/lib/gcc/x86_64-unknown-linux-gnu/5.4.0/include/\"" $CROSSTOOL_FILE
+    sed -i "\;linking_mode_flags { mode: DYNAMIC }; a \
+\ \ cxx_builtin_include_directory: \"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-5.4.0/lib/gcc/x86_64-unknown-linux-gnu/5.4.0/include-fixed/\"" $CROSSTOOL_FILE
+
 fi
 
 #sed -i -r "/libiomp5/d" third_party/mkl/mkl.BUILD
@@ -144,11 +147,9 @@ cc_library(
 EOF
     # Add dependency to third_party library
     git apply $SCRIPT_DIR/rdma.patch
-    # TF 1.9.0: Patch for MPI collectives
-    #git cherry-pick -m 1 -n 5ac1bd7836e0f1a4d3b02f9538c4277914c8e5f5
     # TF 1.11.0 ISSUE 21999
     git cherry-pick -n c67ded664a20f27b4e90020bf76a097b462182b1
-    git apply $SCRIPT_DIR/tensorflow-mpi.patch
+    #git apply $SCRIPT_DIR/tensorflow-mpi.patch
 
     export \
     TF_NEED_CUDA=1 \
@@ -188,6 +189,8 @@ TF_NEED_OPENCL_SYCL=0 \
 TF_NEED_JEMALLOC=1 \
 TF_SET_ANDROID_WORKSPACE=0 \
 TF_NEED_KAFKA=0 \
+TF_NEED_IGNITE=0 \
+TF_NEED_ROCM=0 \
 TF_NEED_TENSORRT=0 \
 TF_DOWNLOAD_CLANG=0 \
 TF_MKL_ROOT="$TF_COMPILE_PATH/mklml_lnx" \
