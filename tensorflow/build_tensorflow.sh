@@ -49,7 +49,9 @@ if [[ -z "$ARG_VERSION" ]]; then
     usage; exit 1
 fi
 
-if [[ $ARG_ARCH == "avx2" ]]; then
+if [[ $ARG_ARCH == 'avx512' ]]; then
+    export CC_OPT_FLAGS="-march=skylake-avx512 -O2"
+elif [[ $ARG_ARCH == "avx2" ]]; then
     export CC_OPT_FLAGS="-march=core-avx2 -O2"
 elif [[ $ARG_ARCH == "avx" ]]; then
     export CC_OPT_FLAGS="-march=corei7-avx -O2"
