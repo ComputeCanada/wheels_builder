@@ -61,9 +61,9 @@ else
    usage; exit 1
 fi
 
-module load gcc java bazel imkl
+module load gcc/7.3.0 java bazel/0.19.2 imkl
 if [[ $ARG_GPU == 1 ]]; then
-    module load cuda/9.0.176 cudnn/7.0
+    module load cuda/10.0.130 cudnn/7.4 openmpi/2.1.1
 fi
 
 unset CPLUS_INCLUDE_PATH
@@ -80,25 +80,36 @@ if [[ $ARG_DEBUG == 1 ]]; then
     echo "Debug mode - compilation results will be in: $TF_COMPILE_PATH"
 fi
 
-git clone https://github.com/tensorflow/tensorflow.git; cd tensorflow
+#git clone https://github.com/tensorflow/tensorflow.git;
+tar xf /home/fafor10/tensorflow.tar.gz
+cd tensorflow
+git pull
 git checkout $ARG_VERSION
+git cherry-pick -n 03e63a291bc95dacaa821585f39a360b43465cb5
 
 GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
     CROSSTOOL_FILE=third_party/gpus/crosstool/CROSSTOOL.tpl
-    RPATH_TO_ADD="$EBROOTCUDNN/lib64 $(find $EBROOTCUDA -name lib64) /usr/lib64/nvidia $EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin"
+    RPATH_TO_ADD="$EBROOTCUDNN/lib64 $(find $EBROOTCUDA -name lib64) $EBROOTCUDA/lib64/stubs $EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin"
     for path in $RPATH_TO_ADD; do
         sed -i "\;flag: \"-Wl,-no-as-needed\"; a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$path\"" $CROSSTOOL_FILE
     done
 
-    sed -i "s;-B/usr/bin;-B$NIXUSER_PROFILE/bin;g" third_party/gpus/cuda_configure.bzl
-    sed -i "\;%{linker_bin_path_flag}; a \ \ \ \ \ \ \ \ flag: \"-B$NIXUSER_PROFILE/lib/\"" $CROSSTOOL_FILE
+    sed -i "s;-B/usr/bin;-B$EBROOTGCC/bin;g" third_party/gpus/cuda_configure.bzl
+#    sed -i "\;%{linker_bin_path_flag}; a \ \ \ \ \ \ \ \ flag: \"-B$NIXUSER_PROFILE/lib/\"" $CROSSTOOL_FILE
+    sed -i "\;%{linker_bin_path_flag}; a \ \ \ \ \ \ \ \ flag: \"-B$EBROOTGCC/lib/\"" $CROSSTOOL_FILE
 
     sed -i "\;linking_mode_flags { mode: DYNAMIC }; a \
-\ \ cxx_builtin_include_directory: \"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-5.4.0/lib/gcc/x86_64-unknown-linux-gnu/5.4.0/include/\"" $CROSSTOOL_FILE
+\ \ cxx_builtin_include_directory: \"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/lib/gcc/x86_64-pc-linux-gnu/7.3.0/include/\"" $CROSSTOOL_FILE
     sed -i "\;linking_mode_flags { mode: DYNAMIC }; a \
-\ \ cxx_builtin_include_directory: \"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-5.4.0/lib/gcc/x86_64-unknown-linux-gnu/5.4.0/include-fixed/\"" $CROSSTOOL_FILE
+\ \ cxx_builtin_include_directory: \"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/lib/gcc/x86_64-pc-linux-gnu/7.3.0/include-fixed/\"" $CROSSTOOL_FILE
 
+    # look for tools
+    for tool in $(grep 'tool_path { .* }' $CROSSTOOL_FILE | grep -Po '(?<=path: ")([a-z\/]{1,})'); do
+	    toolname=$(basename $tool)
+	    new_path=$(which $toolname)
+	    sed -i "s;$tool;$new_path;g" $CROSSTOOL_FILE
+    done
 fi
 
 #sed -i -r "/libiomp5/d" third_party/mkl/mkl.BUILD
@@ -150,14 +161,14 @@ EOF
     # Add dependency to third_party library
     git apply $SCRIPT_DIR/rdma.patch
     # TF 1.11.0 ISSUE 21999
-    git cherry-pick -n c67ded664a20f27b4e90020bf76a097b462182b1
+    #git cherry-pick -n c67ded664a20f27b4e90020bf76a097b462182b1
     #git apply $SCRIPT_DIR/tensorflow-mpi.patch
 
     export \
     TF_NEED_CUDA=1 \
-    TF_CUDA_VERSION=$(echo $EBVERSIONCUDA | grep -Po '\d.\d(?=.\d)') \
+    TF_CUDA_VERSION=$(echo $EBVERSIONCUDA | grep -Po '\d{1,}.\d{1,}(?=.\d{1,})') \
     CUDA_TOOLKIT_PATH=$CUDA_HOME \
-    TF_CUDNN_VERSION=$(echo $EBVERSIONCUDNN | grep -Po '\d(?=.\d)') \
+    TF_CUDNN_VERSION=$(echo $EBVERSIONCUDNN | grep -Po '\d{1,}(?=.\d{1,})') \
     CUDNN_INSTALL_PATH="$EBROOTCUDNN" \
     TF_CUDA_CLANG=0 \
     TF_CUDA_COMPUTE_CAPABILITIES="3.5,3.7,5.2,6.0,6.1" \
@@ -199,7 +210,7 @@ TF_MKL_ROOT="$TF_COMPILE_PATH/mklml_lnx" \
 TF_ENABLE_XLA=0
 ./configure
 
-bazel --io_nice_level=4 --output_user_root=$BAZEL_ROOT_PATH build --jobs 28 --ram_utilization_factor 40 --action_env=LD_LIBRARY_PATH=/usr/lib64/nvidia --verbose_failures --config opt $(echo $CONFIG_XOPT) --config mkl //tensorflow/tools/pip_package:build_pip_package
+bazel --output_user_root=$BAZEL_ROOT_PATH build --jobs 32 --action_env=LD_LIBRARY_PATH=/usr/lib64/nvidia --verbose_failures --config opt $(echo $CONFIG_XOPT) --config mkl //tensorflow/tools/pip_package:build_pip_package
 bazel-bin/tensorflow/tools/pip_package/build_pip_package $OPWD
 bazel --output_user_root=$BAZEL_ROOT_PATH shutdown
 
