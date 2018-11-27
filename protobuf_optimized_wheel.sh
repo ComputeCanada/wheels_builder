@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# Source
+# https://github.com/protocolbuffers/protobuf/blob/3.6.x/python/release/wheel/protobuf_optimized_pip.sh
+# Modified to patch a bug with std C++11 
+# Modified to wor with compute canada stack
+# Patcher : Félix-Antoine Fortin
 
 set -ex
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -16,7 +21,6 @@ function build_wheel() {
   PYTHON_BIN=$(which python)
 
   CFLAGS="-std=c++11" $PYTHON_BIN setup.py bdist_wheel --cpp_implementation --compile_static_extension
-  #auditwheel repair dist/protobuf-${PROTOBUF_VERSION}-${PYTHON_VERSION}-linux_x86_64.whl
 }
 
 # Validate arguments.
