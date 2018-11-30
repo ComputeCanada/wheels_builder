@@ -96,7 +96,6 @@ if [[ $ARG_GPU == 1 ]]; then
     done
 
     sed -i "s;-B/usr/bin;-B$EBROOTGCC/bin;g" third_party/gpus/cuda_configure.bzl
-#    sed -i "\;%{linker_bin_path_flag}; a \ \ \ \ \ \ \ \ flag: \"-B$NIXUSER_PROFILE/lib/\"" $CROSSTOOL_FILE
     sed -i "\;%{linker_bin_path_flag}; a \ \ \ \ \ \ \ \ flag: \"-B$EBROOTGCC/lib/\"" $CROSSTOOL_FILE
 
     sed -i "\;linking_mode_flags { mode: DYNAMIC }; a \
