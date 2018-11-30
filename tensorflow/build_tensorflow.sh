@@ -90,7 +90,7 @@ git cherry-pick -n 03e63a291bc95dacaa821585f39a360b43465cb5
 GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
     CROSSTOOL_FILE=third_party/gpus/crosstool/CROSSTOOL.tpl
-    RPATH_TO_ADD="$EBROOTCUDNN/lib64 $(find $EBROOTCUDA -name lib64) $EBROOTCUDA/lib64/stubs $EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin"
+    RPATH_TO_ADD="$EBROOTCUDNN/lib64 $(find $EBROOTCUDA -name lib64) $EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin"
     for path in $RPATH_TO_ADD; do
         sed -i "\;flag: \"-Wl,-no-as-needed\"; a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$path\"" $CROSSTOOL_FILE
     done
