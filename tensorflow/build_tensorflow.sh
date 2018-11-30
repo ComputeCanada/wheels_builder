@@ -217,8 +217,9 @@ WHEEL_REBUILD_FOLDER=$(mktemp -d -p .)
 TARGET_WHEEL=$(ls -Art $OPWD/*.whl | tail -n 1)
 cd $WHEEL_REBUILD_FOLDER
 unzip $TARGET_WHEEL 
-find . -name libiomp5.so -exec ln -sf $EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin/libiomp5.so {} \;
-zip --symlinks -r $TARGET_WHEEL *.data/ *.dist-info/
+find . -name libiomp5.so -delete
+sed -i 's/libiomp5.so//g' *.dist-info/RECORD
+zip -r $TARGET_WHEEL *.data/ *.dist-info/
 cd ..
 rm -rf $WHEEL_REBUILD_FOLDER
 
