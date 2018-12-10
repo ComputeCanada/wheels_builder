@@ -219,6 +219,8 @@ cd $WHEEL_REBUILD_FOLDER
 unzip $TARGET_WHEEL 
 find . -name libiomp5.so -delete
 sed -i 's/libiomp5.so//g' *.dist-info/RECORD
+# Delete wheel otherwise zip just refresh content and keep libiomp5
+rm $TARGET_WHEEL
 zip -r $TARGET_WHEEL *.data/ *.dist-info/
 cd ..
 rm -rf $WHEEL_REBUILD_FOLDER
