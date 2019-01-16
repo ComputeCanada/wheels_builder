@@ -25,6 +25,8 @@ if [[ "$PACKAGE" == "numpy" ]]; then
 	MODULE_BUILD_DEPS="imkl/2018.3.222"
 	PYTHON_DEPS="nose pytest"
 	PYTHON_TESTS="numpy.__config__.show(); numpy.test()"
+elif [[ "$PACKAGE" == "SQLAlchemy" ]]; then
+	PYTHON_IMPORT_NAME="sqlalchemy"
 elif [[ "$PACKAGE" == "atari_py" ]]; then
 	PACKAGE_DOWNLOAD_NAME="atari-py"
 	PACKAGE_FOLDER_NAME="atari-py"
@@ -59,6 +61,15 @@ elif [[ "$PACKAGE" == "cherrypy" ]]; then
 	PACKAGE_DOWNLOAD_NAME="CherryPy"
 elif [[ "$PACKAGE" == "EukRep" ]]; then
 	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
+elif [[ "$PACKAGE" == "multipledispatch" ]]; then
+	PYTHON_DEPS="six"
+elif [[ "$PACKAGE" == "dask_glm" ]]; then
+	PACKAGE_DOWNLOAD_NAME="dask-glm"
+	PACKAGE_FOLDER_NAME=$PACKAGE_DOWNLOAD_NAME
+elif [[ "$PACKAGE" == "dask_ml" ]]; then
+	MODULE_BUILD_DEPS="llvm/6.0.1"
+	PACKAGE_DOWNLOAD_NAME="dask-ml"
+	PACKAGE_FOLDER_NAME=$PACKAGE_DOWNLOAD_NAME
 elif [[ "$PACKAGE" == "kPAL" ]]; then
 	PYTHON_IMPORT_NAME="kpal"
 elif [[ "$PACKAGE" == "configargparse" ]]; then
@@ -116,7 +127,7 @@ elif [[ "$PACKAGE" == "openslide-python" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "/import sys/a import os" -e "s;.libopenslide.so.0.;os.environ.get(\"EBROOTOPENSLIDE\",\"$EBROOTOPENSLIDE\") + \"/lib/libopenslide.so.0\";g" $(find . -name "lowlevel.py")'
 elif [[ "$PACKAGE" == "cupy" ]]; then
 	PYTHON_DEPS="numpy fastrlock"
-	MODULE_DEPS="gcc/5.4.0 cuda/9.0 cudnn/7.0 nccl/2.3.5"
+	MODULE_BUILD_DEPS="gcc/5.4.0 cuda/9.0 cudnn/7.0 nccl/2.3.5"
 	# needed otherwise it does not find libcuda.so
 	PRE_DOWNLOAD_COMMANDS='export LDFLAGS="-L$EBROOTCUDA/lib64/stubs -L$EBROOTNCCL/lib" ; export CFLAGS="-I$EBROOTNCCL/include/"'
 elif [[ "$PACKAGE" == "chainer" ]]; then
@@ -182,7 +193,7 @@ elif [[ "$PACKAGE" == "grpcio" ]]; then
 elif [[ "$PACKAGE" == "metasv" ]]; then
 	PYTHON_DEPS="cython pysam"
 elif [[ "$PACKAGE" == "scipy" ]]; then
-	MODULE_BUILD_DEPS="imkl"
+	MODULE_BUILD_DEPS="imkl/2018.3.312"
 	PYTHON_DEPS="nose numpy pytest"
 	PYTHON_TESTS="scipy.__config__.show(); scipy.test()"
 	if [[ "$VERSION" == "0.13.3" ]]; then
@@ -239,6 +250,7 @@ elif [[ "$PACKAGE" == "pandas" ]]; then
 #	PYTHON_TESTS="pandas.test()"
 elif [[ "$PACKAGE" == "pyzmq" ]]; then
 	PYTHON_IMPORT_NAME="zmq"
+	MODULE_BUILD_DEPS="zeromq"
 elif [[ "$PACKAGE" == "qiime" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib mock nose cycler decorator enum34 functools32 ipython matplotlib pexpect emperor qcli natsort<4.0.0"
 	PYTHON_VERSIONS="python/2.7"
@@ -414,7 +426,7 @@ elif [[ "$PACKAGE" == "torchtext" ]]; then
         # Remove egg-info artefact as we are rebuilding a wheel.
         PRE_BUILD_COMMANDS="sed -i -e \"s/'torch',//g\" setup.py; rm -r torchtext.egg-info;"
 elif [[ "$PACKAGE" == "wxPython" ]]; then
-        MODULE_DEPS="gtk+3/3.20.9"
+        MODULE_BUILD_DEPS="gtk+3/3.20.9"
         PYTHON_DEPS="six typing PyPubSub"
         PRE_BUILD_COMMANDS='export LDFLAGS=-Wl,-rpath,\$ORIGIN,-rpath,$EBROOTGTKPLUS3/lib'
         PYTHON_IMPORT_NAME="wx"
@@ -453,7 +465,7 @@ DIR=tmp.$$
 mkdir $DIR
 pushd $DIR
 module --force purge
-module load nixpkgs
+module load nixpkgs gcc/7.3.0
 for pv in $PYTHON_VERSIONS; do
 	if [[ -n "$MODULE_BUILD_DEPS" ]]; then
 		module load $MODULE_BUILD_DEPS
