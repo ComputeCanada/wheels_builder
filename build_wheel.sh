@@ -484,7 +484,7 @@ for pv in $PYTHON_VERSIONS; do
 	PVDIR=${pv//\//-}
 
 	echo "Setting up build environment"
-	virtualenv build_$PVDIR || pyvenv build_$PVDIR
+	virtualenv --no-download build_$PVDIR || pyvenv build_$PVDIR
 	source build_$PVDIR/bin/activate
 	if [[ -n "$PYTHON_DEPS" ]]; then
 		pip install $PYTHON_DEPS --find-links=$TMP_WHEELHOUSE
