@@ -80,15 +80,16 @@ if [[ $ARG_DEBUG == 1 ]]; then
     echo "Debug mode - compilation results will be in: $TF_COMPILE_PATH"
 fi
 
-#git clone https://github.com/tensorflow/tensorflow.git;
-tar xf /home/fafor10/tensorflow.tar.gz
+git clone https://github.com/tensorflow/tensorflow.git;
+#tar xf /home/fafor10/tensorflow.tar.gz
 cd tensorflow
 git pull
 git checkout $ARG_VERSION
-git cherry-pick -n 03e63a291bc95dacaa821585f39a360b43465cb5
+#git cherry-pick -n 03e63a291bc95dacaa821585f39a360b43465cb5
 
 GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
+    sed -i "s/which('ldconfig')/which('echo')/g" configure.py
     CROSSTOOL_FILE=third_party/gpus/crosstool/CROSSTOOL.tpl
     RPATH_TO_ADD="$EBROOTCUDNN/lib64 $(find $EBROOTCUDA -name lib64) $EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin"
     for path in $RPATH_TO_ADD; do
@@ -102,7 +103,8 @@ if [[ $ARG_GPU == 1 ]]; then
 \ \ cxx_builtin_include_directory: \"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/lib/gcc/x86_64-pc-linux-gnu/7.3.0/include/\"" $CROSSTOOL_FILE
     sed -i "\;linking_mode_flags { mode: DYNAMIC }; a \
 \ \ cxx_builtin_include_directory: \"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/lib/gcc/x86_64-pc-linux-gnu/7.3.0/include-fixed/\"" $CROSSTOOL_FILE
-
+    sed -i "\;linking_mode_flags { mode: DYNAMIC }; a \
+\ \ cxx_builtin_include_directory: \"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/include/c++/7.3.0/\"" $CROSSTOOL_FILE
     # look for tools
     for tool in $(grep 'tool_path { .* }' $CROSSTOOL_FILE | grep -Po '(?<=path: ")([a-z\/]{1,})'); do
 	    toolname=$(basename $tool)
