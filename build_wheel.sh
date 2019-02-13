@@ -255,22 +255,22 @@ elif [[ "$PACKAGE" == "qiime" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib mock nose cycler decorator enum34 functools32 ipython matplotlib pexpect emperor qcli natsort<4.0.0"
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "dlib-cpu" ]]; then
-	MODULE_BUILD_DEPS="gcc/5.4.0 boost imkl"    # it does not work with Intel, and requires Boost
-	PRE_BUILD_COMMANDS='sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "cmake_find_blas.txt") '
-	PYTHON_VERSIONS="python/2.7"
+	MODULE_BUILD_DEPS="gcc/7.3.0 boost imkl"    # it does not work with Intel, and requires Boost
+	PRE_BUILD_COMMANDS='sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "*find_blas.*") '
 	PACKAGE="dlib"
 	PYTHON_IMPORT_NAME="$PACKAGE"
 	PACKAGE_FOLDER_NAME="$PACKAGE"
 	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
+        PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
 	PACKAGE_SUFFIX='-cpu'
 elif [[ "$PACKAGE" == "dlib-gpu" ]]; then
-	MODULE_BUILD_DEPS="gcc/5.4.0 boost imkl cuda cudnn"    # it does not work with Intel, and requires Boost
-	PRE_BUILD_COMMANDS='export CUDNN_HOME=$EBROOTCUDNN; sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "cmake_find_blas.txt")'
-	PYTHON_VERSIONS="python/2.7"
+	MODULE_BUILD_DEPS="gcc/7.3.0 boost imkl cuda cudnn"    # it does not work with Intel, and requires Boost
+	PRE_BUILD_COMMANDS='export CUDNN_HOME=$EBROOTCUDNN; sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "*find_blas.*")'
 	PACKAGE="dlib"
 	PYTHON_IMPORT_NAME="$PACKAGE"
 	PACKAGE_FOLDER_NAME="$PACKAGE"
 	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
+        PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
 	PACKAGE_SUFFIX='-gpu'
 elif [[ "$PACKAGE" == "shapely" ]]; then
 	MODULE_BUILD_DEPS="gcc geos"
@@ -538,7 +538,7 @@ EOF
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
             sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
 	fi
-	$PYTHON_CMD setup.py bdist_wheel > build.log
+	$PYTHON_CMD setup.py bdist_wheel |& tee build.log
 	pushd dist || cat build.log
 	WHEEL_NAME=$(ls *.whl)
 	if [[ -n "$RPATH_TO_ADD" ]]; then
