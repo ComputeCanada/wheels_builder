@@ -12,6 +12,7 @@ PYTHON_IMPORT_NAME="$PACKAGE"
 PACKAGE_FOLDER_NAME="$PACKAGE"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE"
 RPATH_TO_ADD=""
+BDIST_WHEEL_ARGS=""
 PRE_DOWNLOAD_COMMANDS=""
 TMP_WHEELHOUSE=$(pwd)
 
@@ -263,6 +264,7 @@ elif [[ "$PACKAGE" == "dlib-cpu" ]]; then
 	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
         PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
 	PACKAGE_SUFFIX='-cpu'
+        BDIST_WHEEL_ARGS='--yes CMAKE_SKIP_RPATH'
 elif [[ "$PACKAGE" == "dlib-gpu" ]]; then
 	MODULE_BUILD_DEPS="gcc/7.3.0 boost imkl cuda cudnn"    # it does not work with Intel, and requires Boost
 	PRE_BUILD_COMMANDS='export CUDNN_HOME=$EBROOTCUDNN; sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "*find_blas.*")'
@@ -272,6 +274,7 @@ elif [[ "$PACKAGE" == "dlib-gpu" ]]; then
 	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
         PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
 	PACKAGE_SUFFIX='-gpu'
+        BDIST_WHEEL_ARGS='--yes CMAKE_SKIP_RPATH'
 elif [[ "$PACKAGE" == "shapely" ]]; then
 	MODULE_BUILD_DEPS="gcc geos"
 	# need to patch geos.py to find libgeos_c.so based on the module that was loaded at build time
@@ -538,7 +541,7 @@ EOF
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
             sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
 	fi
-	$PYTHON_CMD setup.py bdist_wheel |& tee build.log
+	$PYTHON_CMD setup.py bdist_wheel $BDIST_WHEEL_ARGS |& tee build.log
 	pushd dist || cat build.log
 	WHEEL_NAME=$(ls *.whl)
 	if [[ -n "$RPATH_TO_ADD" ]]; then
