@@ -309,24 +309,6 @@ elif [[ "$PACKAGE" == "htseq" ]]; then
 	PYTHON_IMPORT_NAME="HTSeq"
 elif [[ "$PACKAGE" == "mpi4py" ]]; then
 	MODULE_BUILD_DEPS="intel openmpi"
-elif [[ "$PACKAGE" == "pytorch-cpu" ]];then
-	PACKAGE="pytorch"
-	MODULE_BUILD_DEPS="gcc/6.4.0 imkl/11.3.4.258"
-	PYTHON_DEPS="pyyaml numpy typing"
-	PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
-	PACKAGE_FOLDER_NAME="$PACKAGE"
-	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
-	PACKAGE_SUFFIX='-cpu'
-	PYTHON_IMPORT_NAME="torch"
-elif [[ "$PACKAGE" == "pytorch-gpu" ]];then
-	PACKAGE="pytorch"
-	MODULE_BUILD_DEPS="imkl/11.3.4.258 gcc/5.4.0 magma/2.2.0 cuda/8.0.44 cudnn/7.0 magma/2.2.0"
-	PYTHON_DEPS="pyyaml numpy typing"
-	PRE_BUILD_COMMANDS="export MAX_JOBS=3; export MKL_ROOT=$MKLROOT; export MKL_LIBRARY=$MKLROOT/lib/intel64; export LIBRARY_PATH=/cvmfs/soft.computecanada.ca/nix/lib/:$LIBRARY_PATH; export CMAKE_PREFIX_PATH=$EBROOTMAGMA; export CMAKE_LIBRARY_PATH=$MKL_LIBRARY"
-	PACKAGE_FOLDER_NAME="$PACKAGE"
-	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
-	PACKAGE_SUFFIX='-gpu'
-	PYTHON_IMPORT_NAME="torch"
 elif [[ "$PACKAGE" == "mpmath" ]]; then
 	# need to patch it so it supports bdist_wheel
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
