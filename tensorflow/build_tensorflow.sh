@@ -63,7 +63,7 @@ fi
 
 module load gcc/7.3.0 java bazel/0.19.2 imkl
 if [[ $ARG_GPU == 1 ]]; then
-    module load cuda/10.0.130 cudnn/7.4 openmpi/2.1.1
+    module load cuda/10.0.130 cudnn/7.4 openmpi/2.1.1 nccl/2.4.2
 fi
 
 unset CPLUS_INCLUDE_PATH
@@ -177,7 +177,8 @@ EOF
     TF_NEED_GDR=1 \
     TF_NEED_VERBS=1 \
     GCC_HOST_COMPILER_PATH=$(which mpicc) \
-    TF_NCCL_VERSION="1.3" \
+    TF_NCCL_VERSION="$EBVERSIONNCCL" \
+    NCCL_INSTALL_PATH="$EBROOTNCCL" \
     MPI_HOME="$EBROOTOPENMPI"
     CONFIG_XOPT="--config cuda"
 else
@@ -211,7 +212,8 @@ TF_MKL_ROOT="$TF_COMPILE_PATH/mklml_lnx" \
 TF_ENABLE_XLA=0
 ./configure
 
-bazel --output_user_root=$BAZEL_ROOT_PATH build --jobs 32 --action_env=LD_LIBRARY_PATH=/usr/lib64/nvidia --verbose_failures --config opt $(echo $CONFIG_XOPT) --config mkl //tensorflow/tools/pip_package:build_pip_package
+N_JOBS=$(grep -c ^processor /proc/cpuinfo)
+bazel --output_user_root=$BAZEL_ROOT_PATH build --jobs $N_JOBS --action_env=LD_LIBRARY_PATH=/usr/lib64/nvidia --verbose_failures --config opt $(echo $CONFIG_XOPT) --config mkl //tensorflow/tools/pip_package:build_pip_package
 bazel-bin/tensorflow/tools/pip_package/build_pip_package $OPWD
 bazel --output_user_root=$BAZEL_ROOT_PATH shutdown
 
