@@ -2,7 +2,7 @@
 set -e
 
 TF_VERSION="$1"
-PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
+PYTHON_VERSIONS="python/2.7 python/3.6 python/3.7"
 OPTIONS="-- --gpu"
 ARCHS="avx2 avx"
 for arch in $ARCHS; do
