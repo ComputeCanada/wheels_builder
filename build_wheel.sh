@@ -221,7 +221,7 @@ elif [[ "$PACKAGE" == "cgat" ]]; then
 	PYTHON_IMPORT_NAME="cgat"
 	PYTHON_DEPS="numpy cython pysam setuptools pyparsing pyaml alignlib-lite matplotlib biopython"
 elif [[ "$PACKAGE" == "h5py" ]]; then
-	MODULE_BUILD_DEPS="gcc hdf5"
+	MODULE_BUILD_DEPS="gcc/7.3.0 hdf5"
 	PYTHON_DEPS="nose numpy six Cython unittest2"
 	PYTHON_TESTS="h5py.run_tests()"
 elif [[ "$PACKAGE" == "matplotlib" ]]; then
