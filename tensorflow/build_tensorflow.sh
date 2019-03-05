@@ -16,12 +16,11 @@ if ! module -t list | grep -q python; then
    exit
 fi
 
-# make sure we don't fill up /dev/shm
 export TF_COMPILE_PATH=/dev/shm/${USER}/tf_$(date +'%s')
-function cleanup() {
-    rm -rf $TF_COMPILE_PATH
-}
-trap cleanup EXIT
+# make sure we don't fill up /dev/shm
+shopt -s nullglob
+rm -rf /dev/shm/${USER}/tf_*
+shopt -u nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TEMP=$(getopt -o a:v: --longoptions version:,arch:,gpu,debug -n $0 -- "$@")
