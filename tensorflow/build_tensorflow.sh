@@ -16,6 +16,12 @@ if ! module -t list | grep -q python; then
    exit
 fi
 
+export TF_COMPILE_PATH=/dev/shm/${USER}/tf_$(date +'%s')
+# make sure we don't fill up /dev/shm
+shopt -s nullglob
+rm -rf /dev/shm/${USER}/tf_*
+shopt -u nullglob
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TEMP=$(getopt -o a:v: --longoptions version:,arch:,gpu,debug -n $0 -- "$@")
 eval set -- "$TEMP"
@@ -70,7 +76,6 @@ unset CPLUS_INCLUDE_PATH
 unset C_INCLUDE_PATH
 
 OPWD=$(pwd)
-export TF_COMPILE_PATH=/dev/shm/${USER}/tf_$(date +'%s')
 export TMPDIR=$TF_COMPILE_PATH
 export TMP=$TMPDIR
 export BAZEL_ROOT_PATH=$TF_COMPILE_PATH/bazel
