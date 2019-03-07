@@ -11,7 +11,6 @@ VERSION=$2
 PYTHON_IMPORT_NAME="$PACKAGE"
 PACKAGE_FOLDER_NAME="$PACKAGE"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE"
-PACKAGE_ARCHNAME=""
 RPATH_TO_ADD=""
 BDIST_WHEEL_ARGS=""
 PRE_DOWNLOAD_COMMANDS=""
@@ -464,11 +463,11 @@ elif [[ "$PACKAGE" == "basemap" ]]; then
     fi
     if [[ "$VERSION" == "1.2.0" ]]; then
             PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/matplotlib/basemap/archive/v1.2.0rel.tar.gz"
-            PACKAGE_ARCHNAME="v1.2.0rel.tar.gz"
+            PACKAGE_DOWNLOAD_NAME="v1.2.0rel.tar.gz"
             PRE_BUILD_COMMANDS="sed -i \"s/__version__ = '1.1.0'/__version__ = '1.2.0'/\"  lib/mpl_toolkits/basemap/__init__.py"
     else
             PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/matplotlib/basemap/archive/v${VERSION}.tar.gz"
-            PACKAGE_ARCHNAME="v${VERSION}.tar.gz"
+            PACKAGE_DOWNLOAD_NAME="v${VERSION}.tar.gz"
     fi
     PACKAGE_FOLDER_NAME="basemap-${VERSION}"
     MODULE_BUILD_DEPS="proj geos"
@@ -511,8 +510,8 @@ for pv in $PYTHON_VERSIONS; do
 	mkdir $PVDIR
         # Do not collect binaries and don't install dependencies
         pip download --no-binary $PACKAGE_DOWNLOAD_ARGUMENT --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
-        if [[ -n "$PACKAGE_ARCHNAME" ]]; then
-                ARCHNAME="$PACKAGE_ARCHNAME"
+        if [[ $PACKAGE_DOWNLOAD_NAME =~ (.zip|.tar.gz|.tgz|.whl)$ ]]; then
+                ARCHNAME="$PACKAGE_DOWNLOAD_NAME"
         else
                 ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl})
         fi
