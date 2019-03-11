@@ -4,7 +4,7 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
     PYTHON_VERSIONS=$(ls -1 /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/ | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext wxPython bz2file smart_open gensim hypothesis murmurhash cymem preshed msgpack_python msgpack_numpy cytoolz wrapt plac thinc ujson regex spacy bigfloat aiozmq python-utils progressbar2 fast5_research sphinx-argparsei jsonnet Unidecode python-jose pycryptodome"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext wxPython bz2file smart_open gensim hypothesis murmurhash cymem preshed msgpack_python msgpack_numpy cytoolz wrapt plac thinc ujson regex spacy bigfloat aiozmq python-utils progressbar2 fast5_research sphinx-argparsei jsonnet Unidecode python-jose pycryptodome pyproj pyshp basemap MDAnalysis MDAnalysisTests attrs Cartopy OWSLib pykdtree"
 
 PACKAGE=${1?Missing package name}
 VERSION=$2
@@ -452,6 +452,45 @@ elif [[ "$PACKAGE" == "python-jose" ]]; then
     PYTHON_IMPORT_NAME="jose"
 elif [[ "$PACKAGE" == "pycryptodome" ]]; then
     PYTHON_IMPORT_NAME="Crypto"
+elif [[ "$PACKAGE" == "pyproj" ]]; then
+    PYTHON_IMPORT_NAME="pyproj"
+    MODULE_BUILD_DEPS="proj geos"
+elif [[ "$PACKAGE" == "pyshp" ]]; then
+    PYTHON_IMPORT_NAME="shapefile"
+elif [[ "$PACKAGE" == "basemap" ]]; then
+    if [[ -z "$VERSION" ]]; then
+        VERSION="1.2.0"
+    fi
+    if [[ "$VERSION" == "1.2.0" ]]; then
+            PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/matplotlib/basemap/archive/v1.2.0rel.tar.gz"
+            PACKAGE_DOWNLOAD_NAME="v1.2.0rel.tar.gz"
+            PRE_BUILD_COMMANDS="sed -i \"s/__version__ = '1.1.0'/__version__ = '1.2.0'/\"  lib/mpl_toolkits/basemap/__init__.py"
+    else
+            PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/matplotlib/basemap/archive/v${VERSION}.tar.gz"
+            PACKAGE_DOWNLOAD_NAME="v${VERSION}.tar.gz"
+    fi
+    PACKAGE_FOLDER_NAME="basemap-${VERSION}"
+    MODULE_BUILD_DEPS="proj geos"
+    PYTHON_DEPS="numpy matplotlib pyproj pyshp python-dateutil"
+    PRE_DOWNLOAD_COMMANDS="export GEOS_DIR=${EBROOTGEOS} "
+    PYTHON_IMPORT_NAME="mpl_toolkits.basemap"
+elif [[ "$PACKAGE" == "MDAnalysis" ]]; then
+    PYTHON_DEPS="gsd Cython joblib numpy mock GridDataFormats scipy matplotlib networkx biopython mmtf-python six duecredit"
+elif [[ "$PACKAGE" == "MDAnalysisTests" ]]; then
+    PYTHON_DEPS="MDAnalysis hypothesis pytest joblib pbr"
+    # Generates py2.py3 wheel anyway
+    PYTHON_VERSIONS="python/3.6"
+elif [[ "$PACKAGE" == "attrs" ]]; then
+    PYTHON_IMPORT_NAME="attr"
+elif [[ "$PACKAGE" == "Cartopy" ]]; then
+    MODULE_BUILD_DEPS="proj geos gdal"
+    PYTHON_DEPS="Cython numpy shapely pyshp six Pillow pyepsg pykdtree scipy OWSLib"
+    PYTHON_IMPORT_NAME="cartopy"
+elif [[ "$PACKAGE" == "OWSLib" ]]; then
+    PYTHON_IMPORT_NAME="owslib"
+elif [[ "$PACKAGE" == "pykdtree" ]]; then
+    MODULE_BUILD_DEPS="imkl"
+    PYTHON_DEPS="numpy"
 fi
 
 DIR=tmp.$$
@@ -488,7 +527,11 @@ for pv in $PYTHON_VERSIONS; do
 	mkdir $PVDIR
         # Do not collect binaries and don't install dependencies
         pip download --no-binary $PACKAGE_DOWNLOAD_ARGUMENT --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
-        ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl})
+        if [[ $PACKAGE_DOWNLOAD_NAME =~ (.zip|.tar.gz|.tgz|.whl)$ ]]; then
+                ARCHNAME="$PACKAGE_DOWNLOAD_NAME"
+        else
+                ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl})
+        fi
         # skip packages that are already in whl format
         if [[ $ARCHNAME == *.whl ]]; then
                 # Patch the content of the wheel file (eg remove `torch` dependency as torch
