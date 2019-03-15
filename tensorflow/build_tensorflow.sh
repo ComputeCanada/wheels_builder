@@ -2,7 +2,6 @@
 # Useful stack overflow thread
 # https://stackoverflow.com/questions/37761469/how-to-add-external-header-files-during-bazel-tensorflow-build
 # https://stackoverflow.com/questions/43921911/how-to-resolve-bazel-undeclared-inclusions-error
-# Successful build with VERBS, GDR and MPI : /dev/shm/fafor10/tf_1511368394/tensorflow
 set -e
 
 function usage() {
@@ -16,10 +15,10 @@ if ! module -t list | grep -q python; then
    exit
 fi
 
-export TF_COMPILE_PATH=/dev/shm/${USER}/tf_$(date +'%s')
-# make sure we don't fill up /dev/shm
+export TF_COMPILE_PATH=/mnt/tmp/${USER}/tf_$(date +'%s')
+# make sure we don't fill up /mnt/tmp
 shopt -s nullglob
-rm -rf /dev/shm/${USER}/tf_*
+rm -rf /mnt/tmp/${USER}/tf_*
 shopt -u nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
