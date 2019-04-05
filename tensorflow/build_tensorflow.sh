@@ -68,7 +68,7 @@ fi
 
 module load gcc/7.3.0 java bazel/0.19.2 imkl
 if [[ $ARG_GPU == 1 ]]; then
-    module load cuda/10.0.130 cudnn/7.4 openmpi/2.1.1 nccl/2.4.2
+    module load cuda/10.0.130 cudnn/7.5 openmpi/2.1.1 nccl/2.4.2
 fi
 
 unset CPLUS_INCLUDE_PATH
@@ -229,6 +229,8 @@ find . -name libiomp5.so -delete
 sed -i 's/libiomp5.so//g' *.dist-info/RECORD
 # Delete wheel otherwise zip just refresh content and keep libiomp5
 rm $TARGET_WHEEL
+# Fix missing NCCL link paths
+setrpaths.sh --path *.data --add_path $EBROOTNCCL/lib
 zip -r $TARGET_WHEEL *.data/ *.dist-info/
 cd ..
 rm -rf $WHEEL_REBUILD_FOLDER
