@@ -15,10 +15,10 @@ if ! module -t list | grep -q python; then
    exit
 fi
 
-export TF_COMPILE_PATH=/mnt/tmp/${USER}/tf_$(date +'%s')
+export TF_COMPILE_PATH=/tmp/${USER}/tf_$(date +'%s')
 # make sure we don't fill up /mnt/tmp
 shopt -s nullglob
-rm -rf /mnt/tmp/${USER}/tf_*
+rm -rf /tmp/${USER}/tf_*
 shopt -u nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
