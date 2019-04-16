@@ -15,6 +15,7 @@ RPATH_TO_ADD=""
 BDIST_WHEEL_ARGS=""
 PRE_DOWNLOAD_COMMANDS=""
 TMP_WHEELHOUSE=$(pwd)
+PATCHES=""
 
 if [[ -n "$VERSION" ]]; then
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE==$VERSION"
@@ -292,7 +293,8 @@ elif [[ "$PACKAGE" == "numba" ]]; then
 	fi
 elif [[ "$PACKAGE" == "llvmlite" ]]; then
 	PYTHON_DEPS="enum34"
-	MODULE_BUILD_DEPS="llvm"
+	MODULE_BUILD_DEPS="llvm cuda/10 tbb"
+        PATCHES="$PWD/patches/llvmlite-0.28.0-fpic.patch"
 elif [[ "$PACKAGE" == "scikit-learn" ]]; then
 	PYTHON_IMPORT_NAME="sklearn"
 	PYTHON_DEPS="numpy scipy"
@@ -547,6 +549,13 @@ for pv in $PYTHON_VERSIONS; do
         unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
         pushd $PVDIR
         pushd $PACKAGE_FOLDER_NAME*
+
+        echo "Patching"
+        for p in $PATCHES;
+        do
+            patch --verbose -p1 < $p
+        done
+
 	echo "Building"
 	pwd
 	ls
