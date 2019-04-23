@@ -24,7 +24,7 @@ else
 fi
 
 if [[ "$PACKAGE" == "numpy" ]]; then
-	MODULE_BUILD_DEPS="imkl/2018.3.222"
+	MODULE_BUILD_DEPS="imkl/2019.2.187"
 	PYTHON_DEPS="nose pytest"
 	PYTHON_TESTS="numpy.__config__.show(); numpy.test()"
 elif [[ "$PACKAGE" == "SQLAlchemy" ]]; then
@@ -36,7 +36,7 @@ elif [[ "$PACKAGE" == "PyOpenGL" ]]; then
 	PYTHON_IMPORT_NAME="OpenGL"
 	PYTHON_TESTS="from OpenGL.GL.ARB.shader_objects import *; from OpenGL.GL.ARB.fragment_shader import *; from OpenGL.GL.ARB.vertex_shader import *; from OpenGL.GL import *; from OpenGL.GLU import *"
 elif [[ "$PACKAGE" == "msprime" ]]; then
-	MODULE_BUILD_DEPS="intel/2016.4 imkl/2018.3.222 gsl/1.16"
+	MODULE_BUILD_DEPS="intel/2016.4 imkl/2019.2.187 gsl/1.16"
 	PYTHON_DEPS="numpy"
 	RPATH_TO_ADD="$EBROOTIMKL/lib/intel64"
 elif [[ "$PACKAGE" == "Box2D-kengz" ]]; then
@@ -48,6 +48,13 @@ elif [[ "$PACKAGE" == "cogent" ]]; then
 	PYTHON_DEPS="numpy"
 	PYTHON_VERSIONS="python/2.7"
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "amico" ]]; then
+	PYTHON_DEPS="numpy dipy scipy nibabel h5py six"
+	PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/daducci/AMICO/archive/master.zip"
+	PACKAGE_DOWNLOAD_NAME="master.zip"
+	PACKAGE_FOLDER_NAME="AMICO-master"
+elif [[ "$PACKAGE" == "dipy" ]]; then
+	PYTHON_DEPS="numpy"
 elif [[ "$PACKAGE" == "termcolor" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "ScientificPython" ]]; then
@@ -61,8 +68,12 @@ elif [[ "$PACKAGE" == "pyani" ]]; then
 	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
 elif [[ "$PACKAGE" == "cherrypy" ]]; then
 	PACKAGE_DOWNLOAD_NAME="CherryPy"
+elif [[ "$PACKAGE" == "arch" ]]; then
+	PYTHON_DEPS="numpy Cython"
 elif [[ "$PACKAGE" == "EukRep" ]]; then
 	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
+#elif [[ "$PACKAGE" == "parasail" ]]; then
+#	MODULE_BUILD_DEPS="intel/2018.3 parasail"
 elif [[ "$PACKAGE" == "multipledispatch" ]]; then
 	PYTHON_DEPS="six"
 elif [[ "$PACKAGE" == "dask_glm" ]]; then
@@ -594,7 +605,7 @@ EOF
 		module unload $MODULE_BUILD_DEPS
 	fi
 	module list
-	pip install ../$WHEEL_NAME --no-index --no-cache --find-links=$TMP_WHEELHOUSE
+	pip install ../$WHEEL_NAME --no-cache --find-links=$TMP_WHEELHOUSE
 	if [[ -n "$PYTHON_IMPORT_NAME" ]]; then
 		$PYTHON_CMD -c "import $PYTHON_IMPORT_NAME; $PYTHON_TESTS"
 	fi
