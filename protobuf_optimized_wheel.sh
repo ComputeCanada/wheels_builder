@@ -10,7 +10,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Print usage and fail.
 function usage() {
-  echo "Usage: protobuf_optimized_pip.sh PROTOBUF_VERSION" >&2
+  echo "Usage: protobuf_optimized_wheel.sh PROTOBUF_VERSION" >&2
   exit 1   # Causes caller to exit because we use -e.
 }
 
@@ -24,7 +24,7 @@ function build_wheel() {
 }
 
 # Validate arguments.
-if [ $0 != ./protobuf_optimized_pip.sh ]; then
+if [ $0 != ./protobuf_optimized_wheel.sh ]; then
   echo "Please run this script from the directory in which it is located." >&2
   exit 1
 fi
@@ -37,7 +37,7 @@ fi
 PROTOBUF_VERSION=$1
 
 DIR=${PWD}/'protobuf-python-build'
-PYTHON_VERSIONS=('2.7' '3.5' '3.6')
+PYTHON_VERSIONS=('2.7' '3.5' '3.6' '3.7')
 
 mkdir -p ${DIR}
 cd ${DIR}
@@ -51,7 +51,7 @@ sed -i 's/conformance\/Makefile//g' configure.ac
 
 # Use the /usr/bin/autoconf and related tools to pick the correct aclocal macros
 
-module load gcc/5.4.0
+module load gcc/7.3.0
 
 # Build protoc
 ./autogen.sh
