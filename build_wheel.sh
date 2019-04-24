@@ -302,6 +302,19 @@ elif [[ "$PACKAGE" == "numba" ]]; then
 	else
 		PYTHON_DEPS="numpy enum34 llvmlite"
 	fi
+elif [[ "$PACKAGE" == "roboschool" ]]; then
+	MODULE_BUILD_DEPS="gcc/7.3.0 boost bullet qt/5.6.1"
+	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
+	PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/openai/roboschool/archive/1.0.46.tar.gz"
+	PACKAGE_DOWNLOAD_NAME="1.0.46.tar.gz"
+	PACKAGE_FOLDER_NAME="roboschool-1.0.46"
+	PRE_BUILD_COMMANDS="pushd roboschool/cpp-household && make && popd "
+	if [[ "$RSNT_ARCH" == "avx2" ]]; then
+		export CFLAGS="-march=core-avx2"
+	elif [[ "$RSNT_ARCH" == "avx512" ]]; then
+		export CFLAGS="-march=skylake-avx512"
+	fi
+	PATCHES="$PWD/patches/roboschool-cpp-household.patch"
 elif [[ "$PACKAGE" == "llvmlite" ]]; then
 	PYTHON_DEPS="enum34"
 	MODULE_BUILD_DEPS="llvm cuda/10 tbb"

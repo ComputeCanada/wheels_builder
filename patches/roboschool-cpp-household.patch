@@ -1,0 +1,55 @@
+diff -ru roboschool-1.0.46.orig/roboschool/cpp-household/Makefile roboschool-1.0.46/roboschool/cpp-household/Makefile
+--- roboschool-1.0.46.orig/roboschool/cpp-household/Makefile	2019-04-06 16:48:27.000000000 +0000
++++ roboschool-1.0.46/roboschool/cpp-household/Makefile	2019-04-24 14:15:33.047977266 +0000
+@@ -4,9 +4,8 @@
+ 
+ ifeq ($(UNAME),Linux)
+   PKG  =pkg-config
+-  MOC  =moc -qt=5
+-  LIBS =-L/usr/lib64 -lm -lGL -L$(HOME)/.boost/lib
+-  INC  =-I/usr/include
++  MOC  =moc #-qt=5
++  LIBS =-lm -lGL #-L/usr/lib64 -lm -lGL -L$(HOME)/.boost/lib
+   BOOST_MT=
+   ifneq ($(USE_PYTHON3),0)
+     HAVE_PYTHON3=$(shell which python3)
+@@ -28,7 +27,6 @@
+     $(info Linux, python 2 branch)
+     PYTHON = $(shell python -c "import sys; print('%i.%i' % sys.version_info[:2])")
+   endif
+-  RPATH=-Wl,-z,origin -Wl,--disable-new-dtags,-rpath,'$(BULLET_PATH)/lib',-rpath,'$(HOME)/.boost/lib'
+ endif
+ 
+ ifeq ($(UNAME),Darwin)
+@@ -51,8 +49,8 @@
+ INC += `$(PKG) --cflags Qt5Widgets Qt5OpenGL assimp bullet`
+ LIBS += `$(PKG) --libs Qt5Widgets Qt5OpenGL assimp bullet`
+ LIBS    += -lstdc++
+-INC     += -I/usr/local/include/bullet
+-LIBS    += $(RPATH) -lLinearMath -lBullet3Common -lBulletCollision -lBulletDynamics -lBulletInverseDynamics -lBulletSoftBody -lPhysicsClientC_API
++INC += -I$(shell python -c "import sysconfig; print(sysconfig.get_paths()['include'])")
++LIBS    += $(RPATH) -lLinearMath -lBullet3Common -lBulletCollision -lBulletDynamics -lBulletInverseDynamics -lBulletSoftBody -lBulletRobotics #-lPhysicsClientC_API
+ 
+ ifeq ($(PYTHON),2.7)
+     BOOST_PYTHON = -lboost_python
+@@ -66,7 +64,7 @@
+ AR_OUT=
+ LINK_OUT= -o
+ MINUS_O = -o
+-CFLAGS   = -std=c++11 -Wall -Wno-unused-variable -Wno-unused-function -Wno-deprecated-register -fPIC -DBT_USE_DOUBLE_PRECISION -g -O3 -march=native $(INC)
++CFLAGS:= -std=c++11 -Wall -Wno-unused-variable -Wno-unused-function -Wno-deprecated-register -fPIC -DBT_USE_DOUBLE_PRECISION -g -O3 $(CFLAGS) $(INC)
+ CFLAGSD  = -std=c++11 -Wall -Wno-unused-variable -Wno-unused-function -Wno-deprecated-register -fPIC -DBT_USE_DOUBLE_PRECISION -g -DDEBUG $(INC)
+ 
+ SHARED  = -shared
+diff -ru roboschool-1.0.46.orig/roboschool/cpp-household/physics-bullet.cpp roboschool-1.0.46/roboschool/cpp-household/physics-bullet.cpp
+--- roboschool-1.0.46.orig/roboschool/cpp-household/physics-bullet.cpp	2019-04-06 16:48:27.000000000 +0000
++++ roboschool-1.0.46/roboschool/cpp-household/physics-bullet.cpp	2019-04-24 13:50:18.301394485 +0000
+@@ -95,7 +95,7 @@
+ std::list<shared_ptr<Robot>> World::load_sdf_mjcf(const std::string& fn, bool mjcf)
+ {
+ 	std::list<shared_ptr<Robot>> ret;
+-	const int MAX_SDF_BODIES = 512;
++//	const int MAX_SDF_BODIES = 512;
+ 	int bodyIndicesOut[MAX_SDF_BODIES];
+ 	int N;
+ 	if (mjcf) {
