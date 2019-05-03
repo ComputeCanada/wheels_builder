@@ -1,0 +1,7 @@
+nixpkgs/16.09
+gcc/7.3.0
+cuda/10.0.130
+nccl/2.4.2
+cudnn/7.5
+opencv/3.4.3
+python/3.7
