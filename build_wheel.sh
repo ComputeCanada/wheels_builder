@@ -517,6 +517,12 @@ elif [[ "$PACKAGE" == "OWSLib" ]]; then
 elif [[ "$PACKAGE" == "pykdtree" ]]; then
     MODULE_BUILD_DEPS="imkl"
     PYTHON_DEPS="numpy"
+elif [[ "$PACKAGE" == "GPy" ]]; then
+    PYTHON_DEPS="numpy matplotlib"
+    PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
+elif [[ "$PACKAGE" == "GPyOpt" ]]; then
+    PYTHON_DEPS="matplotlib"
+    PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
 fi
 
 DIR=tmp.$$
