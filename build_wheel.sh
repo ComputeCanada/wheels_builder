@@ -462,7 +462,11 @@ elif [[ "$PACKAGE" == "thinc" ]]; then
         PYTHON_DEPS="murmurhash>=0.28.0,<1.1.0 cymem>=2.0.2,<2.1.0 preshed>=2.0.1,<2.1.0 blis>=0.2.1,<0.3.0 srsly>=0.0.4,<1.1.0 wasabi>=0.0.9,<1.1.0 numpy>=1.7.0 plac>=0.9.6,<1.0.0 tqdm>=4.10.0,<5.0.0 pathlib==1.0.1;python_version<'3.4' cython>=0.25.0 hypothesis>=2.0.0,<3.0.0 pytest>=3.6.0,<4.0.0 mock>=2.0.0,<3.0.0 flake8>=3.5.0,<3.6.0"
     fi
 elif [[ "$PACKAGE" == "spacy" ]]; then
+    if [[ "$VERSION" == "2.0.16" ]]; then
         PYTHON_DEPS="cython>=0.24,<0.28.0 numpy>=1.7 murmurhash>=0.28,<0.29 cymem<1.32,>=1.30 preshed>=1.0.0,<2.0.0 thinc>=6.10.3,<6.11.0 plac<1.0.0,>=0.9.6 ujson>=1.35 dill>=0.2,<0.3 regex==2017.4.5 requests>=2.13.0,<3.0.0 pathlib==1.0.1;python_version<'3.4'"
+    else
+        PYTHON_DEPS="cymem>=2.0.2,<2.1.0 preshed>=2.0.1,<2.1.0 thinc>=7.0.2,<7.1.0 blis>=0.2.2,<0.3.0 murmurhash>=0.28.0,<1.1.0 wasabi>=0.2.0,<1.1.0 srsly>=0.0.5,<1.1.0 numpy>=1.15.0 requests>=2.13.0,<3.0.0 jsonschema>=2.6.0,<3.1.0 plac<1.0.0,>=0.9.6 pathlib==1.0.1;python_version<'3.4' cython>=0.25 pytest>=4.0.0,<4.1.0 pytest-timeout>=1.3.0,<2.0.0 mock>=2.0.0,<3.0.0 flake8>=3.5.0,<3.6.0"
+    fi
 elif [[ "$PACKAGE" == "bigfloat" ]]; then
     PYTHON_DEPS="cython"
     PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
