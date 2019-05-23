@@ -456,7 +456,11 @@ elif [[ "$PACKAGE" == "wrapt" ]]; then
 elif [[ "$PACKAGE" == "msgpack-python" ]]; then
         PYTHON_IMPORT_NAME="msgpack"
 elif [[ "$PACKAGE" == "thinc" ]]; then
+    if [[ "$VERSION" == "6.12.0" ]]; then
         PYTHON_DEPS="cython>=0.25.0 numpy>=1.7.0 msgpack>=0.5.6,<1.0.0 msgpack-numpy==0.4.1 murmurhash>=0.28.0,<0.29.0 cymem>=1.30.0,<1.32.0 preshed>=1.0.0,<2.0.0 cytoolz>=0.9.0,<0.10 wrapt>=1.10.0,<1.11.0 plac>=0.9.6,<1.0.0 tqdm>=4.10.0,<5.0.0 six>=1.10.0,<2.0.0 hypothesis<3,>=2 dill>=0.2.7,<0.3.0 pathlib==1.0.1;python_version<'3.4'"
+    else
+        PYTHON_DEPS="murmurhash>=0.28.0,<1.1.0 cymem>=2.0.2,<2.1.0 preshed>=2.0.1,<2.1.0 blis>=0.2.1,<0.3.0 srsly>=0.0.4,<1.1.0 wasabi>=0.0.9,<1.1.0 numpy>=1.7.0 plac>=0.9.6,<1.0.0 tqdm>=4.10.0,<5.0.0 pathlib==1.0.1;python_version<'3.4' cython>=0.25.0 hypothesis>=2.0.0,<3.0.0 pytest>=3.6.0,<4.0.0 mock>=2.0.0,<3.0.0 flake8>=3.5.0,<3.6.0"
+    fi
 elif [[ "$PACKAGE" == "spacy" ]]; then
         PYTHON_DEPS="cython>=0.24,<0.28.0 numpy>=1.7 murmurhash>=0.28,<0.29 cymem<1.32,>=1.30 preshed>=1.0.0,<2.0.0 thinc>=6.10.3,<6.11.0 plac<1.0.0,>=0.9.6 ujson>=1.35 dill>=0.2,<0.3 regex==2017.4.5 requests>=2.13.0,<3.0.0 pathlib==1.0.1;python_version<'3.4'"
 elif [[ "$PACKAGE" == "bigfloat" ]]; then
