@@ -323,9 +323,8 @@ elif [[ "$PACKAGE" == "scikit-learn" ]]; then
 	PYTHON_IMPORT_NAME="sklearn"
 	PYTHON_DEPS="numpy scipy"
 elif [[ "$PACKAGE" == "velocyto" ]]; then
-	PYTHON_DEPS="numpy scipy cython llvmlite==0.16.0 numba==0.31.0 matplotlib scikit-learn h5py click loompy"
-	PYTHON_VERSIONS="python/3.6"
-	unset PYTHON_IMPORT_NAME
+	PYTHON_DEPS="numpy scipy cython numba matplotlib scikit-learn h5py loompy pysam Click pandas"
+	PYTHON_VERSIONS="python/3.6 python/3.7"
 elif [[ "$PACKAGE" == "Send2Trash" ]]; then
 	PYTHON_IMPORT_NAME="send2trash"
 elif [[ "$PACKAGE" == "htseq" ]]; then
