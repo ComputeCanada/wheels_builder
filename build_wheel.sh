@@ -1,7 +1,7 @@
 #!/bin/env bash
 
 if [[ -z "$PYTHON_VERSIONS" ]]; then
-    PYTHON_VERSIONS=$(ls -1 /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/ | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
+	PYTHON_VERSIONS=$(ls -1 /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/ | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
 ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext wxPython bz2file smart_open gensim hypothesis murmurhash cymem preshed msgpack_python msgpack_numpy cytoolz wrapt plac thinc ujson regex spacy bigfloat aiozmq python-utils progressbar2 fast5_research sphinx-argparsei jsonnet Unidecode python-jose pycryptodome pyproj pyshp basemap MDAnalysis MDAnalysisTests attrs Cartopy OWSLib pykdtree jcvii blisi neuralcoref torch-scatter torch-sparse torch-cluster torch-spline-conv plyfile rdflib torch-geometric filetype pyahocorasick"
@@ -157,10 +157,10 @@ elif [[ "$PACKAGE" == "cupy" ]]; then
 	# needed otherwise it does not find libcuda.so
 	PRE_DOWNLOAD_COMMANDS='export LDFLAGS="-L$EBROOTCUDA/lib64/stubs -L$EBROOTNCCL/lib" ; export CFLAGS="-I$EBROOTNCCL/include/"'
 elif [[ "$PACKAGE" == "chainer" ]]; then
-        PYTHON_DEPS="filelock"
+	PYTHON_DEPS="filelock"
 elif [[ "$PACKAGE" == "chainermn" ]]; then
-        PYTHON_DEPS="chainer"
-        PRE_BUILD_COMMANDS='module load mpi4py'
+	PYTHON_DEPS="chainer"
+	PRE_BUILD_COMMANDS='module load mpi4py'
 elif [[ "$PACKAGE" == "deepchem" ]]; then
 	PYTHON_DEPS="numpy pandas joblib scikit-learn tensorflow_gpu pillow simdna"
 	MODULE_RUNTIME_DEPS="gcc/5.4.0 rdkit/2018.03.3"
@@ -287,9 +287,9 @@ elif [[ "$PACKAGE" == "dlib-cpu" ]]; then
 	PYTHON_IMPORT_NAME="$PACKAGE"
 	PACKAGE_FOLDER_NAME="$PACKAGE"
 	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
-        PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
+	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
 	PACKAGE_SUFFIX='-cpu'
-        BDIST_WHEEL_ARGS='--yes CMAKE_SKIP_RPATH'
+	BDIST_WHEEL_ARGS='--yes CMAKE_SKIP_RPATH'
 elif [[ "$PACKAGE" == "dlib-gpu" ]]; then
 	MODULE_BUILD_DEPS="gcc/7.3.0 boost imkl cuda cudnn"    # it does not work with Intel, and requires Boost
 	PRE_BUILD_COMMANDS='export CUDNN_HOME=$EBROOTCUDNN; sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "*find_blas.*")'
@@ -297,9 +297,9 @@ elif [[ "$PACKAGE" == "dlib-gpu" ]]; then
 	PYTHON_IMPORT_NAME="$PACKAGE"
 	PACKAGE_FOLDER_NAME="$PACKAGE"
 	PACKAGE_DOWNLOAD_NAME="$PACKAGE"
-        PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
+	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
 	PACKAGE_SUFFIX='-gpu'
-        BDIST_WHEEL_ARGS='--yes CMAKE_SKIP_RPATH'
+	BDIST_WHEEL_ARGS='--yes CMAKE_SKIP_RPATH'
 elif [[ "$PACKAGE" == "shapely" ]]; then
 	MODULE_BUILD_DEPS="gcc geos"
 	# need to patch geos.py to find libgeos_c.so based on the module that was loaded at build time
@@ -331,7 +331,7 @@ elif [[ "$PACKAGE" == "roboschool" ]]; then
 elif [[ "$PACKAGE" == "llvmlite" ]]; then
 	PYTHON_DEPS="enum34"
 	MODULE_BUILD_DEPS="llvm cuda/10 tbb"
-        PATCHES="$PWD/patches/llvmlite-0.28.0-fpic.patch"
+	PATCHES="$PWD/patches/llvmlite-0.28.0-fpic.patch"
 elif [[ "$PACKAGE" == "scikit-learn" ]]; then
 	PYTHON_IMPORT_NAME="sklearn"
 	PYTHON_DEPS="numpy scipy"
@@ -428,173 +428,173 @@ elif [[ "$PACKAGE" == "theano" ]]; then
 elif [[ "$PACKAGE" == "alignlib-lite" ]]; then
 	MODULE_BUILD_DEPS="boost"
 elif [[ "$PACKAGE" == "torchvision" ]]; then
-    # torch_cpu is only for testing purposes. It is not in torchvision requirements.
-    # torchvision should be installed along with : torch-[cg]pu
+	# torch_cpu is only for testing purposes. It is not in torchvision requirements.
+	# torchvision should be installed along with : torch-[cg]pu
 	PYTHON_DEPS="numpy six pillow-simd torch-cpu"
 
-    # Remove torch requirements from wheel as the user need to either install torch-[cg]pu wheel
-    # Otherwise, it does not install because torchvision has a `torch` requirement, and no pypi version is supplied, thus failing.
-    PATCH_WHEEL_COMMANDS="sed -i -e 's/Requires-Dist: torch//' torchvision-*.dist-info/METADATA; sed -i -e 's/, \"torch\"//' torchvision-*.dist-info/metadata.json"
+	# Remove torch requirements from wheel as the user need to either install torch-[cg]pu wheel
+	# Otherwise, it does not install because torchvision has a `torch` requirement, and no pypi version is supplied, thus failing.
+	PATCH_WHEEL_COMMANDS="sed -i -e 's/Requires-Dist: torch//' torchvision-*.dist-info/METADATA; sed -i -e 's/, \"torch\"//' torchvision-*.dist-info/metadata.json"
 elif [[ "$PACKAGE" == "Pillow" ]]; then
 	PYTHON_IMPORT_NAME="PIL"
 elif [[ "$PACKAGE" == "biopython" ]]; then
-        PYTHON_DEPS="numpy"
-        PYTHON_IMPORT_NAME="Bio"
+	PYTHON_DEPS="numpy"
+	PYTHON_IMPORT_NAME="Bio"
 elif [[ "$PACKAGE" == "torchtext" ]]; then
-        # torch_cpu, six and numpy are only for testing purposes. They are not in torchtext requirements.
-        # torchtext should be installed along with : numpy, six, torch-[cg]pu
-        PYTHON_DEPS="certifi urllib3 chardet idna requests tqdm six numpy torch_cpu"
-        
-        # Remove torch requirements as the user need to either install torch-[cg]pu wheel and not PyPI torch.
-        # Remove egg-info artefact as we are rebuilding a wheel.
-        PRE_BUILD_COMMANDS="sed -i -e \"s/'torch',//g\" setup.py; rm -r torchtext.egg-info;"
+	# torch_cpu, six and numpy are only for testing purposes. They are not in torchtext requirements.
+	# torchtext should be installed along with : numpy, six, torch-[cg]pu
+	PYTHON_DEPS="certifi urllib3 chardet idna requests tqdm six numpy torch_cpu"
+
+	# Remove torch requirements as the user need to either install torch-[cg]pu wheel and not PyPI torch.
+	# Remove egg-info artefact as we are rebuilding a wheel.
+	PRE_BUILD_COMMANDS="sed -i -e \"s/'torch',//g\" setup.py; rm -r torchtext.egg-info;"
 elif [[ "$PACKAGE" == "wxPython" ]]; then
-        MODULE_BUILD_DEPS="gtk+3/3.20.9"
-        PYTHON_DEPS="six typing PyPubSub"
-        PRE_BUILD_COMMANDS='export LDFLAGS=-Wl,-rpath,\$ORIGIN,-rpath,$EBROOTGTKPLUS3/lib'
-        PYTHON_IMPORT_NAME="wx"
+	MODULE_BUILD_DEPS="gtk+3/3.20.9"
+	PYTHON_DEPS="six typing PyPubSub"
+	PRE_BUILD_COMMANDS='export LDFLAGS=-Wl,-rpath,\$ORIGIN,-rpath,$EBROOTGTKPLUS3/lib'
+	PYTHON_IMPORT_NAME="wx"
 elif [[ "$PACKAGE" == "bz2file" ]]; then
-        PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "smart_open" ]]; then
-        PYTHON_DEPS="boto>=2.32 bz2file requests boto3"
+	PYTHON_DEPS="boto>=2.32 bz2file requests boto3"
 elif [[ "$PACKAGE" == "gensim" ]]; then
-        PYTHON_DEPS="numpy>=1.11.3 scipy>=0.18.1 six>=1.5.0 smart_open>=1.2.1"
+	PYTHON_DEPS="numpy>=1.11.3 scipy>=0.18.1 six>=1.5.0 smart_open>=1.2.1"
 elif [[ "$PACKAGE" == "preshed" ]]; then
-        PYTHON_DEPS="cymem>=1.30,<1.32.0"
+	PYTHON_DEPS="cymem>=1.30,<1.32.0"
 elif [[ "$PACKAGE" == "cytoolz" ]]; then
-        PYTHON_DEPS="toolz>=0.8.0"
+	PYTHON_DEPS="toolz>=0.8.0"
 elif [[ "$PACKAGE" == "wrapt" ]]; then
-        PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "msgpack-python" ]]; then
-        PYTHON_IMPORT_NAME="msgpack"
+	PYTHON_IMPORT_NAME="msgpack"
 elif [[ "$PACKAGE" == "thinc" ]]; then
-    if [[ "$VERSION" == "6.12.0" ]]; then
-        PYTHON_DEPS="cython>=0.25.0 numpy>=1.7.0 msgpack>=0.5.6,<1.0.0 msgpack-numpy==0.4.1 murmurhash>=0.28.0,<0.29.0 cymem>=1.30.0,<1.32.0 preshed>=1.0.0,<2.0.0 cytoolz>=0.9.0,<0.10 wrapt>=1.10.0,<1.11.0 plac>=0.9.6,<1.0.0 tqdm>=4.10.0,<5.0.0 six>=1.10.0,<2.0.0 hypothesis<3,>=2 dill>=0.2.7,<0.3.0 pathlib==1.0.1;python_version<'3.4'"
-    else
-        PYTHON_DEPS="murmurhash>=0.28.0,<1.1.0 cymem>=2.0.2,<2.1.0 preshed>=2.0.1,<2.1.0 blis>=0.2.1,<0.3.0 srsly>=0.0.4,<1.1.0 wasabi>=0.0.9,<1.1.0 numpy>=1.7.0 plac>=0.9.6,<1.0.0 tqdm>=4.10.0,<5.0.0 pathlib==1.0.1;python_version<'3.4' cython>=0.25.0 hypothesis>=2.0.0,<3.0.0 pytest>=3.6.0,<4.0.0 mock>=2.0.0,<3.0.0 flake8>=3.5.0,<3.6.0"
-    fi
+	if [[ "$VERSION" == "6.12.0" ]]; then
+		PYTHON_DEPS="cython>=0.25.0 numpy>=1.7.0 msgpack>=0.5.6,<1.0.0 msgpack-numpy==0.4.1 murmurhash>=0.28.0,<0.29.0 cymem>=1.30.0,<1.32.0 preshed>=1.0.0,<2.0.0 cytoolz>=0.9.0,<0.10 wrapt>=1.10.0,<1.11.0 plac>=0.9.6,<1.0.0 tqdm>=4.10.0,<5.0.0 six>=1.10.0,<2.0.0 hypothesis<3,>=2 dill>=0.2.7,<0.3.0 pathlib==1.0.1;python_version<'3.4'"
+	else
+		PYTHON_DEPS="murmurhash>=0.28.0,<1.1.0 cymem>=2.0.2,<2.1.0 preshed>=2.0.1,<2.1.0 blis>=0.2.1,<0.3.0 srsly>=0.0.4,<1.1.0 wasabi>=0.0.9,<1.1.0 numpy>=1.7.0 plac>=0.9.6,<1.0.0 tqdm>=4.10.0,<5.0.0 pathlib==1.0.1;python_version<'3.4' cython>=0.25.0 hypothesis>=2.0.0,<3.0.0 pytest>=3.6.0,<4.0.0 mock>=2.0.0,<3.0.0 flake8>=3.5.0,<3.6.0"
+	fi
 elif [[ "$PACKAGE" == "spacy" ]]; then
-    if [[ "$VERSION" == "2.0.16" ]]; then
-        PYTHON_DEPS="cython>=0.24,<0.28.0 numpy>=1.7 murmurhash>=0.28,<0.29 cymem<1.32,>=1.30 preshed>=1.0.0,<2.0.0 thinc>=6.10.3,<6.11.0 plac<1.0.0,>=0.9.6 ujson>=1.35 dill>=0.2,<0.3 regex==2017.4.5 requests>=2.13.0,<3.0.0 pathlib==1.0.1;python_version<'3.4'"
-    else
-        PYTHON_DEPS="cymem>=2.0.2,<2.1.0 preshed>=2.0.1,<2.1.0 thinc>=7.0.2,<7.1.0 blis>=0.2.2,<0.3.0 murmurhash>=0.28.0,<1.1.0 wasabi>=0.2.0,<1.1.0 srsly>=0.0.5,<1.1.0 numpy>=1.15.0 requests>=2.13.0,<3.0.0 jsonschema>=2.6.0,<3.1.0 plac<1.0.0,>=0.9.6 pathlib==1.0.1;python_version<'3.4' cython>=0.25 pytest>=4.0.0,<4.1.0 pytest-timeout>=1.3.0,<2.0.0 mock>=2.0.0,<3.0.0 flake8>=3.5.0,<3.6.0"
-    fi
+	if [[ "$VERSION" == "2.0.16" ]]; then
+		PYTHON_DEPS="cython>=0.24,<0.28.0 numpy>=1.7 murmurhash>=0.28,<0.29 cymem<1.32,>=1.30 preshed>=1.0.0,<2.0.0 thinc>=6.10.3,<6.11.0 plac<1.0.0,>=0.9.6 ujson>=1.35 dill>=0.2,<0.3 regex==2017.4.5 requests>=2.13.0,<3.0.0 pathlib==1.0.1;python_version<'3.4'"
+	else
+		PYTHON_DEPS="cymem>=2.0.2,<2.1.0 preshed>=2.0.1,<2.1.0 thinc>=7.0.2,<7.1.0 blis>=0.2.2,<0.3.0 murmurhash>=0.28.0,<1.1.0 wasabi>=0.2.0,<1.1.0 srsly>=0.0.5,<1.1.0 numpy>=1.15.0 requests>=2.13.0,<3.0.0 jsonschema>=2.6.0,<3.1.0 plac<1.0.0,>=0.9.6 pathlib==1.0.1;python_version<'3.4' cython>=0.25 pytest>=4.0.0,<4.1.0 pytest-timeout>=1.3.0,<2.0.0 mock>=2.0.0,<3.0.0 flake8>=3.5.0,<3.6.0"
+	fi
 elif [[ "$PACKAGE" == "bigfloat" ]]; then
-    PYTHON_DEPS="cython"
-    PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+	PYTHON_DEPS="cython"
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "python-utils" ]]; then
-    PYTHON_IMPORT_NAME="python_utils"
+	PYTHON_IMPORT_NAME="python_utils"
 elif [[ "$PACKAGE" == "progressbar2" ]]; then
-    PYTHON_IMPORT_NAME="progressbar"
+	PYTHON_IMPORT_NAME="progressbar"
 elif [[ "$PACKAGE" == "fast5_research" ]]; then
-    PYTHON_DEPS="numpy h5py"
+	PYTHON_DEPS="numpy h5py"
 elif [[ "$PACKAGE" == "sphinx-argparse" ]]; then
-    PYTHON_IMPORT_NAME="sphinxarg"
+	PYTHON_IMPORT_NAME="sphinxarg"
 elif [[ "$PACKAGE" == "jsonnet" ]]; then
-    PYTHON_IMPORT_NAME="_jsonnet"
+	PYTHON_IMPORT_NAME="_jsonnet"
 elif [[ "$PACKAGE" == "Unidecode" ]]; then
-    PYTHON_IMPORT_NAME=""
+	PYTHON_IMPORT_NAME=""
 elif [[ "$PACKAGE" == "python-jose" ]]; then
-    PYTHON_IMPORT_NAME="jose"
+	PYTHON_IMPORT_NAME="jose"
 elif [[ "$PACKAGE" == "pycryptodome" ]]; then
-    PYTHON_IMPORT_NAME="Crypto"
+	PYTHON_IMPORT_NAME="Crypto"
 elif [[ "$PACKAGE" == "pyproj" ]]; then
-    PYTHON_IMPORT_NAME="pyproj"
-    MODULE_BUILD_DEPS="proj geos"
+	PYTHON_IMPORT_NAME="pyproj"
+	MODULE_BUILD_DEPS="proj geos"
 elif [[ "$PACKAGE" == "pyshp" ]]; then
-    PYTHON_IMPORT_NAME="shapefile"
+	PYTHON_IMPORT_NAME="shapefile"
 elif [[ "$PACKAGE" == "basemap" ]]; then
-    if [[ -z "$VERSION" ]]; then
-        VERSION="1.2.0"
-    fi
-    if [[ "$VERSION" == "1.2.0" ]]; then
-            PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/matplotlib/basemap/archive/v1.2.0rel.tar.gz"
-            PACKAGE_DOWNLOAD_NAME="v1.2.0rel.tar.gz"
-            PRE_BUILD_COMMANDS="sed -i \"s/__version__ = '1.1.0'/__version__ = '1.2.0'/\"  lib/mpl_toolkits/basemap/__init__.py"
-    else
-            PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/matplotlib/basemap/archive/v${VERSION}.tar.gz"
-            PACKAGE_DOWNLOAD_NAME="v${VERSION}.tar.gz"
-    fi
-    PACKAGE_FOLDER_NAME="basemap-${VERSION}"
-    MODULE_BUILD_DEPS="proj geos"
-    PYTHON_DEPS="numpy matplotlib pyproj pyshp python-dateutil"
-    PRE_DOWNLOAD_COMMANDS="export GEOS_DIR=${EBROOTGEOS} "
-    PYTHON_IMPORT_NAME="mpl_toolkits.basemap"
+	if [[ -z "$VERSION" ]]; then
+		VERSION="1.2.0"
+	fi
+	if [[ "$VERSION" == "1.2.0" ]]; then
+		PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/matplotlib/basemap/archive/v1.2.0rel.tar.gz"
+		PACKAGE_DOWNLOAD_NAME="v1.2.0rel.tar.gz"
+		PRE_BUILD_COMMANDS="sed -i \"s/__version__ = '1.1.0'/__version__ = '1.2.0'/\"  lib/mpl_toolkits/basemap/__init__.py"
+	else
+		PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/matplotlib/basemap/archive/v${VERSION}.tar.gz"
+		PACKAGE_DOWNLOAD_NAME="v${VERSION}.tar.gz"
+	fi
+	PACKAGE_FOLDER_NAME="basemap-${VERSION}"
+	MODULE_BUILD_DEPS="proj geos"
+	PYTHON_DEPS="numpy matplotlib pyproj pyshp python-dateutil"
+	PRE_DOWNLOAD_COMMANDS="export GEOS_DIR=${EBROOTGEOS} "
+	PYTHON_IMPORT_NAME="mpl_toolkits.basemap"
 elif [[ "$PACKAGE" == "MDAnalysis" ]]; then
-    PYTHON_DEPS="gsd Cython joblib numpy mock GridDataFormats scipy matplotlib networkx biopython mmtf-python six duecredit"
+	PYTHON_DEPS="gsd Cython joblib numpy mock GridDataFormats scipy matplotlib networkx biopython mmtf-python six duecredit"
 elif [[ "$PACKAGE" == "MDAnalysisTests" ]]; then
-    PYTHON_DEPS="MDAnalysis hypothesis pytest joblib pbr"
-    # Generates py2.py3 wheel anyway
-    PYTHON_VERSIONS="python/3.6"
+	PYTHON_DEPS="MDAnalysis hypothesis pytest joblib pbr"
+	# Generates py2.py3 wheel anyway
+	PYTHON_VERSIONS="python/3.6"
 elif [[ "$PACKAGE" == "attrs" ]]; then
-    PYTHON_IMPORT_NAME="attr"
+	PYTHON_IMPORT_NAME="attr"
 elif [[ "$PACKAGE" == "Cartopy" ]]; then
-    MODULE_BUILD_DEPS="proj geos gdal"
-    PYTHON_DEPS="Cython numpy shapely pyshp six Pillow pyepsg pykdtree scipy OWSLib"
-    PYTHON_IMPORT_NAME="cartopy"
+	MODULE_BUILD_DEPS="proj geos gdal"
+	PYTHON_DEPS="Cython numpy shapely pyshp six Pillow pyepsg pykdtree scipy OWSLib"
+	PYTHON_IMPORT_NAME="cartopy"
 elif [[ "$PACKAGE" == "OWSLib" ]]; then
-    PYTHON_IMPORT_NAME="owslib"
+	PYTHON_IMPORT_NAME="owslib"
 elif [[ "$PACKAGE" == "pykdtree" ]]; then
-    MODULE_BUILD_DEPS="imkl"
-    PYTHON_DEPS="numpy"
+	MODULE_BUILD_DEPS="imkl"
+	PYTHON_DEPS="numpy"
 elif [[ "$PACKAGE" == "GPy" ]]; then
-    PYTHON_DEPS="numpy matplotlib"
-    PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
+	PYTHON_DEPS="numpy matplotlib"
+	PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
 elif [[ "$PACKAGE" == "GPyOpt" ]]; then
-    PYTHON_DEPS="matplotlib"
-    PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
+	PYTHON_DEPS="matplotlib"
+	PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
 elif [[ "$PACKAGE" == "blmath" ]]; then
-    PRE_BUILD_COMMANDS='sed -i -e "s@-fno-inline@-fno-inline\x27,\x27-L${EBROOTSUITESPARSE}/lib@g" setup.py; sed -i -e "s@/usr/include/suitesparse@${EBROOTSUITESPARSE}/include@g" setup.py; sed -i -e "s@lapack@mkl@g" setup.py'
-    MODULE_BUILD_DEPS="suitesparse imkl"
-    PYTHON_DEPS="numpy"
-    PYTHON_VERSIONS="python/2.7"
+	PRE_BUILD_COMMANDS='sed -i -e "s@-fno-inline@-fno-inline\x27,\x27-L${EBROOTSUITESPARSE}/lib@g" setup.py; sed -i -e "s@/usr/include/suitesparse@${EBROOTSUITESPARSE}/include@g" setup.py; sed -i -e "s@lapack@mkl@g" setup.py'
+	MODULE_BUILD_DEPS="suitesparse imkl"
+	PYTHON_DEPS="numpy"
+	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "jcvi" ]]; then
-    # aka ALLMAPS
-    PYTHON_DEPS="biopython numpy deap networkx matplotlib cython"
-    PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6 python/3.7"
+	# aka ALLMAPS
+	PYTHON_DEPS="biopython numpy deap networkx matplotlib cython"
+	PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6 python/3.7"
 elif [[ "$PACKAGE" == "blis" ]]; then
-    PYTHON_DEPS="numpy cython pytest hypothesis wheel"
+	PYTHON_DEPS="numpy cython pytest hypothesis wheel"
 elif [[ "$PACKAGE" == "neuralcoref" ]]; then
-    PYTHON_DEPS="cython>=0.25 pytest spacy>=2.1.0"
+	PYTHON_DEPS="cython>=0.25 pytest spacy>=2.1.0"
 elif [[ "$PACKAGE" == "torch-scatter" ]]; then
-    PYTHON_DEPS="torch>=1.1.0"
-    MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
-    PACKAGE='torch_scatter'
-    PACKAGE_DOWNLOAD_NAME=$PACKAGE
-    PYTHON_IMPORT_NAME=$PACKAGE
-    PACKAGE_FOLDER_NAME=$PACKAGE
+	PYTHON_DEPS="torch>=1.1.0"
+	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
+	PACKAGE='torch_scatter'
+	PACKAGE_DOWNLOAD_NAME=$PACKAGE
+	PYTHON_IMPORT_NAME=$PACKAGE
+	PACKAGE_FOLDER_NAME=$PACKAGE
 elif [[ "$PACKAGE" == "torch-sparse" ]]; then
-    PYTHON_DEPS="torch>=1.1.0 torch-scatter"
-    MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
-    PACKAGE='torch_sparse'
-    PACKAGE_DOWNLOAD_NAME=$PACKAGE
-    PYTHON_IMPORT_NAME=$PACKAGE
-    PACKAGE_FOLDER_NAME=$PACKAGE
+	PYTHON_DEPS="torch>=1.1.0 torch-scatter"
+	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
+	PACKAGE='torch_sparse'
+	PACKAGE_DOWNLOAD_NAME=$PACKAGE
+	PYTHON_IMPORT_NAME=$PACKAGE
+	PACKAGE_FOLDER_NAME=$PACKAGE
 elif [[ "$PACKAGE" == "torch-cluster" ]]; then
-    PYTHON_DEPS="torch>=1.1.0"
-    MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
-    PACKAGE='torch_cluster'
-    PACKAGE_DOWNLOAD_NAME=$PACKAGE
-    PYTHON_IMPORT_NAME=$PACKAGE
-    PACKAGE_FOLDER_NAME=$PACKAGE
+	PYTHON_DEPS="torch>=1.1.0"
+	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
+	PACKAGE='torch_cluster'
+	PACKAGE_DOWNLOAD_NAME=$PACKAGE
+	PYTHON_IMPORT_NAME=$PACKAGE
+	PACKAGE_FOLDER_NAME=$PACKAGE
 elif [[ "$PACKAGE" == "torch-spline-conv" ]]; then
-    PYTHON_DEPS="torch>=1.1.0"
-    MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
-    PACKAGE='torch_spline_conv'
-    PACKAGE_DOWNLOAD_NAME=$PACKAGE
-    PYTHON_IMPORT_NAME=$PACKAGE
-    PACKAGE_FOLDER_NAME=$PACKAGE
+	PYTHON_DEPS="torch>=1.1.0"
+	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
+	PACKAGE='torch_spline_conv'
+	PACKAGE_DOWNLOAD_NAME=$PACKAGE
+	PYTHON_IMPORT_NAME=$PACKAGE
+	PACKAGE_FOLDER_NAME=$PACKAGE
 elif [[ "$PACKAGE" == "plyfile" ]]; then
-    PYTHON_DEPS="numpy"
+	PYTHON_DEPS="numpy"
 elif [[ "$PACKAGE" == "torch-geometric" ]]; then
-    PYTHON_DEPS="torch>=1.1.0 torch-scatter torch-sparse torch-cluster torch-spline-conv"
-    MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
-    PACKAGE='torch_geometric'
-    PACKAGE_DOWNLOAD_NAME=$PACKAGE
-    PYTHON_IMPORT_NAME=$PACKAGE
-    PACKAGE_FOLDER_NAME=$PACKAGE
+	PYTHON_DEPS="torch>=1.1.0 torch-scatter torch-sparse torch-cluster torch-spline-conv"
+	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
+	PACKAGE='torch_geometric'
+	PACKAGE_DOWNLOAD_NAME=$PACKAGE
+	PYTHON_IMPORT_NAME=$PACKAGE
+	PACKAGE_FOLDER_NAME=$PACKAGE
 elif [[ "$PACKAGE" == "pyahocorasick" ]]; then
-    PYTHON_IMPORT_NAME="ahocorasick"
+	PYTHON_IMPORT_NAME="ahocorasick"
 fi
 
 DIR=tmp.$$
@@ -629,34 +629,34 @@ for pv in $PYTHON_VERSIONS; do
 	eval $PRE_DOWNLOAD_COMMANDS
 	echo "Downloading source"
 	mkdir $PVDIR
-        # Do not collect binaries and don't install dependencies
-        pip download --no-binary $PACKAGE_DOWNLOAD_ARGUMENT --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
-        if [[ $PACKAGE_DOWNLOAD_NAME =~ (.zip|.tar.gz|.tgz|.whl)$ ]]; then
-                ARCHNAME="$PACKAGE_DOWNLOAD_NAME"
-        else
-                ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl})
-        fi
-        # skip packages that are already in whl format
-        if [[ $ARCHNAME == *.whl ]]; then
-                # Patch the content of the wheel file (eg remove `torch` dependency as torch
-                # has no pypi wheel and we build [cg]pu wheel versions).
-                if [[ -n "$PATCH_WHEEL_COMMANDS" ]]; then
-                    unzip -o $ARCHNAME
-                    eval $PATCH_WHEEL_COMMANDS
-                    zip -u $ARCHNAME -r $PACKAGE $PACKAGE-*.dist-info
-                fi
-                cp $ARCHNAME ..
-                continue
-        fi
-        unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
-        pushd $PVDIR
-        pushd $PACKAGE_FOLDER_NAME*
+	# Do not collect binaries and don't install dependencies
+	pip download --no-binary $PACKAGE_DOWNLOAD_ARGUMENT --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
+	if [[ $PACKAGE_DOWNLOAD_NAME =~ (.zip|.tar.gz|.tgz|.whl)$ ]]; then
+		ARCHNAME="$PACKAGE_DOWNLOAD_NAME"
+	else
+		ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl})
+	fi
+	# skip packages that are already in whl format
+	if [[ $ARCHNAME == *.whl ]]; then
+		# Patch the content of the wheel file (eg remove `torch` dependency as torch
+		# has no pypi wheel and we build [cg]pu wheel versions).
+		if [[ -n "$PATCH_WHEEL_COMMANDS" ]]; then
+			unzip -o $ARCHNAME
+			eval $PATCH_WHEEL_COMMANDS
+			zip -u $ARCHNAME -r $PACKAGE $PACKAGE-*.dist-info
+		fi
+		cp $ARCHNAME ..
+		continue
+	fi
+	unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
+	pushd $PVDIR
+	pushd $PACKAGE_FOLDER_NAME*
 
-        echo "Patching"
-        for p in $PATCHES;
-        do
-            patch --verbose -p1 < $p
-        done
+	echo "Patching"
+	for p in $PATCHES;
+	do
+		patch --verbose -p1 < $p
+	done
 
 	echo "Building"
 	pwd
@@ -675,7 +675,7 @@ EOF
 	eval $PRE_BUILD_COMMANDS
 	# change the name of the wheel to add a suffix
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
-            sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
+		sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
 	fi
 	$PYTHON_CMD setup.py bdist_wheel $BDIST_WHEEL_ARGS |& tee build.log
 	pushd dist || cat build.log
