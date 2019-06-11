@@ -4,7 +4,7 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
     PYTHON_VERSIONS=$(ls -1 /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/ | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext wxPython bz2file smart_open gensim hypothesis murmurhash cymem preshed msgpack_python msgpack_numpy cytoolz wrapt plac thinc ujson regex spacy bigfloat aiozmq python-utils progressbar2 fast5_research sphinx-argparsei jsonnet Unidecode python-jose pycryptodome pyproj pyshp basemap MDAnalysis MDAnalysisTests attrs Cartopy OWSLib pykdtree"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext wxPython bz2file smart_open gensim hypothesis murmurhash cymem preshed msgpack_python msgpack_numpy cytoolz wrapt plac thinc ujson regex spacy bigfloat aiozmq python-utils progressbar2 fast5_research sphinx-argparsei jsonnet Unidecode python-jose pycryptodome pyproj pyshp basemap MDAnalysis MDAnalysisTests attrs Cartopy OWSLib pykdtree jcvii blisi neuralcoref torch-scatter torch-sparse torch-cluster torch-spline-conv plyfile rdflib torch-geometric filetype pyahocorasick"
 
 PACKAGE=${1?Missing package name}
 VERSION=$2
@@ -336,9 +336,8 @@ elif [[ "$PACKAGE" == "scikit-learn" ]]; then
 	PYTHON_IMPORT_NAME="sklearn"
 	PYTHON_DEPS="numpy scipy"
 elif [[ "$PACKAGE" == "velocyto" ]]; then
-	PYTHON_DEPS="numpy scipy cython llvmlite==0.16.0 numba==0.31.0 matplotlib scikit-learn h5py click loompy"
-	PYTHON_VERSIONS="python/3.6"
-	unset PYTHON_IMPORT_NAME
+	PYTHON_DEPS="numpy scipy cython numba matplotlib scikit-learn h5py loompy pysam Click pandas"
+	PYTHON_VERSIONS="python/3.6 python/3.7"
 elif [[ "$PACKAGE" == "Send2Trash" ]]; then
 	PYTHON_IMPORT_NAME="send2trash"
 elif [[ "$PACKAGE" == "htseq" ]]; then
@@ -469,9 +468,17 @@ elif [[ "$PACKAGE" == "wrapt" ]]; then
 elif [[ "$PACKAGE" == "msgpack-python" ]]; then
         PYTHON_IMPORT_NAME="msgpack"
 elif [[ "$PACKAGE" == "thinc" ]]; then
+    if [[ "$VERSION" == "6.12.0" ]]; then
         PYTHON_DEPS="cython>=0.25.0 numpy>=1.7.0 msgpack>=0.5.6,<1.0.0 msgpack-numpy==0.4.1 murmurhash>=0.28.0,<0.29.0 cymem>=1.30.0,<1.32.0 preshed>=1.0.0,<2.0.0 cytoolz>=0.9.0,<0.10 wrapt>=1.10.0,<1.11.0 plac>=0.9.6,<1.0.0 tqdm>=4.10.0,<5.0.0 six>=1.10.0,<2.0.0 hypothesis<3,>=2 dill>=0.2.7,<0.3.0 pathlib==1.0.1;python_version<'3.4'"
+    else
+        PYTHON_DEPS="murmurhash>=0.28.0,<1.1.0 cymem>=2.0.2,<2.1.0 preshed>=2.0.1,<2.1.0 blis>=0.2.1,<0.3.0 srsly>=0.0.4,<1.1.0 wasabi>=0.0.9,<1.1.0 numpy>=1.7.0 plac>=0.9.6,<1.0.0 tqdm>=4.10.0,<5.0.0 pathlib==1.0.1;python_version<'3.4' cython>=0.25.0 hypothesis>=2.0.0,<3.0.0 pytest>=3.6.0,<4.0.0 mock>=2.0.0,<3.0.0 flake8>=3.5.0,<3.6.0"
+    fi
 elif [[ "$PACKAGE" == "spacy" ]]; then
+    if [[ "$VERSION" == "2.0.16" ]]; then
         PYTHON_DEPS="cython>=0.24,<0.28.0 numpy>=1.7 murmurhash>=0.28,<0.29 cymem<1.32,>=1.30 preshed>=1.0.0,<2.0.0 thinc>=6.10.3,<6.11.0 plac<1.0.0,>=0.9.6 ujson>=1.35 dill>=0.2,<0.3 regex==2017.4.5 requests>=2.13.0,<3.0.0 pathlib==1.0.1;python_version<'3.4'"
+    else
+        PYTHON_DEPS="cymem>=2.0.2,<2.1.0 preshed>=2.0.1,<2.1.0 thinc>=7.0.2,<7.1.0 blis>=0.2.2,<0.3.0 murmurhash>=0.28.0,<1.1.0 wasabi>=0.2.0,<1.1.0 srsly>=0.0.5,<1.1.0 numpy>=1.15.0 requests>=2.13.0,<3.0.0 jsonschema>=2.6.0,<3.1.0 plac<1.0.0,>=0.9.6 pathlib==1.0.1;python_version<'3.4' cython>=0.25 pytest>=4.0.0,<4.1.0 pytest-timeout>=1.3.0,<2.0.0 mock>=2.0.0,<3.0.0 flake8>=3.5.0,<3.6.0"
+    fi
 elif [[ "$PACKAGE" == "bigfloat" ]]; then
     PYTHON_DEPS="cython"
     PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
@@ -530,6 +537,64 @@ elif [[ "$PACKAGE" == "OWSLib" ]]; then
 elif [[ "$PACKAGE" == "pykdtree" ]]; then
     MODULE_BUILD_DEPS="imkl"
     PYTHON_DEPS="numpy"
+elif [[ "$PACKAGE" == "GPy" ]]; then
+    PYTHON_DEPS="numpy matplotlib"
+    PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
+elif [[ "$PACKAGE" == "GPyOpt" ]]; then
+    PYTHON_DEPS="matplotlib"
+    PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
+elif [[ "$PACKAGE" == "blmath" ]]; then
+    PRE_BUILD_COMMANDS='sed -i -e "s@-fno-inline@-fno-inline\x27,\x27-L${EBROOTSUITESPARSE}/lib@g" setup.py; sed -i -e "s@/usr/include/suitesparse@${EBROOTSUITESPARSE}/include@g" setup.py; sed -i -e "s@lapack@mkl@g" setup.py'
+    MODULE_BUILD_DEPS="suitesparse imkl"
+    PYTHON_DEPS="numpy"
+    PYTHON_VERSIONS="python/2.7"
+elif [[ "$PACKAGE" == "jcvi" ]]; then
+    # aka ALLMAPS
+    PYTHON_DEPS="biopython numpy deap networkx matplotlib cython"
+    PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6 python/3.7"
+elif [[ "$PACKAGE" == "blis" ]]; then
+    PYTHON_DEPS="numpy cython pytest hypothesis wheel"
+elif [[ "$PACKAGE" == "neuralcoref" ]]; then
+    PYTHON_DEPS="cython>=0.25 pytest spacy>=2.1.0"
+elif [[ "$PACKAGE" == "torch-scatter" ]]; then
+    PYTHON_DEPS="torch>=1.1.0"
+    MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
+    PACKAGE='torch_scatter'
+    PACKAGE_DOWNLOAD_NAME=$PACKAGE
+    PYTHON_IMPORT_NAME=$PACKAGE
+    PACKAGE_FOLDER_NAME=$PACKAGE
+elif [[ "$PACKAGE" == "torch-sparse" ]]; then
+    PYTHON_DEPS="torch>=1.1.0 torch-scatter"
+    MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
+    PACKAGE='torch_sparse'
+    PACKAGE_DOWNLOAD_NAME=$PACKAGE
+    PYTHON_IMPORT_NAME=$PACKAGE
+    PACKAGE_FOLDER_NAME=$PACKAGE
+elif [[ "$PACKAGE" == "torch-cluster" ]]; then
+    PYTHON_DEPS="torch>=1.1.0"
+    MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
+    PACKAGE='torch_cluster'
+    PACKAGE_DOWNLOAD_NAME=$PACKAGE
+    PYTHON_IMPORT_NAME=$PACKAGE
+    PACKAGE_FOLDER_NAME=$PACKAGE
+elif [[ "$PACKAGE" == "torch-spline-conv" ]]; then
+    PYTHON_DEPS="torch>=1.1.0"
+    MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
+    PACKAGE='torch_spline_conv'
+    PACKAGE_DOWNLOAD_NAME=$PACKAGE
+    PYTHON_IMPORT_NAME=$PACKAGE
+    PACKAGE_FOLDER_NAME=$PACKAGE
+elif [[ "$PACKAGE" == "plyfile" ]]; then
+    PYTHON_DEPS="numpy"
+elif [[ "$PACKAGE" == "torch-geometric" ]]; then
+    PYTHON_DEPS="torch>=1.1.0 torch-scatter torch-sparse torch-cluster torch-spline-conv"
+    MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
+    PACKAGE='torch_geometric'
+    PACKAGE_DOWNLOAD_NAME=$PACKAGE
+    PYTHON_IMPORT_NAME=$PACKAGE
+    PACKAGE_FOLDER_NAME=$PACKAGE
+elif [[ "$PACKAGE" == "pyahocorasick" ]]; then
+    PYTHON_IMPORT_NAME="ahocorasick"
 fi
 
 DIR=tmp.$$
