@@ -27,6 +27,17 @@ if [[ "$PACKAGE" == "numpy" ]]; then
 	MODULE_BUILD_DEPS="imkl/2019.2.187"
 	PYTHON_DEPS="nose pytest"
 	PYTHON_TESTS="numpy.__config__.show(); numpy.test()"
+elif [[ "$PACKAGE" == "stats_array" ]]; then
+	PYTHON_DEPS="scipy"
+elif [[ "$PACKAGE" == "umap-learn" ]]; then
+	PYTHON_IMPORT_NAME="umap"
+elif [[ "$PACKAGE" == "ParmEd" ]]; then
+	PYTHON_IMPORT_NAME="parmed"
+	PYTHON_DEPS="numpy"
+elif [[ "$PACKAGE" == "PyPrind" ]]; then
+	PYTHON_IMPORT_NAME="pyprind"
+elif [[ "$PACKAGE" == "bw2speedups" ]]; then
+	PYTHON_DEPS="numpy"
 elif [[ "$PACKAGE" == "SQLAlchemy" ]]; then
 	PYTHON_IMPORT_NAME="sqlalchemy"
 elif [[ "$PACKAGE" == "atari_py" ]]; then
@@ -59,6 +70,8 @@ elif [[ "$PACKAGE" == "termcolor" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "ScientificPython" ]]; then
 	PYTHON_DEPS="numpy"
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+elif [[ "$PACKAGE" == "audioread" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "snakemake" ]]; then
 	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
