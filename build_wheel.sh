@@ -4,7 +4,7 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS=$(ls -1 /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/ | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext wxPython bz2file smart_open gensim hypothesis murmurhash cymem preshed msgpack_python msgpack_numpy cytoolz wrapt plac thinc ujson regex spacy bigfloat aiozmq python-utils progressbar2 fast5_research sphinx-argparsei jsonnet Unidecode python-jose pycryptodome pyproj pyshp basemap MDAnalysis MDAnalysisTests attrs Cartopy OWSLib pykdtree jcvii blisi neuralcoref torch-scatter torch-sparse torch-cluster torch-spline-conv plyfile rdflib torch-geometric filetype pyahocorasick"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext wxPython bz2file smart_open gensim hypothesis murmurhash cymem preshed msgpack_python msgpack_numpy cytoolz wrapt plac thinc ujson regex spacy bigfloat aiozmq python-utils progressbar2 fast5_research sphinx-argparsei jsonnet Unidecode python-jose pycryptodome pyproj pyshp basemap MDAnalysis MDAnalysisTests attrs Cartopy OWSLib pykdtree jcvii blisi neuralcoref torch-scatter torch-sparse torch-cluster torch-spline-conv plyfile rdflib torch-geometric filetype pyahocorasick dgl"
 
 PACKAGE=${1?Missing package name}
 VERSION=$2
@@ -16,6 +16,9 @@ BDIST_WHEEL_ARGS=""
 PRE_DOWNLOAD_COMMANDS=""
 TMP_WHEELHOUSE=$(pwd)
 PATCHES=""
+# Make sure $PACKAGE_DOWNLOAD_ARGUMENT is not expanded right away
+# Do not collect binaries and don't install dependencies
+PACKAGE_DOWNLOAD_CMD="pip download --no-binary \$PACKAGE_DOWNLOAD_ARGUMENT --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
 
 if [[ -n "$VERSION" ]]; then
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE==$VERSION"
@@ -595,6 +598,20 @@ elif [[ "$PACKAGE" == "torch-geometric" ]]; then
 	PACKAGE_FOLDER_NAME=$PACKAGE
 elif [[ "$PACKAGE" == "pyahocorasick" ]]; then
 	PYTHON_IMPORT_NAME="ahocorasick"
+elif [[ "$PACKAGE" == "dgl" ]]; then
+	# The v0.2 is CPU only, GPU is in HEAD of the repo or the next release
+	PACKAGE="dgl"
+	PACKAGE_SUFFIX="-cpu"
+	PACKAGE_DOWNLOAD_NAME=$PACKAGE
+	PYTHON_IMPORT_NAME=$PACKAGE
+	PACKAGE_FOLDER_NAME=$PACKAGE
+	MODULE_BUILD_DEPS="cmake"
+	PYTHON_DEPS="cython numpy scipy networkx torch"
+	PACKAGE_DOWNLOAD_METHOD="Git"
+	PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/dmlc/dgl"
+	PACKAGE_DOWNLOAD_CMD="git clone --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v$VERSION $PACKAGE_FOLDER_NAME"
+	POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
+	PRE_BUILD_COMMANDS="mkdir build && cd build && cmake .. && make -j 16 && cd ../python "
 fi
 
 DIR=tmp.$$
@@ -629,8 +646,8 @@ for pv in $PYTHON_VERSIONS; do
 	eval $PRE_DOWNLOAD_COMMANDS
 	echo "Downloading source"
 	mkdir $PVDIR
-	# Do not collect binaries and don't install dependencies
-	pip download --no-binary $PACKAGE_DOWNLOAD_ARGUMENT --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
+	eval $PACKAGE_DOWNLOAD_CMD
+	eval $POST_DOWNLOAD_COMMANDS
 	if [[ $PACKAGE_DOWNLOAD_NAME =~ (.zip|.tar.gz|.tgz|.whl)$ ]]; then
 		ARCHNAME="$PACKAGE_DOWNLOAD_NAME"
 	else
