@@ -4,7 +4,7 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS=$(ls -1 /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/ | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
-ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext wxPython bz2file smart_open gensim hypothesis murmurhash cymem preshed msgpack_python msgpack_numpy cytoolz wrapt plac thinc ujson regex spacy bigfloat aiozmq python-utils progressbar2 fast5_research sphinx-argparsei jsonnet Unidecode python-jose pycryptodome pyproj pyshp basemap MDAnalysis MDAnalysisTests attrs Cartopy OWSLib pykdtree jcvii blisi neuralcoref torch-scatter torch-sparse torch-cluster torch-spline-conv plyfile rdflib torch-geometric filetype pyahocorasick dgl-cpu dgl-gpu"
+ALL_PACKAGES="nose numpy scipy Cython h5py matplotlib dateutil numexpr bottleneck pandas pyzmq qiime future pyqi bio-format cogent qiime-default-reference pynast burrito burrito-fillings gdata emperor qcli scikit-bio natsort click subprocess32 cycler python-dateutil dlib shapely affine rasterio numba llvmlite velocyto htseq mpi4py sympy mpmath blist paycheck lockfile deap arff cryptography paramiko pyparsing netifaces netaddr funcsigs mock pytz enum34 bitstring Cycler PyZMQ path.py pysqlite requests nbformat Pygments singledispatch certifi backports_abc tornado MarkupSafe Jinja2 jupyter_client functools32 jsonschema mistune ptyprocess terminado simplegeneric ipython_genutils pathlib2 pickleshare traitlets notebook jupyter_core ipykernel pexpect backports.shutil_get_terminal_size prompt_toolkit ipywidgets widgetsnbextension ipython iptest testpath cffi pycparser asn1crypto ipaddress pynacl pyasn1 bcrypt nbconvert entrypoints configparser pandocfilters dnspython pygame pyyaml fuel pillow pillow-simd olefile seaborn theano Amara bx-python python-lzo RSeQC xopen cutadapt cgat kiwisolver torchvision dask distributed arboretum netCDF4 mdtraj biom-format grpcio absl-py gast protobuf tensorboard astor Markdown metasv cvxpy cvxopt dill multiprocess scs fastcache toolz ecos CVXcanon CoffeeScript PyExecJS msmbuilder Qutip tqdm biopython torchtext wxPython bz2file smart_open gensim hypothesis murmurhash cymem preshed msgpack_python msgpack_numpy cytoolz wrapt plac thinc ujson regex spacy bigfloat aiozmq python-utils progressbar2 fast5_research sphinx-argparsei jsonnet Unidecode python-jose pycryptodome pyproj pyshp basemap MDAnalysis MDAnalysisTests attrs Cartopy OWSLib pykdtree jcvii blisi neuralcoref torch-scatter torch-sparse torch-cluster torch-spline-conv plyfile rdflib torch-geometric filetype pyahocorasick dgl-cpu dgl-gpu bokeh bkcharts dominate feather-format Flask-Bootstrap HeapDict gitdb2 distributed pyabc redis smmap2 visitor simuPOP ipython"
 
 PACKAGE=${1?Missing package name}
 VERSION=$2
@@ -626,6 +626,24 @@ elif [[ "$PACKAGE" == "dgl-gpu" ]]; then
 	PACKAGE_DOWNLOAD_CMD="git clone --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v$VERSION $PACKAGE_FOLDER_NAME"
 	POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 	PRE_BUILD_COMMANDS="mkdir build && cd build && cmake -DUSE_OPENMP=ON -DUSE_CUDA=ON .. && make -j 16 && cd ../python "
+elif [[ "$PACKAGE" == "feather-format" ]]; then
+        MODULE_RUNTIME_DEPS="gcc/7.3.0 boost/1.68.0 arrow/0.11.1"
+        PYTHON_IMPORT_NAME="feather"
+elif [[ "$PACKAGE" == "Flask-Bootstrap" ]]; then
+        PYTHON_IMPORT_NAME="flask_bootstrap"
+elif [[ "$PACKAGE" == "HeapDict" ]]; then
+        PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+        PYTHON_IMPORT_NAME="heapdict"
+elif [[ "$PACKAGE" == "pyabc" ]]; then
+        MODULE_RUNTIME_DEPS="gcc/7.3.0 boost/1.68.0 arrow/0.11.1 scipy-stack"
+elif [[ "$PACKAGE" == "smmap2" ]]; then
+        PYTHON_IMPORT_NAME="smmap"
+elif [[ "$PACKAGE" == "simuPOP" ]]; then
+        MODULE_RUNTIME_DEPS="gcc/7.3.0 boost/1.68.0 gsl/2.5 scipy-stack"
+elif [[ "$PACKAGE" == "gitdb2" ]]; then
+        PYTHON_IMPORT_NAME="gitdb"
+elif [[ "$PACKAGE" == "ipython" ]]; then
+        PYTHON_IMPORT_NAME="IPython"
 fi
 
 DIR=tmp.$$
