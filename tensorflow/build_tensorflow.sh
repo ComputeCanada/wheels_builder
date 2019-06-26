@@ -217,7 +217,19 @@ TF_ENABLE_XLA=0
 ./configure
 
 N_JOBS=$(grep -c ^processor /proc/cpuinfo)
-bazel --output_user_root=$BAZEL_ROOT_PATH build --jobs $N_JOBS --action_env=LD_LIBRARY_PATH=/usr/lib64/nvidia --verbose_failures --config opt $(echo $CONFIG_XOPT) --config mkl //tensorflow/tools/pip_package:build_pip_package
+
+bazel \
+    --output_user_root=$BAZEL_ROOT_PATH \
+    build \
+        --jobs $N_JOBS \
+        --action_env=LD_LIBRARY_PATH=/usr/lib64/nvidia \
+        --verbose_failures \
+        --config opt \
+        --config mkl \
+        $(echo $CONFIG_XOPT) \
+        //tensorflow/tools/pip_package:build_pip_package \
+        //tensorflow:libtensorflow_cc.so
+
 bazel-bin/tensorflow/tools/pip_package/build_pip_package $OPWD
 bazel --output_user_root=$BAZEL_ROOT_PATH shutdown
 
