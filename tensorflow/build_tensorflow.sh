@@ -28,6 +28,8 @@ ARG_VERSION=
 ARG_ARCH=
 ARG_GPU=0
 export ARG_DEBUG=0
+# whether to bundle the CC api or not
+ARG_CCAPI=1
 
 while true; do
     case "$1" in
@@ -45,6 +47,8 @@ while true; do
             esac;;
         --debug)
             ARG_DEBUG=1; shift ;;
+        --no-ccapi)
+            ARG_CCAPI=0; shift ;;
         --) shift; break ;;
         *) echo "Unknown parameter $1"; usage; exit 1 ;;
     esac
@@ -218,6 +222,13 @@ TF_ENABLE_XLA=0
 
 N_JOBS=$(grep -c ^processor /proc/cpuinfo)
 
+TARGETS="//tensorflow/tools/pip_package:build_pip_package "
+if [[ $ARG_CCAPI == 1 ]] ; then
+    TARGETS="${TARGETS} //tensorflow:libtensorflow_cc.so"
+fi
+
+echo "Building targets $TARGETS"
+
 bazel \
     --output_user_root=$BAZEL_ROOT_PATH \
     build \
@@ -227,8 +238,7 @@ bazel \
         --config opt \
         --config mkl \
         $(echo $CONFIG_XOPT) \
-        //tensorflow/tools/pip_package:build_pip_package \
-        //tensorflow:libtensorflow_cc.so
+        $(echo $TARGETS)
 
 bazel-bin/tensorflow/tools/pip_package/build_pip_package $OPWD
 bazel --output_user_root=$BAZEL_ROOT_PATH shutdown
@@ -239,8 +249,14 @@ cd $WHEEL_REBUILD_FOLDER
 unzip $TARGET_WHEEL 
 find . -name libiomp5.so -delete
 sed -i 's/libiomp5.so//g' *.dist-info/RECORD
+
 # Delete wheel otherwise zip just refresh content and keep libiomp5
 rm $TARGET_WHEEL
+
+if [[ $ARG_CCAPI == 1 ]] ; then
+    cp $TF_COMPILE_PATH/tensorflow/bazel-bin/tensorflow/libtensorflow_cc.so *.data/purelib/tensorflow/
+fi
+
 # Fix missing NCCL link paths
 setrpaths.sh --path *.data --add_path $EBROOTNCCL/lib
 zip -r $TARGET_WHEEL *.data/ *.dist-info/
