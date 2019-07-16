@@ -133,6 +133,10 @@ elif [[ "$PACKAGE" == "gdata" ]]; then
 elif [[ "$PACKAGE" == "scikit-bio" ]]; then
 	PYTHON_DEPS="numpy natsort"
 	PYTHON_IMPORT_NAME="skbio"
+	if [[ "$VERSION" > "0.4.2" ]]; then
+	    # scikit-bio 0.5.0 and newer are Python3-only
+	    PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
+	fi
 elif [[ "$PACKAGE" == "qcli" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 	PYTHON_VERSIONS="python/2.7"
