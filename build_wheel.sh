@@ -30,6 +30,8 @@ if [[ "$PACKAGE" == "numpy" ]]; then
 	MODULE_BUILD_DEPS="imkl/2019.2.187"
 	PYTHON_DEPS="nose pytest"
 	PYTHON_TESTS="numpy.__config__.show(); numpy.test()"
+elif [[ "$PACKAGE" == "bhtsne" ]]; then
+	PYTHON_DEPS="cython numpy"
 elif [[ "$PACKAGE" == "stats_array" ]]; then
 	PYTHON_DEPS="scipy"
 elif [[ "$PACKAGE" == "umap-learn" ]]; then
@@ -181,6 +183,9 @@ elif [[ "$PACKAGE" == "ray" ]]; then
 	fi
 	PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/ray-project/ray/archive/ray-$VERSION.tar.gz"
 	MODULE_BUILD_DEPS="gcc/5.4.0 qt/5.10.1"
+	if [[ "$VERSION" == 0.7.0 ]]; then
+		MODULE_BUILD_DEPS="gcc/7.3.0 bazel/0.19.2 qt/5.10.1"
+	fi
 	PYTHON_DEPS="numpy scipy cython"
 	PACKAGE_FOLDER_NAME="ray-ray-*/python"
 	PRE_BUILD_COMMANDS="pwd; sed -i -e 's/-DPARQUET_BUILD_TESTS=off/-DPARQUET_BUILD_TESTS=off -DCMAKE_SKIP_RPATH=ON -DCMAKE_SKIP_INSTALL_RPATH=ON/g' ../thirdparty/scripts/build_parquet.sh && sed -i -e 's/-DARROW_WITH_ZSTD=off/-DARROW_WITH_ZSTD=off  -DCMAKE_SKIP_RPATH=ON -DCMAKE_SKIP_INSTALL_RPATH=ON/g' ../thirdparty/scripts/build_arrow.sh"
@@ -199,11 +204,15 @@ elif [[ "$PACKAGE" == "keras-vis" ]]; then
 	PYTHON_IMPORT_NAME="vis"
 	PACKAGE_DOWNLOAD_NAME="keras_vis"
 elif [[ "$PACKAGE" == "keras-applications" ]]; then
+	PYTHON_DEPS="keras tensorflow_gpu"
 	PYTHON_IMPORT_NAME="keras.applications"
 	PACKAGE_DOWNLOAD_NAME="Keras_Applications"
+	PACKAGE_FOLDER_NAME="Keras_Applications"
 elif [[ "$PACKAGE" == "keras-preprocessing" ]]; then
+	PYTHON_DEPS="keras tensorflow_gpu"
 	PYTHON_IMPORT_NAME="keras.preprocessing"
 	PACKAGE_DOWNLOAD_NAME="Keras_Preprocessing"
+	PACKAGE_FOLDER_NAME="Keras_Preprocessing"
 elif [[ "$PACKAGE" == "absl-py" ]]; then
 	PYTHON_IMPORT_NAME="absl"
 elif [[ "$PACKAGE" == "CoffeeScript" ]]; then
@@ -286,7 +295,7 @@ elif [[ "$PACKAGE" == "pyzmq" ]]; then
 	MODULE_BUILD_DEPS="zeromq"
 elif [[ "$PACKAGE" == "qiime" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib mock nose cycler decorator enum34 functools32 ipython matplotlib pexpect emperor qcli natsort<4.0.0"
-	PYTHON_VERSIONS="python/2.7"
+#	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "dlib-cpu" ]]; then
 	MODULE_BUILD_DEPS="gcc/7.3.0 boost imkl"    # it does not work with Intel, and requires Boost
 	PRE_BUILD_COMMANDS='sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "*find_blas.*") '
@@ -409,7 +418,7 @@ elif [[ "$PACKAGE" == "pyyaml" ]]; then
 	PACKAGE_FOLDER_NAME="PyYAML"
 	PACKAGE_DOWNLOAD_NAME="PyYAML"
 	PYTHON_IMPORT_NAME="yaml"
-elif [[ "$PACKAGE" == "pillow" ]]; then
+elif [[ "$PACKAGE" == "pillow" || "$PACKAGE" == "Pillow" ]]; then
 	PYTHON_DEPS="olefile"
 	PACKAGE_FOLDER_NAME="Pillow"
 	PACKAGE_DOWNLOAD_NAME="Pillow"
@@ -426,6 +435,8 @@ elif [[ "$PACKAGE" == "fuel" ]]; then
 	PYTHON_DEPS="numpy six picklable_itertools pyyaml h5py tables progressbar2 pyzmq scipy pillow numexpr"
 elif [[ "$PACKAGE" == "seaborn" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib pandas"
+elif [[ "$PACKAGE" == "Werkzeug" ]]; then
+	PYTHON_IMPORT_NAME="werkzeug"
 elif [[ "$PACKAGE" == "backports.functools-lru-cache" ]]; then
 	PYTHON_IMPORT_NAME="backports.functools_lru_cache"
 elif [[ "$PACKAGE" == "theano" ]]; then
@@ -442,8 +453,6 @@ elif [[ "$PACKAGE" == "torchvision" ]]; then
 	# Remove torch requirements from wheel as the user need to either install torch-[cg]pu wheel
 	# Otherwise, it does not install because torchvision has a `torch` requirement, and no pypi version is supplied, thus failing.
 	PATCH_WHEEL_COMMANDS="sed -i -e 's/Requires-Dist: torch//' torchvision-*.dist-info/METADATA; sed -i -e 's/, \"torch\"//' torchvision-*.dist-info/metadata.json"
-elif [[ "$PACKAGE" == "Pillow" ]]; then
-	PYTHON_IMPORT_NAME="PIL"
 elif [[ "$PACKAGE" == "biopython" ]]; then
 	PYTHON_DEPS="numpy"
 	PYTHON_IMPORT_NAME="Bio"
@@ -647,7 +656,7 @@ elif [[ "$PACKAGE" == "simuPOP" ]]; then
 elif [[ "$PACKAGE" == "gitdb2" ]]; then
         PYTHON_IMPORT_NAME="gitdb"
 elif [[ "$PACKAGE" == "ipython" ]]; then
-        PYTHON_IMPORT_NAME="IPython"
+        PYTHON_IMPORT_NAME=""
 fi
 
 DIR=tmp.$$
