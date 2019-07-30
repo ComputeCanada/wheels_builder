@@ -110,31 +110,11 @@ git checkout $ARG_VERSION
 
 GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
-    sed -i "s/which('ldconfig')/which('echo')/g" configure.py
+    sed -i "s/which(\"ldconfig\")/which('echo')/g" third_party/gpus/find_cuda_config.py
 
-    sed -i "s;-B/usr/bin;-B$EBROOTGCC/bin;g" third_party/gpus/cuda_configure.bzl
-
-    RPATH_TO_ADD="$EBROOTCUDNN/lib64 $(find $EBROOTCUDA -name lib64) $EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin"
-    CROSSTOOL_FILE=third_party/gpus/crosstool/cc_toolchain_config.bzl.tpl
- 
-    for path in $RPATH_TO_ADD; do
-        sed -i "\;flag: \"-Wl,-no-as-needed\"; a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$path\"" $CROSSTOOL_FILE
-    done
-
-    sed -i "\;%{linker_bin_path_flag}; a \ \ \ \ \ \ \ \ flag: \"-B$EBROOTGCC/lib/\"" $CROSSTOOL_FILE
-
-    sed -i "\;linking_mode_flags { mode: DYNAMIC }; a \
-\ \ cxx_builtin_include_directory: \"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/lib/gcc/x86_64-pc-linux-gnu/7.3.0/include/\"" $CROSSTOOL_FILE
-    sed -i "\;linking_mode_flags { mode: DYNAMIC }; a \
-\ \ cxx_builtin_include_directory: \"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/lib/gcc/x86_64-pc-linux-gnu/7.3.0/include-fixed/\"" $CROSSTOOL_FILE
-    sed -i "\;linking_mode_flags { mode: DYNAMIC }; a \
-\ \ cxx_builtin_include_directory: \"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/include/c++/7.3.0/\"" $CROSSTOOL_FILE
-    # look for tools
-    for tool in $(grep 'tool_path { .* }' $CROSSTOOL_FILE | grep -Po '(?<=path: ")([a-z\/]{1,})'); do
-        toolname=$(basename $tool)
-        new_path=$(which $toolname)
-        sed -i "s;$tool;$new_path;g" $CROSSTOOL_FILE
-    done
+    sed -i "\;host_compiler_includes = get_cxx_inc_directories;a \ \ \ \ host_compiler_includes += \[\"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/lib/gcc/x86_64-pc-linux-gnu/7.3.0/include/\"\]" third_party/gpus/cuda_configure.bzl
+    sed -i "\;host_compiler_includes = get_cxx_inc_directories;a \ \ \ \ host_compiler_includes += \[\"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/lib/gcc/x86_64-pc-linux-gnu/7.3.0/include-fixed/\"\]" third_party/gpus/cuda_configure.bzl
+    sed -i "\;host_compiler_includes = get_cxx_inc_directories;a \ \ \ \ host_compiler_includes += \[\"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/include/c++/7.3.0/\"\]" third_party/gpus/cuda_configure.bzl
 fi
 
 #sed -i -r "/libiomp5/d" third_party/mkl/mkl.BUILD
@@ -185,6 +165,7 @@ cc_library(
 EOF
     # Add dependency to third_party library
     git apply $SCRIPT_DIR/rdma.patch
+    git apply $SCRIPT_DIR/tensorflow-1.14-mpi.patch
     # TF 1.11.0 ISSUE 21999
     #git cherry-pick -n c67ded664a20f27b4e90020bf76a097b462182b1
     #git apply $SCRIPT_DIR/tensorflow-mpi.patch
@@ -200,11 +181,12 @@ EOF
     TF_NEED_MPI=1 \
     TF_NEED_GDR=1 \
     TF_NEED_VERBS=1 \
+    GCC_HOST_COMPILER_PREFIX="$EBROOTNIXPKGS/bin" \
     GCC_HOST_COMPILER_PATH=$(which mpicc) \
     TF_NCCL_VERSION="$EBVERSIONNCCL" \
     NCCL_INSTALL_PATH="$EBROOTNCCL" \
     MPI_HOME="$EBROOTOPENMPI"
-    CONFIG_XOPT="--config cuda"
+#    CONFIG_XOPT="--config cuda"
 else
     export \
     TF_NEED_CUDA=0 \
@@ -249,7 +231,7 @@ bazel \
     --output_user_root=$BAZEL_ROOT_PATH \
     build \
         --jobs $N_JOBS \
-        --action_env=LD_LIBRARY_PATH=/usr/lib64/nvidia \
+        --action_env=LD_LIBRARY_PATH=$EBROOTCUDA/lib64 \
         --verbose_failures \
         --config opt \
         --config mkl \
@@ -263,6 +245,7 @@ WHEEL_REBUILD_FOLDER=$(mktemp -d -p .)
 TARGET_WHEEL=$(ls -Art $OPWD/*.whl | tail -n 1)
 cd $WHEEL_REBUILD_FOLDER
 unzip $TARGET_WHEEL 
+chmod -R 777 *.data
 find . -name libiomp5.so -delete
 sed -i 's/libiomp5.so//g' *.dist-info/RECORD
 
@@ -273,8 +256,14 @@ if [[ $ARG_CCAPI == 1 ]] ; then
     cp $TF_COMPILE_PATH/tensorflow/bazel-bin/tensorflow/libtensorflow_cc.so *.data/purelib/tensorflow/
 fi
 
-# Fix missing NCCL link paths
+# Add runtime paths
 setrpaths.sh --path *.data --add_path $EBROOTNCCL/lib
+setrpaths.sh --path *.data --add_path $EBROOTCUDNN/lib64
+for path in $(find $EBROOTCUDA -name lib64)
+do
+   setrpaths.sh --path *.data --add_path $path
+done
+
 zip -r $TARGET_WHEEL *.data/ *.dist-info/
 cd ..
 rm -rf $WHEEL_REBUILD_FOLDER
