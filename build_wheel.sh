@@ -363,7 +363,7 @@ elif [[ "$PACKAGE" == "llvmlite" ]]; then
 	PATCHES="$PWD/patches/llvmlite-0.28.0-fpic.patch"
 elif [[ "$PACKAGE" == "scikit-learn" ]]; then
 	PYTHON_IMPORT_NAME="sklearn"
-	PYTHON_DEPS="numpy scipy"
+	PYTHON_DEPS="numpy scipy Cython"
 elif [[ "$PACKAGE" == "velocyto" ]]; then
 	PYTHON_DEPS="numpy scipy cython numba matplotlib scikit-learn h5py loompy pysam Click pandas"
 	PYTHON_VERSIONS="python/3.6 python/3.7"
