@@ -241,6 +241,8 @@ elif [[ "$PACKAGE" == "grpcio" ]]; then
 	PYTHON_IMPORT_NAME="grpc"
 elif [[ "$PACKAGE" == "metasv" ]]; then
 	PYTHON_DEPS="cython pysam"
+elif [[ "$PACKAGE" == "PyMySQL" ]]; then
+	PYTHON_IMPORT_NAME="pymysql"
 elif [[ "$PACKAGE" == "scipy" ]]; then
 	MODULE_BUILD_DEPS="imkl/2018.3.312"
 	PYTHON_DEPS="nose numpy pytest"
