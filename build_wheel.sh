@@ -706,10 +706,10 @@ for pv in $PYTHON_VERSIONS; do
 	mkdir $PVDIR
 	eval $PACKAGE_DOWNLOAD_CMD
 	eval $POST_DOWNLOAD_COMMANDS
-	if [[ $PACKAGE_DOWNLOAD_NAME =~ (.zip|.tar.gz|.tgz|.whl)$ ]]; then
+	if [[ $PACKAGE_DOWNLOAD_NAME =~ (.zip|.tar.gz|.tgz|.whl|.tar.bz2)$ ]]; then
 		ARCHNAME="$PACKAGE_DOWNLOAD_NAME"
 	else
-		ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl})
+		ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl,.tar.bz2})
 	fi
 	# skip packages that are already in whl format
 	if [[ $ARCHNAME == *.whl ]]; then
