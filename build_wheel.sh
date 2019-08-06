@@ -244,7 +244,7 @@ elif [[ "$PACKAGE" == "metasv" ]]; then
 elif [[ "$PACKAGE" == "PyMySQL" ]]; then
 	PYTHON_IMPORT_NAME="pymysql"
 elif [[ "$PACKAGE" == "scipy" ]]; then
-	MODULE_BUILD_DEPS="imkl/2018.3.312"
+	MODULE_BUILD_DEPS="imkl/2018.3.222"
 	PYTHON_DEPS="nose numpy pytest"
 	PYTHON_TESTS="scipy.__config__.show(); scipy.test()"
 	if [[ "$VERSION" == "0.13.3" ]]; then
