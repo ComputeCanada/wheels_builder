@@ -15,7 +15,9 @@ if ! module -t list | grep -q python; then
    exit
 fi
 
-export TF_COMPILE_PATH=/tmp/${USER}/tf_$(date +'%s')
+# export TF_COMPILE_PATH=/tmp/${USER}/tf_$(date +'%s')
+export TF_COMPILE_PATH=/tmp/${USER}/tf_temp
+
 # make sure we don't fill up /mnt/tmp
 shopt -s nullglob
 rm -rf /tmp/${USER}/tf_*
@@ -27,7 +29,7 @@ eval set -- "$TEMP"
 ARG_VERSION=
 ARG_ARCH=
 ARG_GPU=0
-export ARG_DEBUG=0
+ARG_DEBUG=0
 # whether to bundle the CC api or not
 ARG_CCAPI=1
 
@@ -70,9 +72,20 @@ else
    usage; exit 1
 fi
 
-module load gcc/7.3.0 java bazel/0.19.2 imkl
+# LOAD MODULES
+
+module load \
+	gcc/7.3.0 \
+	java \
+	bazel/0.25.2 \
+	imkl
+
 if [[ $ARG_GPU == 1 ]]; then
-    module load cuda/10.0.130 cudnn/7.5 openmpi/2.1.1 nccl/2.4.2
+    module load \
+	    cuda/10.0.130 \
+	    cudnn/7.5 \
+	    openmpi/2.1.1 \
+	    nccl/2.4.2
 fi
 
 unset CPLUS_INCLUDE_PATH
@@ -98,13 +111,16 @@ git checkout $ARG_VERSION
 GCC_PREFIX=$(dirname $(dirname $(which gcc)))
 if [[ $ARG_GPU == 1 ]]; then
     sed -i "s/which('ldconfig')/which('echo')/g" configure.py
-    CROSSTOOL_FILE=third_party/gpus/crosstool/CROSSTOOL.tpl
+
+    sed -i "s;-B/usr/bin;-B$EBROOTGCC/bin;g" third_party/gpus/cuda_configure.bzl
+
     RPATH_TO_ADD="$EBROOTCUDNN/lib64 $(find $EBROOTCUDA -name lib64) $EBROOTIMKL/compilers_and_libraries/linux/lib/intel64_lin"
+    CROSSTOOL_FILE=third_party/gpus/crosstool/cc_toolchain_config.bzl.tpl
+ 
     for path in $RPATH_TO_ADD; do
         sed -i "\;flag: \"-Wl,-no-as-needed\"; a \ \ \ \ \ \ \ \ flag: \"-Wl,-rpath=$path\"" $CROSSTOOL_FILE
     done
 
-    sed -i "s;-B/usr/bin;-B$EBROOTGCC/bin;g" third_party/gpus/cuda_configure.bzl
     sed -i "\;%{linker_bin_path_flag}; a \ \ \ \ \ \ \ \ flag: \"-B$EBROOTGCC/lib/\"" $CROSSTOOL_FILE
 
     sed -i "\;linking_mode_flags { mode: DYNAMIC }; a \
@@ -115,9 +131,9 @@ if [[ $ARG_GPU == 1 ]]; then
 \ \ cxx_builtin_include_directory: \"/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/include/c++/7.3.0/\"" $CROSSTOOL_FILE
     # look for tools
     for tool in $(grep 'tool_path { .* }' $CROSSTOOL_FILE | grep -Po '(?<=path: ")([a-z\/]{1,})'); do
-	    toolname=$(basename $tool)
-	    new_path=$(which $toolname)
-	    sed -i "s;$tool;$new_path;g" $CROSSTOOL_FILE
+        toolname=$(basename $tool)
+        new_path=$(which $toolname)
+        sed -i "s;$tool;$new_path;g" $CROSSTOOL_FILE
     done
 fi
 
