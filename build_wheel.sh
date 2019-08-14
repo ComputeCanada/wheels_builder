@@ -426,6 +426,7 @@ elif [[ "$PACKAGE" == "functools32" ]]; then
 elif [[ "$PACKAGE" == "MarkupSafe" ]]; then
 	PYTHON_IMPORT_NAME="markupsafe"
 elif [[ "$PACKAGE" == "pygame" ]]; then
+	MODULE_BUILD_DEPS="sdl2"
 	PRE_BUILD_COMMANDS="export LOCALBASE=$NIXUSER_PROFILE"
 elif [[ "$PACKAGE" == "pyyaml" ]]; then
 	PACKAGE_FOLDER_NAME="PyYAML"
