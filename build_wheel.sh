@@ -136,8 +136,8 @@ elif [[ "$PACKAGE" == "scikit-bio" ]]; then
 	PYTHON_DEPS="numpy natsort"
 	PYTHON_IMPORT_NAME="skbio"
 	if [[ "$VERSION" > "0.4.2" ]]; then
-	    # scikit-bio 0.5.0 and newer are Python3-only
-	    PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
+		# scikit-bio 0.5.0 and newer are Python3-only
+		PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
 	fi
 elif [[ "$PACKAGE" == "qcli" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
@@ -654,23 +654,23 @@ elif [[ "$PACKAGE" == "dgl-gpu" ]]; then
 	POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 	PRE_BUILD_COMMANDS="mkdir build && cd build && cmake -DUSE_OPENMP=ON -DUSE_CUDA=ON .. && make -j 16 && cd ../python "
 elif [[ "$PACKAGE" == "feather-format" ]]; then
-        MODULE_RUNTIME_DEPS="gcc/7.3.0 boost/1.68.0 arrow/0.11.1"
-        PYTHON_IMPORT_NAME="feather"
+	MODULE_RUNTIME_DEPS="gcc/7.3.0 boost/1.68.0 arrow/0.11.1"
+	PYTHON_IMPORT_NAME="feather"
 elif [[ "$PACKAGE" == "Flask-Bootstrap" ]]; then
-        PYTHON_IMPORT_NAME="flask_bootstrap"
+	PYTHON_IMPORT_NAME="flask_bootstrap"
 elif [[ "$PACKAGE" == "HeapDict" ]]; then
-        PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
-        PYTHON_IMPORT_NAME="heapdict"
+	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+	PYTHON_IMPORT_NAME="heapdict"
 elif [[ "$PACKAGE" == "pyabc" ]]; then
-        MODULE_RUNTIME_DEPS="gcc/7.3.0 boost/1.68.0 arrow/0.11.1 scipy-stack"
+	MODULE_RUNTIME_DEPS="gcc/7.3.0 boost/1.68.0 arrow/0.11.1 scipy-stack"
 elif [[ "$PACKAGE" == "smmap2" ]]; then
-        PYTHON_IMPORT_NAME="smmap"
+	PYTHON_IMPORT_NAME="smmap"
 elif [[ "$PACKAGE" == "simuPOP" ]]; then
-        MODULE_RUNTIME_DEPS="gcc/7.3.0 boost/1.68.0 gsl/2.5 scipy-stack"
+	MODULE_RUNTIME_DEPS="gcc/7.3.0 boost/1.68.0 gsl/2.5 scipy-stack"
 elif [[ "$PACKAGE" == "gitdb2" ]]; then
-        PYTHON_IMPORT_NAME="gitdb"
+	PYTHON_IMPORT_NAME="gitdb"
 elif [[ "$PACKAGE" == "ipython" ]]; then
-        PYTHON_IMPORT_NAME=""
+	PYTHON_IMPORT_NAME=""
 elif [[ "$PACKAGE" == "spotpy" ]]; then
 	PYTHON_DEPS="numpy"
 fi
