@@ -1,0 +1,29 @@
+From 498e35a3bfe38dd75cf1416a1a23c07c3b59e6af Mon Sep 17 00:00:00 2001
+From: Bas Aarts <baarts@nvidia.com>
+Date: Tue, 11 Jun 2019 16:50:20 -0700
+Subject: [PATCH] Compiling TensorFlow when configured with CUDA and MPI
+ support results in compilation failure:
+
+tensorflow/contrib/mpi_collectives/kernels/ring.cu.cc(110): error: identifier "CudaLaunchKernel" is undefined
+
+tensorflow/contrib/mpi_collectives/kernels/ring.cu.cc(111): error: identifier "CudaLaunchKernel" is undefined
+
+tensorflow/contrib/mpi_collectives/kernels/ring.cu.cc(112): error: identifier "CudaLaunchKernel" is undefined
+
+Include tensorflow/core/util/gpu_kernel_helper.h in ring.cu.cc to pull in declaartion of CudaLaunchKernel
+---
+ tensorflow/contrib/mpi_collectives/kernels/ring.cu.cc | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tensorflow/contrib/mpi_collectives/kernels/ring.cu.cc b/tensorflow/contrib/mpi_collectives/kernels/ring.cu.cc
+index c8e3e81c8baa..6b55b01d67d0 100644
+--- a/tensorflow/contrib/mpi_collectives/kernels/ring.cu.cc
++++ b/tensorflow/contrib/mpi_collectives/kernels/ring.cu.cc
+@@ -21,6 +21,7 @@ limitations under the License.
+ 
+ #include "tensorflow/contrib/mpi_collectives/kernels/ring.h"
+ #include "tensorflow/core/util/gpu_launch_config.h"
++#include "tensorflow/core/util/gpu_kernel_helper.h"
+ 
+ namespace tensorflow {
+ namespace contrib {
