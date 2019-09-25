@@ -330,7 +330,11 @@ elif [[ "$PACKAGE" == "dlib-gpu" ]]; then
 	PACKAGE_SUFFIX='-gpu'
 	BDIST_WHEEL_ARGS='--yes CMAKE_SKIP_RPATH'
 elif [[ "$PACKAGE" == "shapely" ]]; then
-	MODULE_BUILD_DEPS="gcc geos"
+	if [[ "$RSNT_ARCH" == "avx" ]]; then
+		MODULE_BUILD_DEPS="gcc/5.4.0 geos"
+	else 
+		MODULE_BUILD_DEPS="gcc geos"
+	fi
 	# need to patch geos.py to find libgeos_c.so based on the module that was loaded at build time
 	PRE_BUILD_COMMANDS='sed -i -e "s;os.path.join(sys.prefix, \"lib\", \"libgeos_c.so\"),;\"$EBROOTGEOS/lib/libgeos_c.so\",;g" $(find . -name "geos.py")'
 	PACKAGE_FOLDER_NAME="Shapely"
@@ -559,8 +563,13 @@ elif [[ "$PACKAGE" == "MDAnalysisTests" ]]; then
 elif [[ "$PACKAGE" == "attrs" ]]; then
 	PYTHON_IMPORT_NAME="attr"
 elif [[ "$PACKAGE" == "Cartopy" ]]; then
-	MODULE_BUILD_DEPS="proj geos gdal"
+	if [[ "$RSNT_ARCH" == "avx" ]]; then
+		MODULE_BUILD_DEPS="gcc/5.4.0 proj/4.9.3 geos gdal"
+	else
+		MODULE_BUILD_DEPS="proj/4.9.3 geos gdal"
+	fi
 	PYTHON_DEPS="Cython numpy shapely pyshp six Pillow pyepsg pykdtree scipy OWSLib"
+	PRE_BUILD_COMMANDS="pip freeze"
 	PYTHON_IMPORT_NAME="cartopy"
 elif [[ "$PACKAGE" == "OWSLib" ]]; then
 	PYTHON_IMPORT_NAME="owslib"
