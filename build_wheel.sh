@@ -165,6 +165,10 @@ elif [[ "$PACKAGE" == "cupy" ]]; then
 	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10 cudnn nccl"
 	# needed otherwise it does not find libcuda.so
 	PRE_DOWNLOAD_COMMANDS='export LDFLAGS="-L$EBROOTCUDA/lib64/stubs -L$EBROOTNCCL/lib" ; export CFLAGS="-I$EBROOTNCCL/include/"'
+	# libnvrtc must find at runtime libnvrtc-builtins, either patch libnvrtc runpath or add DT_NEEDED
+	current_py_version=${EBVERSIONPYTHON::-2}
+	current_nvrtc_lib="cupy/cuda/nvrtc.cpython-${current_py_version//.}m-x86_64-linux-gnu.so"
+	POST_BUILD_COMMANDS="unzip \$WHEEL_NAME $current_nvrtc_lib && patchelf --add-needed libnvrtc-builtins.so $current_nvrtc_lib && zip \$WHEEL_NAME $current_nvrtc_lib"
 elif [[ "$PACKAGE" == "chainer" ]]; then
 	PYTHON_DEPS="filelock"
 elif [[ "$PACKAGE" == "chainermn" ]]; then
@@ -332,7 +336,7 @@ elif [[ "$PACKAGE" == "dlib-gpu" ]]; then
 elif [[ "$PACKAGE" == "shapely" ]]; then
 	if [[ "$RSNT_ARCH" == "avx" ]]; then
 		MODULE_BUILD_DEPS="gcc/5.4.0 geos"
-	else 
+	else
 		MODULE_BUILD_DEPS="gcc geos"
 	fi
 	# need to patch geos.py to find libgeos_c.so based on the module that was loaded at build time
@@ -784,6 +788,7 @@ EOF
 	$PYTHON_CMD setup.py bdist_wheel $BDIST_WHEEL_ARGS |& tee build.log
 	pushd dist || cat build.log
 	WHEEL_NAME=$(ls *.whl)
+	eval "$POST_BUILD_COMMANDS"
 	if [[ -n "$RPATH_TO_ADD" ]]; then
 		echo "Running /cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path $WHEEL_NAME --add_path=$RPATH_TO_ADD --any_interpreter"
 		/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path $WHEEL_NAME --add_path $RPATH_TO_ADD --any_interpreter
