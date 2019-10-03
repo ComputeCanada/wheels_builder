@@ -168,7 +168,8 @@ elif [[ "$PACKAGE" == "cupy" ]]; then
 	# libnvrtc must find at runtime libnvrtc-builtins, either patch libnvrtc runpath or add DT_NEEDED
 	current_py_version=${EBVERSIONPYTHON::-2}
 	current_nvrtc_lib="cupy/cuda/nvrtc.cpython-${current_py_version//.}m-x86_64-linux-gnu.so"
-	POST_BUILD_COMMANDS="unzip \$WHEEL_NAME $current_nvrtc_lib && patchelf --add-needed libnvrtc-builtins.so $current_nvrtc_lib && zip \$WHEEL_NAME $current_nvrtc_lib"
+	PATCH_WHEEL_COMMANDS="unzip \$ARCHNAME $current_nvrtc_lib && patchelf --add-needed libnvrtc-builtins.so $current_nvrtc_lib && zip \$ARCHNAME $current_nvrtc_lib"
+	POST_BUILD_COMMANDS=${PATCH_WHEEL_COMMANDS//ARCHNAME/WHEEL_NAME}
 elif [[ "$PACKAGE" == "chainer" ]]; then
 	PYTHON_DEPS="filelock"
 elif [[ "$PACKAGE" == "chainermn" ]]; then
@@ -474,7 +475,7 @@ elif [[ "$PACKAGE" == "torchvision" ]]; then
 
 	# Remove torch requirements from wheel as the user need to either install torch-[cg]pu wheel
 	# Otherwise, it does not install because torchvision has a `torch` requirement, and no pypi version is supplied, thus failing.
-	PATCH_WHEEL_COMMANDS="sed -i -e 's/Requires-Dist: torch//' torchvision-*.dist-info/METADATA; sed -i -e 's/, \"torch\"//' torchvision-*.dist-info/metadata.json"
+	PATCH_WHEEL_COMMANDS="unzip -o \$ARCHNAME && sed -i -e 's/Requires-Dist: torch//' torchvision-*.dist-info/METADATA; sed -i -e 's/, \"torch\"//' torchvision-*.dist-info/metadata.json && zip -u \$ARCHNAME -r $PACKAGE $PACKAGE-*.dist-info"
 elif [[ "$PACKAGE" == "biopython" ]]; then
 	PYTHON_DEPS="numpy"
 	PYTHON_IMPORT_NAME="Bio"
@@ -746,14 +747,9 @@ for pv in $PYTHON_VERSIONS; do
 	fi
 	# skip packages that are already in whl format
 	if [[ $ARCHNAME == *.whl ]]; then
-		# Patch the content of the wheel file (eg remove `torch` dependency as torch
-		# has no pypi wheel and we build [cg]pu wheel versions).
-		if [[ -n "$PATCH_WHEEL_COMMANDS" ]]; then
-			unzip -o $ARCHNAME
-			eval $PATCH_WHEEL_COMMANDS
-			zip -u $ARCHNAME -r $PACKAGE $PACKAGE-*.dist-info
-		fi
-		cp $ARCHNAME ..
+		# Patch the content of the wheel file.
+		eval "$PATCH_WHEEL_COMMANDS"
+		cp -v $ARCHNAME ..
 		continue
 	fi
 	unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
