@@ -21,9 +21,8 @@ for pv in $PYTHON_VERSIONS; do
 done
 for w in *.whl; do
 	setrpaths.sh --path $w
-	mv $w ${w//manylinux1/linux}
+	mv $w ${w//$(echo $w | grep -Po "manylinux\d+")/linux}
 done
 mv *.whl ..
 cd ..
 rm -rf $TMPDIR
-
