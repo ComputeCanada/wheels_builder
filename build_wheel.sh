@@ -544,35 +544,37 @@ function test_import {
 	RET=$?
 	test $RET -eq 0  && echo "Sucess!" || echo "Failed"
 
-	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//python_/}"
-	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_python/}"
-	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//py_/}"
-	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//Py_/}"
-	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_py/}"
-	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_Py/}"
-	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//Py/}"
-	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//py/}"
-	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME%2}"       #surprisingly, many packages have a name that ends with 2, but import without the 2
-	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME}2"       #the other way also happens... 
-	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//scikit_/sk}"   #special case for all of the scikit- packages
-	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_/.}"   #replacing _ by . sometimes happens
-	# add a version of all in lower cases
-	NAMES_TO_TEST="$NAMES_TO_TEST ${NAMES_TO_TEST,,}"
-	# remove duplicates
-	for TEST_NAME in $NAMES_TO_TEST; do 
-		if [[ ! $NAMES_TO_TEST2 =~ $TEST_NAME ]]; then
-			NAMES_TO_TEST2="$NAMES_TO_TEST2 $TEST_NAME"
-		fi
-	done
-	NAMES_TO_TEST=$NAMES_TO_TEST2
-	echo "Testing imports with the following names $NAMES_TO_TEST"
 	if [[ $RET -ne 0 ]]; then
-		RET=1
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//python_/}"
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_python/}"
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//py_/}"
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//Py_/}"
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_py/}"
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_Py/}"
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//Py/}"
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//py/}"
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME%2}"       #surprisingly, many packages have a name that ends with 2, but import without the 2
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME}2"       #the other way also happens... 
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//scikit_/sk}"   #special case for all of the scikit- packages
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_/.}"   #replacing _ by . sometimes happens
+		# add a version of all in lower cases
+		NAMES_TO_TEST="$NAMES_TO_TEST ${NAMES_TO_TEST,,}"
+		# remove duplicates
 		for TEST_NAME in $NAMES_TO_TEST; do 
-			single_test_import "$CONST_NAME" "$TEST_NAME" "$TESTS"
-			RET=$?
-			if [[ $RET -eq 0 ]]; then break; fi
+			if [[ ! $NAMES_TO_TEST2 =~ $TEST_NAME ]]; then
+				NAMES_TO_TEST2="$NAMES_TO_TEST2 $TEST_NAME"
+			fi
 		done
+		NAMES_TO_TEST=$NAMES_TO_TEST2
+		echo "Testing imports with the following names $NAMES_TO_TEST"
+		if [[ $RET -ne 0 ]]; then
+			RET=1
+			for TEST_NAME in $NAMES_TO_TEST; do 
+				single_test_import "$CONST_NAME" "$TEST_NAME" "$TESTS"
+				RET=$?
+				if [[ $RET -eq 0 ]]; then break; fi
+			done
+		fi
 	fi
 	return $RET
 
