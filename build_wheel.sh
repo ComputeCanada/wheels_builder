@@ -63,13 +63,8 @@ elif [[ "$PACKAGE" == "dask_ml" ]]; then
 	PACKAGE_DOWNLOAD_NAME="dask-ml"
 	PACKAGE_FOLDER_NAME=$PACKAGE_DOWNLOAD_NAME
 elif [[ "$PACKAGE" == "anvio" ]]; then
-	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
 	PYTHON_DEPS="numpy Cython statsmodels==0.9.0"
 	MODULE_BUILD_DEPS="gcc/5.4.0 gsl/2.3"
-elif [[ "$PACKAGE" == "django" ]]; then
-	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
-	PACKAGE_DOWNLOAD_NAME="Django"
-	PACKAGE_FOLDER_NAME="Django"
 elif [[ "$PACKAGE" == "OBITools" ]]; then
 	PYTHON_DEPS="Cython Sphinx ipython virtualenv"
 	PYTHON_VERSIONS="python/2.7"
@@ -77,10 +72,6 @@ elif [[ "$PACKAGE" == "gdata" ]]; then
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "scikit-bio" ]]; then
 	PYTHON_DEPS="numpy natsort"
-	if [[ "$VERSION" > "0.4.2" ]]; then
-		# scikit-bio 0.5.0 and newer are Python3-only
-		PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
-	fi
 elif [[ "$PACKAGE" == "qcli" ]]; then
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "emperor" ]]; then
