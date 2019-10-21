@@ -199,7 +199,6 @@ elif [[ "$PACKAGE" == "pyzmq" ]]; then
 	MODULE_BUILD_DEPS="zeromq"
 elif [[ "$PACKAGE" == "qiime" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib mock nose cycler decorator enum34 functools32 ipython matplotlib pexpect emperor qcli natsort<4.0.0"
-#	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "dlib-cpu" ]]; then
 	MODULE_BUILD_DEPS="gcc/7.3.0 boost imkl"    # it does not work with Intel, and requires Boost
 	PRE_BUILD_COMMANDS='sed -i -e "s;/opt/intel/mkl/lib/intel64;${MKLROOT}/lib/intel64;g" $(find . -name "*find_blas.*") '
@@ -241,7 +240,6 @@ elif [[ "$PACKAGE" == "numba" ]]; then
 	fi
 elif [[ "$PACKAGE" == "roboschool" ]]; then
 	MODULE_BUILD_DEPS="gcc/7.3.0 boost bullet qt/5.6.1"
-	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
 	PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/openai/roboschool/archive/1.0.46.tar.gz"
 	PACKAGE_DOWNLOAD_NAME="1.0.46.tar.gz"
 	PACKAGE_FOLDER_NAME="roboschool-1.0.46"
@@ -385,8 +383,6 @@ elif [[ "$PACKAGE" == "MDAnalysis" ]]; then
 	PYTHON_DEPS="gsd Cython joblib numpy mock GridDataFormats scipy matplotlib networkx biopython mmtf-python six duecredit"
 elif [[ "$PACKAGE" == "MDAnalysisTests" ]]; then
 	PYTHON_DEPS="MDAnalysis hypothesis pytest joblib pbr"
-	# Generates py2.py3 wheel anyway
-	PYTHON_VERSIONS="python/3.6"
 elif [[ "$PACKAGE" == "attrs" ]]; then
 	PYTHON_IMPORT_NAME="attr"
 elif [[ "$PACKAGE" == "Cartopy" ]]; then
@@ -402,10 +398,8 @@ elif [[ "$PACKAGE" == "pykdtree" ]]; then
 	PYTHON_DEPS="numpy"
 elif [[ "$PACKAGE" == "GPy" ]]; then
 	PYTHON_DEPS="numpy matplotlib"
-	PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
 elif [[ "$PACKAGE" == "GPyOpt" ]]; then
 	PYTHON_DEPS="matplotlib"
-	PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
 elif [[ "$PACKAGE" == "blmath" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "s@-fno-inline@-fno-inline\x27,\x27-L${EBROOTSUITESPARSE}/lib@g" setup.py; sed -i -e "s@/usr/include/suitesparse@${EBROOTSUITESPARSE}/include@g" setup.py; sed -i -e "s@lapack@mkl@g" setup.py'
 	MODULE_BUILD_DEPS="suitesparse imkl"
@@ -414,7 +408,6 @@ elif [[ "$PACKAGE" == "blmath" ]]; then
 elif [[ "$PACKAGE" == "jcvi" ]]; then
 	# aka ALLMAPS
 	PYTHON_DEPS="biopython numpy deap networkx matplotlib cython"
-	PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6 python/3.7"
 elif [[ "$PACKAGE" == "blis" ]]; then
 	PYTHON_DEPS="numpy cython pytest hypothesis wheel"
 elif [[ "$PACKAGE" == "neuralcoref" ]]; then
