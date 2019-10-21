@@ -399,7 +399,6 @@ elif [[ "$PACKAGE" == "Cartopy" ]]; then
 	PRE_BUILD_COMMANDS="pip freeze"
 elif [[ "$PACKAGE" == "pykdtree" ]]; then
 	MODULE_BUILD_DEPS="imkl"
-	PYTHON_DEPS="numpy"
 elif [[ "$PACKAGE" == "GPy" ]]; then
 	PYTHON_DEPS="numpy matplotlib"
 	PYTHON_VERSIONS="python/2.7 python/3.5 python/3.6"
