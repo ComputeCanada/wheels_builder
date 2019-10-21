@@ -53,13 +53,8 @@ elif [[ "$PACKAGE" == "protobuf" ]]; then
 	PYTHON_IMPORT_NAME="google.protobuf"
 elif [[ "$PACKAGE" == "multipledispatch" ]]; then
 	PYTHON_DEPS="six"
-elif [[ "$PACKAGE" == "dask_glm" ]]; then
-	PACKAGE_DOWNLOAD_NAME="dask-glm"
-	PACKAGE_FOLDER_NAME=$PACKAGE_DOWNLOAD_NAME
-elif [[ "$PACKAGE" == "dask_ml" ]]; then
+elif [[ "$PACKAGE" == "dask-ml" ]]; then
 	MODULE_BUILD_DEPS="llvm/6.0.1"
-	PACKAGE_DOWNLOAD_NAME="dask-ml"
-	PACKAGE_FOLDER_NAME=$PACKAGE_DOWNLOAD_NAME
 elif [[ "$PACKAGE" == "anvio" ]]; then
 	PYTHON_DEPS="numpy Cython statsmodels==0.9.0"
 	MODULE_BUILD_DEPS="gcc/5.4.0 gsl/2.3"
@@ -128,14 +123,10 @@ elif [[ "$PACKAGE" == "pygdal" ]]; then
 elif [[ "$PACKAGE" == "keras-vis" ]]; then
 	PYTHON_IMPORT_NAME="vis"
 	PACKAGE_DOWNLOAD_NAME="keras_vis"
-elif [[ "$PACKAGE" == "keras-applications" ]]; then
+elif [[ "$PACKAGE" == "Keras_Applications" ]]; then
 	PYTHON_DEPS="keras tensorflow_gpu"
-	PACKAGE_DOWNLOAD_NAME="Keras_Applications"
-	PACKAGE_FOLDER_NAME="Keras_Applications"
-elif [[ "$PACKAGE" == "keras-preprocessing" ]]; then
+elif [[ "$PACKAGE" == "Keras_Preprocessing" ]]; then
 	PYTHON_DEPS="keras tensorflow_gpu"
-	PACKAGE_DOWNLOAD_NAME="Keras_Preprocessing"
-	PACKAGE_FOLDER_NAME="Keras_Preprocessing"
 elif [[ "$PACKAGE" == "CoffeeScript" ]]; then
 	PYTHON_DEPS="PyExecJS"
 elif [[ "$PACKAGE" == "cvxpy" ]]; then
@@ -255,17 +246,14 @@ elif [[ "$PACKAGE" == "llvmlite" ]]; then
 	MODULE_BUILD_DEPS="llvm cuda/10 tbb"
 	PATCHES="$PWD/patches/llvmlite-0.28.0-fpic.patch"
 elif [[ "$PACKAGE" == "scikit-multilearn" ]]; then
-	PACKAGE_DOWNLOAD_NAME="scikit_multilearn"
 	PYTHON_DEPS="numpy scipy Cython scikit-learn liac-arff requests networkx python-louvain"
 elif [[ "$PACKAGE" == "liac-arff" ]]; then
 	PYTHON_IMPORT_NAME="arff"
 elif [[ "$PACKAGE" == "velocyto" ]]; then
 	PYTHON_DEPS="numpy scipy cython numba matplotlib scikit-learn h5py loompy pysam Click pandas"
 	PYTHON_VERSIONS="python/3.6 python/3.7"
-elif [[ "$PACKAGE" == "htseq" ]]; then
+elif [[ "$PACKAGE" == "HTSeq" ]]; then
 	PYTHON_DEPS="numpy Cython pysam"
-	PACKAGE_FOLDER_NAME="HTSeq"
-	PACKAGE_DOWNLOAD_NAME="HTSeq"
 elif [[ "$PACKAGE" == "mpi4py" ]]; then
 	MODULE_BUILD_DEPS="intel openmpi"
 elif [[ "$PACKAGE" == "preprocess" ]]; then
@@ -273,7 +261,6 @@ elif [[ "$PACKAGE" == "preprocess" ]]; then
 elif [[ "$PACKAGE" == "Amara" ]]; then
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "pysqlite" ]]; then
-	PYTHON_IMPORT_NAME="pysqlite2"
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "IPTest" ]]; then
 	PYTHON_VERSIONS="python/2.7"
@@ -302,9 +289,7 @@ elif [[ "$PACKAGE" == "fuel" ]]; then
 	PYTHON_DEPS="numpy six picklable_itertools pyyaml h5py tables progressbar2 pyzmq scipy pillow numexpr"
 elif [[ "$PACKAGE" == "seaborn" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib pandas"
-elif [[ "$PACKAGE" == "theano" ]]; then
-	PACKAGE_FOLDER_NAME="Theano"
-	PACKAGE_DOWNLOAD_NAME="Theano"
+elif [[ "$PACKAGE" == "Theano" ]]; then
 	PYTHON_DEPS="numpy scipy six"
 elif [[ "$PACKAGE" == "alignlib-lite" ]]; then
 	MODULE_BUILD_DEPS="boost"
@@ -411,38 +396,23 @@ elif [[ "$PACKAGE" == "blis" ]]; then
 	PYTHON_DEPS="numpy cython pytest hypothesis wheel"
 elif [[ "$PACKAGE" == "neuralcoref" ]]; then
 	PYTHON_DEPS="cython>=0.25 pytest spacy>=2.1.0"
-elif [[ "$PACKAGE" == "torch-scatter" ]]; then
+elif [[ "$PACKAGE" == "torch_scatter" ]]; then
 	PYTHON_DEPS="torch>=1.1.0"
 	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
-	PACKAGE='torch_scatter'
-	PACKAGE_DOWNLOAD_NAME=$PACKAGE
-	PACKAGE_FOLDER_NAME=$PACKAGE
-elif [[ "$PACKAGE" == "torch-sparse" ]]; then
+elif [[ "$PACKAGE" == "torch_sparse" ]]; then
 	PYTHON_DEPS="torch>=1.1.0 torch-scatter"
 	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
-	PACKAGE='torch_sparse'
-	PACKAGE_DOWNLOAD_NAME=$PACKAGE
-	PACKAGE_FOLDER_NAME=$PACKAGE
-elif [[ "$PACKAGE" == "torch-cluster" ]]; then
+elif [[ "$PACKAGE" == "torch_cluster" ]]; then
 	PYTHON_DEPS="torch>=1.1.0"
 	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
-	PACKAGE='torch_cluster'
-	PACKAGE_DOWNLOAD_NAME=$PACKAGE
-	PACKAGE_FOLDER_NAME=$PACKAGE
-elif [[ "$PACKAGE" == "torch-spline-conv" ]]; then
+elif [[ "$PACKAGE" == "torch_spline_conv" ]]; then
 	PYTHON_DEPS="torch>=1.1.0"
 	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
-	PACKAGE='torch_spline_conv'
-	PACKAGE_DOWNLOAD_NAME=$PACKAGE
-	PACKAGE_FOLDER_NAME=$PACKAGE
 elif [[ "$PACKAGE" == "plyfile" ]]; then
 	PYTHON_DEPS="numpy"
-elif [[ "$PACKAGE" == "torch-geometric" ]]; then
+elif [[ "$PACKAGE" == "torch_geometric" ]]; then
 	PYTHON_DEPS="torch>=1.1.0 torch-scatter torch-sparse torch-cluster torch-spline-conv"
 	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
-	PACKAGE='torch_geometric'
-	PACKAGE_DOWNLOAD_NAME=$PACKAGE
-	PACKAGE_FOLDER_NAME=$PACKAGE
 elif [[ "$PACKAGE" == "dgl-cpu" ]]; then
 	# The v0.2 is CPU only, GPU is in HEAD of the repo or the next release
 	PACKAGE="dgl"
