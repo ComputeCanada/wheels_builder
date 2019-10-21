@@ -104,9 +104,6 @@ elif [[ "$PACKAGE" == "chainermn" ]]; then
 elif [[ "$PACKAGE" == "deepchem" ]]; then
 	PYTHON_DEPS="numpy pandas joblib scikit-learn tensorflow_gpu pillow simdna"
 	MODULE_RUNTIME_DEPS="gcc/5.4.0 rdkit/2018.03.3"
-elif [[ "$PACKAGE" == "prometheus-client" ]]; then
-	PACKAGE_DOWNLOAD_NAME="prometheus_client"
-	PACKAGE_FOLDER_NAME=$PACKAGE_DOWNLOAD_NAME
 elif [[ "$PACKAGE" == "ray" ]]; then
 	if [[ -z "$VERSION" ]]; then
 		VERSION="0.4.0"
@@ -185,11 +182,9 @@ elif [[ "$PACKAGE" == "matplotlib" ]]; then
 	PYTHON_DEPS="pyparsing pytz six cycler python-dateutil numpy backports.functools-lru-cache kiwisolver"
 elif [[ "$PACKAGE" == "numexpr" ]]; then
 	PYTHON_TESTS="numexpr.test()"
-elif [[ "$PACKAGE" == "bottleneck" ]]; then
+elif [[ "$PACKAGE" == "Bottleneck" ]]; then
 	PYTHON_DEPS="numpy nose"
 	PYTHON_TESTS="bottleneck.test();" # bottleneck.bench()"
-	PACKAGE_DOWNLOAD_NAME="Bottleneck"
-	PACKAGE_FOLDER_NAME="Bottleneck"
 elif [[ "$PACKAGE" == "tables" ]]; then
 	MODULE_BUILD_DEPS="gcc hdf5"
 	PYTHON_DEPS="h5py numpy numexpr six nose mock"
