@@ -40,19 +40,13 @@ elif [[ "$PACKAGE" == "stats_array" ]]; then
 elif [[ "$PACKAGE" == "umap-learn" ]]; then
 	PYTHON_IMPORT_NAME="umap"
 elif [[ "$PACKAGE" == "ParmEd" ]]; then
-	PYTHON_IMPORT_NAME="parmed"
 	PYTHON_DEPS="numpy"
-elif [[ "$PACKAGE" == "PyPrind" ]]; then
-	PYTHON_IMPORT_NAME="pyprind"
 elif [[ "$PACKAGE" == "bw2speedups" ]]; then
 	PYTHON_DEPS="numpy"
-elif [[ "$PACKAGE" == "SQLAlchemy" ]]; then
-	PYTHON_IMPORT_NAME="sqlalchemy"
 elif [[ "$PACKAGE" == "atari_py" ]]; then
 	PACKAGE_DOWNLOAD_NAME="atari-py"
 	PACKAGE_FOLDER_NAME="atari-py"
 elif [[ "$PACKAGE" == "PyOpenGL" ]]; then
-	PYTHON_IMPORT_NAME="OpenGL"
 	PYTHON_TESTS="from OpenGL.GL.ARB.shader_objects import *; from OpenGL.GL.ARB.fragment_shader import *; from OpenGL.GL.ARB.vertex_shader import *; from OpenGL.GL import *; from OpenGL.GLU import *"
 elif [[ "$PACKAGE" == "msprime" ]]; then
 	MODULE_BUILD_DEPS="intel/2016.4 imkl/2019.2.187 gsl/1.16"
@@ -98,8 +92,6 @@ elif [[ "$PACKAGE" == "dask_ml" ]]; then
 	MODULE_BUILD_DEPS="llvm/6.0.1"
 	PACKAGE_DOWNLOAD_NAME="dask-ml"
 	PACKAGE_FOLDER_NAME=$PACKAGE_DOWNLOAD_NAME
-elif [[ "$PACKAGE" == "kPAL" ]]; then
-	PYTHON_IMPORT_NAME="kpal"
 elif [[ "$PACKAGE" == "configargparse" ]]; then
 	PACKAGE_DOWNLOAD_NAME="ConfigArgParse"
 	PACKAGE_FOLDER_NAME="ConfigArgParse"
@@ -119,18 +111,14 @@ elif [[ "$PACKAGE" == "django" ]]; then
 	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
 	PACKAGE_DOWNLOAD_NAME="Django"
 	PACKAGE_FOLDER_NAME="Django"
-elif [[ "$PACKAGE" == "Sphinx" ]]; then
-	PYTHON_IMPORT_NAME="sphinx"
 elif [[ "$PACKAGE" == "OBITools" ]]; then
 	PYTHON_DEPS="Cython Sphinx ipython virtualenv"
-	PYTHON_IMPORT_NAME="obitools"
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "gdata" ]]; then
 	PYTHON_DEPS="numpy"
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "scikit-bio" ]]; then
 	PYTHON_DEPS="numpy natsort"
-	PYTHON_IMPORT_NAME="skbio"
 	if [[ "$VERSION" > "0.4.2" ]]; then
 		# scikit-bio 0.5.0 and newer are Python3-only
 		PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
@@ -147,7 +135,6 @@ elif [[ "$PACKAGE" == "qutip" ]]; then
 elif [[ "$PACKAGE" == "msmbuilder" ]]; then
 	PYTHON_DEPS="numpy scipy scikit-learn mdtraj pandas cython<0.28 cvxopt nose"
 elif [[ "$PACKAGE" == "openslide-python" ]]; then
-	PYTHON_IMPORT_NAME="openslide"
 	MODULE_BUILD_DEPS="intel/2016.4 openslide"
 	PRE_BUILD_COMMANDS='sed -i -e "/import sys/a import os" -e "s;.libopenslide.so.0.;os.environ.get(\"EBROOTOPENSLIDE\",\"$EBROOTOPENSLIDE\") + \"/lib/libopenslide.so.0\";g" $(find . -name "lowlevel.py")'
 elif [[ "$PACKAGE" == "cupy" ]]; then
@@ -171,7 +158,6 @@ elif [[ "$PACKAGE" == "deepchem" ]]; then
 elif [[ "$PACKAGE" == "prometheus-client" ]]; then
 	PACKAGE_DOWNLOAD_NAME="prometheus_client"
 	PACKAGE_FOLDER_NAME=$PACKAGE_DOWNLOAD_NAME
-	PYTHON_IMPORT_NAME=$PACKAGE_DOWNLOAD_NAME
 elif [[ "$PACKAGE" == "ray" ]]; then
 	if [[ -z "$VERSION" ]]; then
 		VERSION="0.4.0"
@@ -198,7 +184,6 @@ elif [[ "$PACKAGE" == "PyWavelets" ]]; then
 	PYTHON_IMPORT_NAME="pywt"
 elif [[ "$PACKAGE" == "scikit-image" ]]; then
 	PYTHON_DEPS="numpy cython scipy"
-	PYTHON_IMPORT_NAME="skimage"
 elif [[ "$PACKAGE" == "pygdal" ]]; then
 	PYTHON_DEPS="numpy"
 	MODULE_BUILD_DEPS="gcc gdal"
@@ -207,20 +192,14 @@ elif [[ "$PACKAGE" == "keras-vis" ]]; then
 	PACKAGE_DOWNLOAD_NAME="keras_vis"
 elif [[ "$PACKAGE" == "keras-applications" ]]; then
 	PYTHON_DEPS="keras tensorflow_gpu"
-	PYTHON_IMPORT_NAME="keras.applications"
 	PACKAGE_DOWNLOAD_NAME="Keras_Applications"
 	PACKAGE_FOLDER_NAME="Keras_Applications"
 elif [[ "$PACKAGE" == "keras-preprocessing" ]]; then
 	PYTHON_DEPS="keras tensorflow_gpu"
-	PYTHON_IMPORT_NAME="keras.preprocessing"
 	PACKAGE_DOWNLOAD_NAME="Keras_Preprocessing"
 	PACKAGE_FOLDER_NAME="Keras_Preprocessing"
-elif [[ "$PACKAGE" == "absl-py" ]]; then
-	PYTHON_IMPORT_NAME="absl"
 elif [[ "$PACKAGE" == "CoffeeScript" ]]; then
 	PYTHON_DEPS="PyExecJS"
-elif [[ "$PACKAGE" == "PyExecJS" ]]; then
-	PYTHON_IMPORT_NAME="execjs"
 elif [[ "$PACKAGE" == "CVXcanon" ]]; then
 	PYTHON_DEPS="numpy scipy"
 elif [[ "$PACKAGE" == "ecos" ]]; then
@@ -236,8 +215,6 @@ elif [[ "$PACKAGE" == "grpcio" ]]; then
 	PYTHON_IMPORT_NAME="grpc"
 elif [[ "$PACKAGE" == "metasv" ]]; then
 	PYTHON_DEPS="cython pysam"
-elif [[ "$PACKAGE" == "PyMySQL" ]]; then
-	PYTHON_IMPORT_NAME="pymysql"
 elif [[ "$PACKAGE" == "scipy" ]]; then
 	MODULE_BUILD_DEPS="imkl/2018.3.222"
 	PYTHON_DEPS="nose numpy pytest"
@@ -260,7 +237,6 @@ elif [[ "$PACKAGE" == "Cython" ]]; then
 elif [[ "$PACKAGE" == "cutadapt" ]]; then
 	PYTHON_DEPS="xopen"
 elif [[ "$PACKAGE" == "cgat" ]]; then
-	PYTHON_IMPORT_NAME="cgat"
 	PYTHON_DEPS="numpy cython pysam setuptools pyparsing pyaml alignlib-lite matplotlib biopython"
 elif [[ "$PACKAGE" == "h5py" ]]; then
 	if [[ "$RSNT_ARCH" == "avx" ]]; then
@@ -272,8 +248,6 @@ elif [[ "$PACKAGE" == "h5py" ]]; then
 	PYTHON_TESTS="h5py.run_tests()"
 elif [[ "$PACKAGE" == "matplotlib" ]]; then
 	PYTHON_DEPS="pyparsing pytz six cycler python-dateutil numpy backports.functools-lru-cache kiwisolver"
-elif [[ "$PACKAGE" == "python-dateutil" ]]; then
-	PYTHON_IMPORT_NAME="dateutil"
 elif [[ "$PACKAGE" == "numexpr" ]]; then
 	PYTHON_DEPS="numpy"
 	PYTHON_TESTS="numexpr.test()"
@@ -288,7 +262,6 @@ elif [[ "$PACKAGE" == "tables" ]]; then
 	PYTHON_TESTS="tables.test()"
 elif [[ "$PACKAGE" == "bx-python" ]]; then
 	PYTHON_DEPS="numpy python-lzo six"
-	PYTHON_IMPORT_NAME="bx"
 elif [[ "$PACKAGE" == "RSeQC" ]]; then
 	PYTHON_DEPS="bx-python"
 	PYTHON_VERSIONS="python/2.7"
@@ -296,7 +269,6 @@ elif [[ "$PACKAGE" == "pandas" ]]; then
 	PYTHON_DEPS="numpy python-dateutil pytz Cython numexpr bottleneck scipy tables matplotlib nose pytest moto"
 #	PYTHON_TESTS="pandas.test()"
 elif [[ "$PACKAGE" == "pyzmq" ]]; then
-	PYTHON_IMPORT_NAME="zmq"
 	MODULE_BUILD_DEPS="zeromq"
 elif [[ "$PACKAGE" == "qiime" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib mock nose cycler decorator enum34 functools32 ipython matplotlib pexpect emperor qcli natsort<4.0.0"
@@ -358,41 +330,29 @@ elif [[ "$PACKAGE" == "llvmlite" ]]; then
 	MODULE_BUILD_DEPS="llvm cuda/10 tbb"
 	PATCHES="$PWD/patches/llvmlite-0.28.0-fpic.patch"
 elif [[ "$PACKAGE" == "scikit-learn" ]]; then
-	PYTHON_IMPORT_NAME="sklearn"
 	PYTHON_DEPS="numpy scipy Cython"
 elif [[ "$PACKAGE" == "scikit-multilearn" ]]; then
 	PACKAGE_DOWNLOAD_NAME="scikit_multilearn"
-	PYTHON_IMPORT_NAME="skmultilearn"
 	PYTHON_DEPS="numpy scipy Cython scikit-learn liac-arff requests networkx python-louvain"
 elif [[ "$PACKAGE" == "liac-arff" ]]; then
 	PYTHON_IMPORT_NAME="arff"
 elif [[ "$PACKAGE" == "velocyto" ]]; then
 	PYTHON_DEPS="numpy scipy cython numba matplotlib scikit-learn h5py loompy pysam Click pandas"
 	PYTHON_VERSIONS="python/3.6 python/3.7"
-elif [[ "$PACKAGE" == "Send2Trash" ]]; then
-	PYTHON_IMPORT_NAME="send2trash"
 elif [[ "$PACKAGE" == "htseq" ]]; then
 	PYTHON_DEPS="numpy Cython pysam"
 	PACKAGE_FOLDER_NAME="HTSeq"
 	PACKAGE_DOWNLOAD_NAME="HTSeq"
-	PYTHON_IMPORT_NAME="HTSeq"
 elif [[ "$PACKAGE" == "mpi4py" ]]; then
 	MODULE_BUILD_DEPS="intel openmpi"
 elif [[ "$PACKAGE" == "preprocess" ]]; then
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "Amara" ]]; then
-	# need to patch it so it supports bdist_wheel
-	PYTHON_IMPORT_NAME="amara"
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "pysqlite" ]]; then
-	# need to patch it so it supports bdist_wheel
 	PYTHON_IMPORT_NAME="pysqlite2"
 	PYTHON_VERSIONS="python/2.7"
-elif [[ "$PACKAGE" == "python-lzo" ]]; then
-	PYTHON_IMPORT_NAME="lzo"
-elif [[ "$PACKAGE" == "iptest" ]]; then
-	PACKAGE_FOLDER_NAME="IPTest"
-	PACKAGE_DOWNLOAD_NAME="IPTest"
+elif [[ "$PACKAGE" == "IPTest" ]]; then
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "sympy" ]]; then
 	PYTHON_DEPS="mpmath"
@@ -400,21 +360,11 @@ elif [[ "$PACKAGE" == "cffi" ]]; then
 	PYTHON_DEPS="pycparser"
 elif [[ "$PACKAGE" == "ipaddress" ]]; then
 	PYTHON_VERSIONS="python/2.7"
-elif [[ "$PACKAGE" == "pynacl" ]]; then
-	PACKAGE_FOLDER_NAME="PyNaCl"
-	PACKAGE_DOWNLOAD_NAME="PyNaCl"
-	PYTHON_IMPORT_NAME="nacl"
 elif [[ "$PACKAGE" == "functools32" ]]; then
 	PYTHON_VERSIONS="python/2.7"
-elif [[ "$PACKAGE" == "MarkupSafe" ]]; then
-	PYTHON_IMPORT_NAME="markupsafe"
 elif [[ "$PACKAGE" == "pygame" ]]; then
 	MODULE_BUILD_DEPS="sdl2"
 	PRE_BUILD_COMMANDS="export LOCALBASE=$NIXUSER_PROFILE"
-elif [[ "$PACKAGE" == "pyyaml" ]]; then
-	PACKAGE_FOLDER_NAME="PyYAML"
-	PACKAGE_DOWNLOAD_NAME="PyYAML"
-	PYTHON_IMPORT_NAME="yaml"
 elif [[ "$PACKAGE" == "pillow" || "$PACKAGE" == "Pillow" ]]; then
 	PYTHON_DEPS="olefile"
 	PACKAGE_FOLDER_NAME="Pillow"
@@ -429,10 +379,6 @@ elif [[ "$PACKAGE" == "fuel" ]]; then
 	PYTHON_DEPS="numpy six picklable_itertools pyyaml h5py tables progressbar2 pyzmq scipy pillow numexpr"
 elif [[ "$PACKAGE" == "seaborn" ]]; then
 	PYTHON_DEPS="numpy scipy matplotlib pandas"
-elif [[ "$PACKAGE" == "Werkzeug" ]]; then
-	PYTHON_IMPORT_NAME="werkzeug"
-elif [[ "$PACKAGE" == "backports.functools-lru-cache" ]]; then
-	PYTHON_IMPORT_NAME="backports.functools_lru_cache"
 elif [[ "$PACKAGE" == "theano" ]]; then
 	PACKAGE_FOLDER_NAME="Theano"
 	PACKAGE_DOWNLOAD_NAME="Theano"
@@ -449,7 +395,6 @@ elif [[ "$PACKAGE" == "torchvision" ]]; then
 	PATCH_WHEEL_COMMANDS="unzip -o \$ARCHNAME && sed -i -e 's/Requires-Dist: torch//' torchvision-*.dist-info/METADATA; sed -i -e 's/, \"torch\"//' torchvision-*.dist-info/metadata.json && zip -u \$ARCHNAME -r $PACKAGE $PACKAGE-*.dist-info"
 elif [[ "$PACKAGE" == "biopython" ]]; then
 	PYTHON_DEPS="numpy"
-	PYTHON_IMPORT_NAME="Bio"
 elif [[ "$PACKAGE" == "torchtext" ]]; then
 	# torch_cpu, six and numpy are only for testing purposes. They are not in torchtext requirements.
 	# torchtext should be installed along with : numpy, six, torch-[cg]pu
@@ -462,7 +407,6 @@ elif [[ "$PACKAGE" == "wxPython" ]]; then
 	MODULE_BUILD_DEPS="gtk+3/3.20.9"
 	PYTHON_DEPS="six typing PyPubSub"
 	PRE_BUILD_COMMANDS='export LDFLAGS=-Wl,-rpath,\$ORIGIN,-rpath,$EBROOTGTKPLUS3/lib'
-	PYTHON_IMPORT_NAME="wx"
 elif [[ "$PACKAGE" == "smart_open" ]]; then
 	PYTHON_DEPS="boto>=2.32 bz2file requests boto3"
 elif [[ "$PACKAGE" == "gensim" ]]; then
@@ -471,8 +415,6 @@ elif [[ "$PACKAGE" == "preshed" ]]; then
 	PYTHON_DEPS="cymem>=1.30,<1.32.0"
 elif [[ "$PACKAGE" == "cytoolz" ]]; then
 	PYTHON_DEPS="toolz>=0.8.0"
-elif [[ "$PACKAGE" == "msgpack-python" ]]; then
-	PYTHON_IMPORT_NAME="msgpack"
 elif [[ "$PACKAGE" == "thinc" ]]; then
 	if [[ "$VERSION" == "6.12.0" ]]; then
 		PYTHON_DEPS="cython>=0.25.0 numpy>=1.7.0 msgpack>=0.5.6,<1.0.0 msgpack-numpy==0.4.1 murmurhash>=0.28.0,<0.29.0 cymem>=1.30.0,<1.32.0 preshed>=1.0.0,<2.0.0 cytoolz>=0.9.0,<0.10 wrapt>=1.10.0,<1.11.0 plac>=0.9.6,<1.0.0 tqdm>=4.10.0,<5.0.0 six>=1.10.0,<2.0.0 hypothesis<3,>=2 dill>=0.2.7,<0.3.0 pathlib==1.0.1;python_version<'3.4'"
@@ -487,10 +429,6 @@ elif [[ "$PACKAGE" == "spacy" ]]; then
 	fi
 elif [[ "$PACKAGE" == "bigfloat" ]]; then
 	PYTHON_DEPS="cython"
-elif [[ "$PACKAGE" == "python-utils" ]]; then
-	PYTHON_IMPORT_NAME="python_utils"
-elif [[ "$PACKAGE" == "progressbar2" ]]; then
-	PYTHON_IMPORT_NAME="progressbar"
 elif [[ "$PACKAGE" == "fast5_research" ]]; then
 	PYTHON_DEPS="numpy h5py"
 elif [[ "$PACKAGE" == "sphinx-argparse" ]]; then
@@ -499,12 +437,9 @@ elif [[ "$PACKAGE" == "jsonnet" ]]; then
 	PYTHON_IMPORT_NAME="_jsonnet"
 elif [[ "$PACKAGE" == "Unidecode" ]]; then
 	PYTHON_IMPORT_NAME=""
-elif [[ "$PACKAGE" == "python-jose" ]]; then
-	PYTHON_IMPORT_NAME="jose"
 elif [[ "$PACKAGE" == "pycryptodome" ]]; then
 	PYTHON_IMPORT_NAME="Crypto"
 elif [[ "$PACKAGE" == "pyproj" ]]; then
-	PYTHON_IMPORT_NAME="pyproj"
 	MODULE_BUILD_DEPS="proj geos"
 elif [[ "$PACKAGE" == "pyshp" ]]; then
 	PYTHON_IMPORT_NAME="shapefile"
@@ -541,9 +476,6 @@ elif [[ "$PACKAGE" == "Cartopy" ]]; then
 	fi
 	PYTHON_DEPS="Cython numpy shapely pyshp six Pillow pyepsg pykdtree scipy OWSLib"
 	PRE_BUILD_COMMANDS="pip freeze"
-	PYTHON_IMPORT_NAME="cartopy"
-elif [[ "$PACKAGE" == "OWSLib" ]]; then
-	PYTHON_IMPORT_NAME="owslib"
 elif [[ "$PACKAGE" == "pykdtree" ]]; then
 	MODULE_BUILD_DEPS="imkl"
 	PYTHON_DEPS="numpy"
@@ -571,28 +503,24 @@ elif [[ "$PACKAGE" == "torch-scatter" ]]; then
 	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
 	PACKAGE='torch_scatter'
 	PACKAGE_DOWNLOAD_NAME=$PACKAGE
-	PYTHON_IMPORT_NAME=$PACKAGE
 	PACKAGE_FOLDER_NAME=$PACKAGE
 elif [[ "$PACKAGE" == "torch-sparse" ]]; then
 	PYTHON_DEPS="torch>=1.1.0 torch-scatter"
 	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
 	PACKAGE='torch_sparse'
 	PACKAGE_DOWNLOAD_NAME=$PACKAGE
-	PYTHON_IMPORT_NAME=$PACKAGE
 	PACKAGE_FOLDER_NAME=$PACKAGE
 elif [[ "$PACKAGE" == "torch-cluster" ]]; then
 	PYTHON_DEPS="torch>=1.1.0"
 	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
 	PACKAGE='torch_cluster'
 	PACKAGE_DOWNLOAD_NAME=$PACKAGE
-	PYTHON_IMPORT_NAME=$PACKAGE
 	PACKAGE_FOLDER_NAME=$PACKAGE
 elif [[ "$PACKAGE" == "torch-spline-conv" ]]; then
 	PYTHON_DEPS="torch>=1.1.0"
 	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
 	PACKAGE='torch_spline_conv'
 	PACKAGE_DOWNLOAD_NAME=$PACKAGE
-	PYTHON_IMPORT_NAME=$PACKAGE
 	PACKAGE_FOLDER_NAME=$PACKAGE
 elif [[ "$PACKAGE" == "plyfile" ]]; then
 	PYTHON_DEPS="numpy"
@@ -601,10 +529,7 @@ elif [[ "$PACKAGE" == "torch-geometric" ]]; then
 	MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10"
 	PACKAGE='torch_geometric'
 	PACKAGE_DOWNLOAD_NAME=$PACKAGE
-	PYTHON_IMPORT_NAME=$PACKAGE
 	PACKAGE_FOLDER_NAME=$PACKAGE
-elif [[ "$PACKAGE" == "pyahocorasick" ]]; then
-	PYTHON_IMPORT_NAME="ahocorasick"
 elif [[ "$PACKAGE" == "dgl-cpu" ]]; then
 	# The v0.2 is CPU only, GPU is in HEAD of the repo or the next release
 	PACKAGE="dgl"
@@ -636,18 +561,10 @@ elif [[ "$PACKAGE" == "dgl-gpu" ]]; then
 elif [[ "$PACKAGE" == "feather-format" ]]; then
 	MODULE_RUNTIME_DEPS="gcc/7.3.0 boost/1.68.0 arrow/0.11.1"
 	PYTHON_IMPORT_NAME="feather"
-elif [[ "$PACKAGE" == "Flask-Bootstrap" ]]; then
-	PYTHON_IMPORT_NAME="flask_bootstrap"
-elif [[ "$PACKAGE" == "HeapDict" ]]; then
-	PYTHON_IMPORT_NAME="heapdict"
 elif [[ "$PACKAGE" == "pyabc" ]]; then
 	MODULE_RUNTIME_DEPS="gcc/7.3.0 boost/1.68.0 arrow/0.11.1 scipy-stack"
-elif [[ "$PACKAGE" == "smmap2" ]]; then
-	PYTHON_IMPORT_NAME="smmap"
 elif [[ "$PACKAGE" == "simuPOP" ]]; then
 	MODULE_RUNTIME_DEPS="gcc/7.3.0 boost/1.68.0 gsl/2.5 scipy-stack"
-elif [[ "$PACKAGE" == "gitdb2" ]]; then
-	PYTHON_IMPORT_NAME="gitdb"
 elif [[ "$PACKAGE" == "ipython" ]]; then
 	PYTHON_IMPORT_NAME=""
 elif [[ "$PACKAGE" == "spotpy" ]]; then
@@ -678,6 +595,60 @@ elif [[ "$PACKAGE" == "unicycler" ]]; then
 	PACKAGE_DOWNLOAD_NAME="v${VERSION}.tar.gz"
 	PACKAGE_FOLDER_NAME="Unicycler-${VERSION}"
 fi
+
+function single_test_import {
+	CONST_NAME="$1"
+	NAME="$2"
+	TESTS="$3"
+	if [[ "$NAME" != "$CONST_NAME" ]]; then
+		echo "Testing import with name $NAME"
+		$PYTHON_CMD -c "import $NAME; $TESTS"
+		RET=$?
+		test $RET -eq 0  && echo "Sucess!" || echo "Failed"
+		return $RET
+	else
+		return 1
+	fi
+}
+function test_import {
+	NAME=$1
+	TESTS=$2
+
+	# dashes in names are always replaced by underscore
+	NAME=${NAME//-/_}
+	
+	CONST_NAME="$NAME"
+	echo "Testing import with name $NAME"
+	$PYTHON_CMD -c "import $NAME; $TESTS"
+	RET=$?
+	test $RET -eq 0  && echo "Sucess!" || echo "Failed"
+
+	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//python_/}"
+	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_python/}"
+	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//py_/}"
+	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//Py_/}"
+	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_py/}"
+	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_Py/}"
+	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//Py/}"
+	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//py/}"
+	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME%2}"       #surprisingly, many packages have a name that ends with 2, but import without the 2
+	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME}2"       #the other way also happens... 
+	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//scikit_/sk}"   #special case for all of the scikit- packages
+	NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_/.}"   #replacing _ by . sometimes happens
+	# add a version of all in lower cases
+	NAMES_TO_TEST="$NAMES_TO_TEST ${NAMES_TO_TEST,,}"
+	echo $NAMES_TO_TEST
+	if [[ $RET -ne 0 ]]; then
+		RET=1
+		for TEST_NAME in $NAMES_TO_TEST; do 
+			single_test_import "$CONST_NAME" "$TEST_NAME" "$TESTS"
+			RET=$?
+			if [[ $RET -eq 0 ]]; then break; fi
+		done
+	fi
+	return $RET
+
+}
 
 DIR=tmp.$$
 mkdir $DIR
@@ -777,7 +748,7 @@ EOF
 	module list
 	pip install ../$WHEEL_NAME --no-cache --find-links=$TMP_WHEELHOUSE
 	if [[ -n "$PYTHON_IMPORT_NAME" ]]; then
-		$PYTHON_CMD -c "import $PYTHON_IMPORT_NAME; $PYTHON_TESTS"
+		test_import "$PYTHON_IMPORT_NAME" "$PYTHON_TESTS"
 	fi
 	SUCCESS=$?
 	deactivate
