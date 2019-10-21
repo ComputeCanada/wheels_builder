@@ -20,6 +20,9 @@ PATCHES=""
 # Do not collect binaries and don't install dependencies
 PACKAGE_DOWNLOAD_CMD="pip download --no-binary \$PACKAGE_DOWNLOAD_ARGUMENT --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
 
+PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/distutils.core/setuptools/g" setup.py'
+
+
 if [[ -n "$VERSION" ]]; then
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE==$VERSION"
 else
@@ -63,7 +66,6 @@ elif [[ "$PACKAGE" == "pyslurm" ]]; then
 elif [[ "$PACKAGE" == "cogent" ]]; then
 	PYTHON_DEPS="numpy"
 	PYTHON_VERSIONS="python/2.7"
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "amico" ]]; then
 	PYTHON_DEPS="numpy dipy scipy nibabel h5py six"
 	PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/daducci/AMICO/archive/master.zip"
@@ -71,13 +73,8 @@ elif [[ "$PACKAGE" == "amico" ]]; then
 	PACKAGE_FOLDER_NAME="AMICO-master"
 elif [[ "$PACKAGE" == "dipy" ]]; then
 	PYTHON_DEPS="numpy"
-elif [[ "$PACKAGE" == "termcolor" ]]; then
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "ScientificPython" ]]; then
 	PYTHON_DEPS="numpy"
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
-elif [[ "$PACKAGE" == "audioread" ]]; then
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "snakemake" ]]; then
 	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
 elif [[ "$PACKAGE" == "protobuf" ]]; then
@@ -131,7 +128,6 @@ elif [[ "$PACKAGE" == "OBITools" ]]; then
 elif [[ "$PACKAGE" == "gdata" ]]; then
 	PYTHON_DEPS="numpy"
 	PYTHON_VERSIONS="python/2.7"
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "scikit-bio" ]]; then
 	PYTHON_DEPS="numpy natsort"
 	PYTHON_IMPORT_NAME="skbio"
@@ -140,22 +136,16 @@ elif [[ "$PACKAGE" == "scikit-bio" ]]; then
 		PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
 	fi
 elif [[ "$PACKAGE" == "qcli" ]]; then
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "emperor" ]]; then
 	PYTHON_DEPS="qcli"
 	PYTHON_VERSIONS="python/2.7"
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "pynast" ]]; then
 	PYTHON_DEPS="cogent>=1.5.3 numpy"
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "qutip" ]]; then
 	PYTHON_DEPS="Cython numpy scipy matplotlib"
 elif [[ "$PACKAGE" == "msmbuilder" ]]; then
 	PYTHON_DEPS="numpy scipy scikit-learn mdtraj pandas cython<0.28 cvxopt nose"
-elif [[ "$PACKAGE" == "fastrlock" ]]; then
-	# need to patch it so it supports bdist_wheel
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "openslide-python" ]]; then
 	PYTHON_IMPORT_NAME="openslide"
 	MODULE_BUILD_DEPS="intel/2016.4 openslide"
@@ -252,9 +242,6 @@ elif [[ "$PACKAGE" == "scipy" ]]; then
 	MODULE_BUILD_DEPS="imkl/2018.3.222"
 	PYTHON_DEPS="nose numpy pytest"
 	PYTHON_TESTS="scipy.__config__.show(); scipy.test()"
-	if [[ "$VERSION" == "0.13.3" ]]; then
-		PRE_BUILD_COMMANDS='sed -i -e "s/numpy.distutils.core/setuptools/g" setup.py'
-	fi
 elif [[ "$PACKAGE" == "mdtraj" ]]; then
 	PYTHON_DEPS="cython numpy scipy pandas"
 elif [[ "$PACKAGE" == "biom-format" ]]; then
@@ -391,36 +378,17 @@ elif [[ "$PACKAGE" == "htseq" ]]; then
 	PYTHON_IMPORT_NAME="HTSeq"
 elif [[ "$PACKAGE" == "mpi4py" ]]; then
 	MODULE_BUILD_DEPS="intel openmpi"
-elif [[ "$PACKAGE" == "mpmath" ]]; then
-	# need to patch it so it supports bdist_wheel
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
-elif [[ "$PACKAGE" == "backcall" ]]; then
-	# need to patch it so it supports bdist_wheel
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "preprocess" ]]; then
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 	PYTHON_VERSIONS="python/2.7"
-elif [[ "$PACKAGE" == "paycheck" ]]; then
-	# need to patch it so it supports bdist_wheel
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
-elif [[ "$PACKAGE" == "bitstring" ]]; then
-	# need to patch it so it supports bdist_wheel
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
-elif [[ "$PACKAGE" == "pandocfilters" ]]; then
-	# need to patch it so it supports bdist_wheel
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "Amara" ]]; then
 	# need to patch it so it supports bdist_wheel
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 	PYTHON_IMPORT_NAME="amara"
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "pysqlite" ]]; then
 	# need to patch it so it supports bdist_wheel
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 	PYTHON_IMPORT_NAME="pysqlite2"
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "python-lzo" ]]; then
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" -e "s;/usr/include;$NIXUSER_PROFILE/include;g" setup.py'
 	PYTHON_IMPORT_NAME="lzo"
 elif [[ "$PACKAGE" == "iptest" ]]; then
 	PACKAGE_FOLDER_NAME="IPTest"
@@ -457,9 +425,6 @@ elif [[ "$PACKAGE" == "pillow-simd" ]]; then
 	PACKAGE_DOWNLOAD_NAME="Pillow-SIMD"
 	PRE_BUILD_COMMANDS="export CC=\"cc -mavx2\""
 	PYTHON_IMPORT_NAME="PIL"
-elif [[ "$PACKAGE" == "olefile" ]]; then
-	# need to patch it so it supports bdist_wheel
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "fuel" ]]; then
 	PYTHON_DEPS="numpy six picklable_itertools pyyaml h5py tables progressbar2 pyzmq scipy pillow numexpr"
 elif [[ "$PACKAGE" == "seaborn" ]]; then
@@ -498,8 +463,6 @@ elif [[ "$PACKAGE" == "wxPython" ]]; then
 	PYTHON_DEPS="six typing PyPubSub"
 	PRE_BUILD_COMMANDS='export LDFLAGS=-Wl,-rpath,\$ORIGIN,-rpath,$EBROOTGTKPLUS3/lib'
 	PYTHON_IMPORT_NAME="wx"
-elif [[ "$PACKAGE" == "bz2file" ]]; then
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "smart_open" ]]; then
 	PYTHON_DEPS="boto>=2.32 bz2file requests boto3"
 elif [[ "$PACKAGE" == "gensim" ]]; then
@@ -508,8 +471,6 @@ elif [[ "$PACKAGE" == "preshed" ]]; then
 	PYTHON_DEPS="cymem>=1.30,<1.32.0"
 elif [[ "$PACKAGE" == "cytoolz" ]]; then
 	PYTHON_DEPS="toolz>=0.8.0"
-elif [[ "$PACKAGE" == "wrapt" ]]; then
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "msgpack-python" ]]; then
 	PYTHON_IMPORT_NAME="msgpack"
 elif [[ "$PACKAGE" == "thinc" ]]; then
@@ -526,7 +487,6 @@ elif [[ "$PACKAGE" == "spacy" ]]; then
 	fi
 elif [[ "$PACKAGE" == "bigfloat" ]]; then
 	PYTHON_DEPS="cython"
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "python-utils" ]]; then
 	PYTHON_IMPORT_NAME="python_utils"
 elif [[ "$PACKAGE" == "progressbar2" ]]; then
@@ -679,7 +639,6 @@ elif [[ "$PACKAGE" == "feather-format" ]]; then
 elif [[ "$PACKAGE" == "Flask-Bootstrap" ]]; then
 	PYTHON_IMPORT_NAME="flask_bootstrap"
 elif [[ "$PACKAGE" == "HeapDict" ]]; then
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 	PYTHON_IMPORT_NAME="heapdict"
 elif [[ "$PACKAGE" == "pyabc" ]]; then
 	MODULE_RUNTIME_DEPS="gcc/7.3.0 boost/1.68.0 arrow/0.11.1 scipy-stack"
@@ -693,8 +652,6 @@ elif [[ "$PACKAGE" == "ipython" ]]; then
 	PYTHON_IMPORT_NAME=""
 elif [[ "$PACKAGE" == "spotpy" ]]; then
 	PYTHON_DEPS="numpy"
-elif [[ "$PACKAGE" == "geographiclib" ]]; then
-	PRE_BUILD_COMMANDS='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 elif [[ "$PACKAGE" == "guildai" ]]; then
 	MODULE_BUILD_DEPS="nodejs scipy-stack"
 	PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/guildai/guildai/archive/$VERSION.tar.gz"
@@ -793,6 +750,7 @@ lapack_libs =
 EOF
 	fi
 	eval $PRE_BUILD_COMMANDS
+	eval $PRE_BUILD_COMMANDS_DEFAULT
 	# change the name of the wheel to add a suffix
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
 		sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
