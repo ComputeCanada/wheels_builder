@@ -21,7 +21,7 @@ PATCHES=""
 PACKAGE_DOWNLOAD_CMD="pip download --no-binary \$PACKAGE_DOWNLOAD_ARGUMENT --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
 
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/distutils.core/setuptools/g" setup.py'
-
+PYTHON_DEPS="numpy scipy cython"
 
 if [[ -n "$VERSION" ]]; then
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE==$VERSION"
@@ -33,56 +33,26 @@ if [[ "$PACKAGE" == "numpy" ]]; then
 	MODULE_BUILD_DEPS="imkl/2019.2.187"
 	PYTHON_DEPS="nose pytest"
 	PYTHON_TESTS="numpy.__config__.show(); numpy.test()"
-elif [[ "$PACKAGE" == "bhtsne" ]]; then
-	PYTHON_DEPS="cython numpy"
-elif [[ "$PACKAGE" == "stats_array" ]]; then
-	PYTHON_DEPS="scipy"
 elif [[ "$PACKAGE" == "umap-learn" ]]; then
 	PYTHON_IMPORT_NAME="umap"
-elif [[ "$PACKAGE" == "ParmEd" ]]; then
-	PYTHON_DEPS="numpy"
-elif [[ "$PACKAGE" == "bw2speedups" ]]; then
-	PYTHON_DEPS="numpy"
-elif [[ "$PACKAGE" == "atari_py" ]]; then
-	PACKAGE_DOWNLOAD_NAME="atari-py"
-	PACKAGE_FOLDER_NAME="atari-py"
 elif [[ "$PACKAGE" == "PyOpenGL" ]]; then
 	PYTHON_TESTS="from OpenGL.GL.ARB.shader_objects import *; from OpenGL.GL.ARB.fragment_shader import *; from OpenGL.GL.ARB.vertex_shader import *; from OpenGL.GL import *; from OpenGL.GLU import *"
 elif [[ "$PACKAGE" == "msprime" ]]; then
 	MODULE_BUILD_DEPS="intel/2016.4 imkl/2019.2.187 gsl/1.16"
-	PYTHON_DEPS="numpy"
 	RPATH_TO_ADD="$EBROOTIMKL/lib/intel64"
 elif [[ "$PACKAGE" == "Box2D-kengz" ]]; then
 	PYTHON_IMPORT_NAME="Box2D"
 elif [[ "$PACKAGE" == "pyslurm" ]]; then
-	PYTHON_DEPS="cython"
 	PRE_BUILD_COMMANDS='sed -i -e "s;SLURM_INC = \"\";SLURM_INC = \"/opt/software/slurm/include/include\";g" -e "s;SLURM_LIB = \"\";SLURM_LIB = \"/opt/software/slurm/lib\";g" setup.py'
 elif [[ "$PACKAGE" == "cogent" ]]; then
-	PYTHON_DEPS="numpy"
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "amico" ]]; then
 	PYTHON_DEPS="numpy dipy scipy nibabel h5py six"
 	PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/daducci/AMICO/archive/master.zip"
 	PACKAGE_DOWNLOAD_NAME="master.zip"
 	PACKAGE_FOLDER_NAME="AMICO-master"
-elif [[ "$PACKAGE" == "dipy" ]]; then
-	PYTHON_DEPS="numpy"
-elif [[ "$PACKAGE" == "ScientificPython" ]]; then
-	PYTHON_DEPS="numpy"
-elif [[ "$PACKAGE" == "snakemake" ]]; then
-	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
 elif [[ "$PACKAGE" == "protobuf" ]]; then
 	PYTHON_IMPORT_NAME="google.protobuf"
-elif [[ "$PACKAGE" == "pyani" ]]; then
-	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
-elif [[ "$PACKAGE" == "cherrypy" ]]; then
-	PACKAGE_DOWNLOAD_NAME="CherryPy"
-elif [[ "$PACKAGE" == "arch" ]]; then
-	PYTHON_DEPS="numpy Cython"
-elif [[ "$PACKAGE" == "EukRep" ]]; then
-	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
-#elif [[ "$PACKAGE" == "parasail" ]]; then
-#	MODULE_BUILD_DEPS="intel/2018.3 parasail"
 elif [[ "$PACKAGE" == "multipledispatch" ]]; then
 	PYTHON_DEPS="six"
 elif [[ "$PACKAGE" == "dask_glm" ]]; then
@@ -92,17 +62,6 @@ elif [[ "$PACKAGE" == "dask_ml" ]]; then
 	MODULE_BUILD_DEPS="llvm/6.0.1"
 	PACKAGE_DOWNLOAD_NAME="dask-ml"
 	PACKAGE_FOLDER_NAME=$PACKAGE_DOWNLOAD_NAME
-elif [[ "$PACKAGE" == "configargparse" ]]; then
-	PACKAGE_DOWNLOAD_NAME="ConfigArgParse"
-	PACKAGE_FOLDER_NAME="ConfigArgParse"
-#elif [[ "$PACKAGE" == "mageck-vispr" ]]; then
-#	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
-#	PACKAGE_DOWNLOAD_ARGUMENT="https://bitbucket.org/liulab/mageck-vispr/get/v0.5.4.tar.gz"
-#	PACKAGE_DOWNLOAD_NAME="v0.5.4"
-#	PACKAGE_FOLDER_NAME="liulab-mageck-vispr"
-#	PYTHON_IMPORT_NAME=""
-elif [[ "$PACKAGE" == "statsmodels" ]]; then
-	PYTHON_DEPS="numpy"
 elif [[ "$PACKAGE" == "anvio" ]]; then
 	PYTHON_VERSIONS="python/3.5 python/3.6 python/3.7"
 	PYTHON_DEPS="numpy Cython statsmodels==0.9.0"
@@ -115,7 +74,6 @@ elif [[ "$PACKAGE" == "OBITools" ]]; then
 	PYTHON_DEPS="Cython Sphinx ipython virtualenv"
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "gdata" ]]; then
-	PYTHON_DEPS="numpy"
 	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "scikit-bio" ]]; then
 	PYTHON_DEPS="numpy natsort"
@@ -177,15 +135,9 @@ elif [[ "$PACKAGE" == "MinkowskiEngine" ]]; then
 	PACKAGE_DOWNLOAD_NAME="master.zip"
 	PRE_BUILD_COMMANDS='sed -i -e "s/make /make BLAS=mkl /g" -e "s/, .openblas.//g" $(find . -name "setup.py")'
 	PYTHON_DEPS="torch"
-elif [[ "$PACKAGE" == "scs" ]]; then
-	PYTHON_DEPS="numpy scipy"
 elif [[ "$PACKAGE" == "PyWavelets" ]]; then
-	PYTHON_DEPS="numpy cython"
 	PYTHON_IMPORT_NAME="pywt"
-elif [[ "$PACKAGE" == "scikit-image" ]]; then
-	PYTHON_DEPS="numpy cython scipy"
 elif [[ "$PACKAGE" == "pygdal" ]]; then
-	PYTHON_DEPS="numpy"
 	MODULE_BUILD_DEPS="gcc gdal"
 elif [[ "$PACKAGE" == "keras-vis" ]]; then
 	PYTHON_IMPORT_NAME="vis"
@@ -200,10 +152,6 @@ elif [[ "$PACKAGE" == "keras-preprocessing" ]]; then
 	PACKAGE_FOLDER_NAME="Keras_Preprocessing"
 elif [[ "$PACKAGE" == "CoffeeScript" ]]; then
 	PYTHON_DEPS="PyExecJS"
-elif [[ "$PACKAGE" == "CVXcanon" ]]; then
-	PYTHON_DEPS="numpy scipy"
-elif [[ "$PACKAGE" == "ecos" ]]; then
-	PYTHON_DEPS="numpy scipy"
 elif [[ "$PACKAGE" == "cvxpy" ]]; then
 	PYTHON_DEPS="numpy multiprocess scs fastcache scipy six toolz CVXcanon dill"
 elif [[ "$PACKAGE" == "cvxopt" ]]; then
@@ -221,12 +169,8 @@ elif [[ "$PACKAGE" == "scipy" ]]; then
 	PYTHON_TESTS="scipy.__config__.show(); scipy.test()"
 elif [[ "$PACKAGE" == "mdtraj" ]]; then
 	PYTHON_DEPS="cython numpy scipy pandas"
-elif [[ "$PACKAGE" == "biom-format" ]]; then
-	PYTHON_DEPS="scipy"
-	PACKAGE_DOWNLOAD_NAME="biom_format"
 elif [[ "$PACKAGE" == "netCDF4" ]]; then
 	MODULE_BUILD_DEPS="gcc openmpi hdf5-mpi netcdf-mpi"
-	PYTHON_DEPS="numpy Cython"
 	PRE_BUILD_COMMANDS='module load mpi4py; export HDF5_DIR=$EBROOTHDF5; export NETCDF4_DIR=$EBROOTNETCDF'
 	RPATH_TO_ADD="$EBROOTOPENMPI/lib"
 elif [[ "$PACKAGE" == "arboretum" ]]; then
@@ -249,7 +193,6 @@ elif [[ "$PACKAGE" == "h5py" ]]; then
 elif [[ "$PACKAGE" == "matplotlib" ]]; then
 	PYTHON_DEPS="pyparsing pytz six cycler python-dateutil numpy backports.functools-lru-cache kiwisolver"
 elif [[ "$PACKAGE" == "numexpr" ]]; then
-	PYTHON_DEPS="numpy"
 	PYTHON_TESTS="numexpr.test()"
 elif [[ "$PACKAGE" == "bottleneck" ]]; then
 	PYTHON_DEPS="numpy nose"
@@ -329,8 +272,6 @@ elif [[ "$PACKAGE" == "llvmlite" ]]; then
 	PYTHON_DEPS="enum34"
 	MODULE_BUILD_DEPS="llvm cuda/10 tbb"
 	PATCHES="$PWD/patches/llvmlite-0.28.0-fpic.patch"
-elif [[ "$PACKAGE" == "scikit-learn" ]]; then
-	PYTHON_DEPS="numpy scipy Cython"
 elif [[ "$PACKAGE" == "scikit-multilearn" ]]; then
 	PACKAGE_DOWNLOAD_NAME="scikit_multilearn"
 	PYTHON_DEPS="numpy scipy Cython scikit-learn liac-arff requests networkx python-louvain"
@@ -393,8 +334,6 @@ elif [[ "$PACKAGE" == "torchvision" ]]; then
 	# Remove torch requirements from wheel as the user need to either install torch-[cg]pu wheel
 	# Otherwise, it does not install because torchvision has a `torch` requirement, and no pypi version is supplied, thus failing.
 	PATCH_WHEEL_COMMANDS="unzip -o \$ARCHNAME && sed -i -e 's/Requires-Dist: torch//' torchvision-*.dist-info/METADATA; sed -i -e 's/, \"torch\"//' torchvision-*.dist-info/metadata.json && zip -u \$ARCHNAME -r $PACKAGE $PACKAGE-*.dist-info"
-elif [[ "$PACKAGE" == "biopython" ]]; then
-	PYTHON_DEPS="numpy"
 elif [[ "$PACKAGE" == "torchtext" ]]; then
 	# torch_cpu, six and numpy are only for testing purposes. They are not in torchtext requirements.
 	# torchtext should be installed along with : numpy, six, torch-[cg]pu
@@ -427,8 +366,6 @@ elif [[ "$PACKAGE" == "spacy" ]]; then
 	else
 		PYTHON_DEPS="cymem>=2.0.2,<2.1.0 preshed>=2.0.1,<2.1.0 thinc>=7.0.2,<7.1.0 blis>=0.2.2,<0.3.0 murmurhash>=0.28.0,<1.1.0 wasabi>=0.2.0,<1.1.0 srsly>=0.0.5,<1.1.0 numpy>=1.15.0 requests>=2.13.0,<3.0.0 jsonschema>=2.6.0,<3.1.0 plac<1.0.0,>=0.9.6 pathlib==1.0.1;python_version<'3.4' cython>=0.25 pytest>=4.0.0,<4.1.0 pytest-timeout>=1.3.0,<2.0.0 mock>=2.0.0,<3.0.0 flake8>=3.5.0,<3.6.0"
 	fi
-elif [[ "$PACKAGE" == "bigfloat" ]]; then
-	PYTHON_DEPS="cython"
 elif [[ "$PACKAGE" == "fast5_research" ]]; then
 	PYTHON_DEPS="numpy h5py"
 elif [[ "$PACKAGE" == "sphinx-argparse" ]]; then
