@@ -1,0 +1,4 @@
+MODULE_BUILD_DEPS="gtk+3/3.20.9"
+PYTHON_DEPS="six typing PyPubSub"
+PRE_BUILD_COMMANDS='export LDFLAGS=-Wl,-rpath,\$ORIGIN,-rpath,$EBROOTGTKPLUS3/lib'
+
