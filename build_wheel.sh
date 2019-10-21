@@ -21,11 +21,17 @@ PACKAGE_DOWNLOAD_CMD="pip download --no-binary \$PACKAGE_DOWNLOAD_ARGUMENT --no-
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/distutils.core/setuptools/g" setup.py'
 PYTHON_DEPS="numpy scipy cython"
 
+PYTHON27_ONLY="cogent OBITools gdata qcli emperor RSeQC preprocess Amara pysqlite IPTest ipaddress functools32 blmath"
+if [[ $PYTHON27_ONLY =~ $PACKAGE ]]; then
+	PYTHON_VERSIONS="python/2.7"
+fi
+
 if [[ -n "$VERSION" ]]; then
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE==$VERSION"
 else
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
 fi
+
 
 if [[ "$PACKAGE" == "numpy" ]]; then
 	MODULE_BUILD_DEPS="imkl/2019.2.187"
@@ -42,8 +48,6 @@ elif [[ "$PACKAGE" == "Box2D-kengz" ]]; then
 	PYTHON_IMPORT_NAME="Box2D"
 elif [[ "$PACKAGE" == "pyslurm" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "s;SLURM_INC = \"\";SLURM_INC = \"/opt/software/slurm/include/include\";g" -e "s;SLURM_LIB = \"\";SLURM_LIB = \"/opt/software/slurm/lib\";g" setup.py'
-elif [[ "$PACKAGE" == "cogent" ]]; then
-	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "amico" ]]; then
 	PYTHON_DEPS="numpy dipy scipy nibabel h5py six"
 	PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/daducci/AMICO/archive/master.zip"
@@ -60,16 +64,8 @@ elif [[ "$PACKAGE" == "anvio" ]]; then
 	MODULE_BUILD_DEPS="gcc/5.4.0 gsl/2.3"
 elif [[ "$PACKAGE" == "OBITools" ]]; then
 	PYTHON_DEPS="Cython Sphinx ipython virtualenv"
-	PYTHON_VERSIONS="python/2.7"
-elif [[ "$PACKAGE" == "gdata" ]]; then
-	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "scikit-bio" ]]; then
 	PYTHON_DEPS="numpy natsort"
-elif [[ "$PACKAGE" == "qcli" ]]; then
-	PYTHON_VERSIONS="python/2.7"
-elif [[ "$PACKAGE" == "emperor" ]]; then
-	PYTHON_DEPS="qcli"
-	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "pynast" ]]; then
 	PYTHON_DEPS="cogent>=1.5.3 numpy"
 elif [[ "$PACKAGE" == "qutip" ]]; then
@@ -180,9 +176,6 @@ elif [[ "$PACKAGE" == "tables" ]]; then
 	PYTHON_TESTS="tables.test()"
 elif [[ "$PACKAGE" == "bx-python" ]]; then
 	PYTHON_DEPS="numpy python-lzo six"
-elif [[ "$PACKAGE" == "RSeQC" ]]; then
-	PYTHON_DEPS="bx-python"
-	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "pandas" ]]; then
 	PYTHON_DEPS="numpy python-dateutil pytz Cython numexpr bottleneck scipy tables matplotlib nose pytest moto"
 #	PYTHON_TESTS="pandas.test()"
@@ -256,22 +249,10 @@ elif [[ "$PACKAGE" == "HTSeq" ]]; then
 	PYTHON_DEPS="numpy Cython pysam"
 elif [[ "$PACKAGE" == "mpi4py" ]]; then
 	MODULE_BUILD_DEPS="intel openmpi"
-elif [[ "$PACKAGE" == "preprocess" ]]; then
-	PYTHON_VERSIONS="python/2.7"
-elif [[ "$PACKAGE" == "Amara" ]]; then
-	PYTHON_VERSIONS="python/2.7"
-elif [[ "$PACKAGE" == "pysqlite" ]]; then
-	PYTHON_VERSIONS="python/2.7"
-elif [[ "$PACKAGE" == "IPTest" ]]; then
-	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "sympy" ]]; then
 	PYTHON_DEPS="mpmath"
 elif [[ "$PACKAGE" == "cffi" ]]; then
 	PYTHON_DEPS="pycparser"
-elif [[ "$PACKAGE" == "ipaddress" ]]; then
-	PYTHON_VERSIONS="python/2.7"
-elif [[ "$PACKAGE" == "functools32" ]]; then
-	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "pygame" ]]; then
 	MODULE_BUILD_DEPS="sdl2"
 	PRE_BUILD_COMMANDS="export LOCALBASE=$NIXUSER_PROFILE"
@@ -388,7 +369,6 @@ elif [[ "$PACKAGE" == "blmath" ]]; then
 	PRE_BUILD_COMMANDS='sed -i -e "s@-fno-inline@-fno-inline\x27,\x27-L${EBROOTSUITESPARSE}/lib@g" setup.py; sed -i -e "s@/usr/include/suitesparse@${EBROOTSUITESPARSE}/include@g" setup.py; sed -i -e "s@lapack@mkl@g" setup.py'
 	MODULE_BUILD_DEPS="suitesparse imkl"
 	PYTHON_DEPS="numpy"
-	PYTHON_VERSIONS="python/2.7"
 elif [[ "$PACKAGE" == "jcvi" ]]; then
 	# aka ALLMAPS
 	PYTHON_DEPS="biopython numpy deap networkx matplotlib cython"
