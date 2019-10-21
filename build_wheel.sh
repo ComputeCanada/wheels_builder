@@ -503,7 +503,7 @@ function test_import {
 		NAMES_TO_TEST="$NAMES_TO_TEST ${NAMES_TO_TEST,,}"
 		# remove duplicates
 		for TEST_NAME in $NAMES_TO_TEST; do 
-			if [[ ! $NAMES_TO_TEST2 =~ $TEST_NAME ]]; then
+			if [[ ! $NAMES_TO_TEST2 =~ $TEST_NAME[[:space:]] ]]; then
 				NAMES_TO_TEST2="$NAMES_TO_TEST2 $TEST_NAME"
 			fi
 		done
