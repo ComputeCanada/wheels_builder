@@ -1,0 +1,3 @@
+PYTHON_DEPS="olefile"
+PYTHON_IMPORT_NAME="PIL"
+

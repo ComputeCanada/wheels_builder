@@ -1,0 +1,3 @@
+PRE_BUILD_COMMANDS="export CC=\"cc -mavx2\""
+PYTHON_IMPORT_NAME="PIL"
+
