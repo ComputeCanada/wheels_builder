@@ -21,7 +21,7 @@ PACKAGE_DOWNLOAD_CMD="pip download --no-binary \$PACKAGE_DOWNLOAD_ARGUMENT --no-
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py'
 PYTHON_DEPS="numpy scipy cython"
 
-PYTHON27_ONLY="cogent OBITools gdata qcli emperor RSeQC preprocess Amara pysqlite IPTest ipaddress functools32 blmath"
+PYTHON27_ONLY="cogent OBITools gdata qcli emperor RSeQC preprocess Amara pysqlite IPTest ipaddress functools32 blmath bamsurgeon"
 if [[ $PYTHON27_ONLY =~ $PACKAGE ]]; then
 	PYTHON_VERSIONS="python/2.7"
 fi
@@ -58,7 +58,7 @@ function test_import {
 
 	# dashes in names are always replaced by underscore
 	NAME=${NAME//-/_}
-	
+
 	CONST_NAME="$NAME"
 	echo "Testing import with name $NAME"
 	$PYTHON_CMD -c "import $NAME; $TESTS"
@@ -75,13 +75,13 @@ function test_import {
 		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//Py/}"
 		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//py/}"
 		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME%2}"       #surprisingly, many packages have a name that ends with 2, but import without the 2
-		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME}2"       #the other way also happens... 
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME}2"       #the other way also happens...
 		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//scikit_/sk}"   #special case for all of the scikit- packages
 		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_/.}"   #replacing _ by . sometimes happens
 		# add a version of all in lower cases
 		NAMES_TO_TEST="$NAMES_TO_TEST ${NAMES_TO_TEST,,}"
 		# remove duplicates
-		for TEST_NAME in $NAMES_TO_TEST; do 
+		for TEST_NAME in $NAMES_TO_TEST; do
 			if [[ ! $NAMES_TO_TEST2 =~ $TEST_NAME[[:space:]] ]]; then
 				NAMES_TO_TEST2="$NAMES_TO_TEST2 $TEST_NAME"
 			fi
@@ -90,7 +90,7 @@ function test_import {
 		echo "Testing imports with the following names $NAMES_TO_TEST"
 		if [[ $RET -ne 0 ]]; then
 			RET=1
-			for TEST_NAME in $NAMES_TO_TEST; do 
+			for TEST_NAME in $NAMES_TO_TEST; do
 				single_test_import "$CONST_NAME" "$TEST_NAME" "$TESTS"
 				RET=$?
 				if [[ $RET -eq 0 ]]; then break; fi
