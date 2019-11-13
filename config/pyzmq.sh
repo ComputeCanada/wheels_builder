@@ -1,2 +1,3 @@
 MODULE_BUILD_DEPS="zeromq"
+PYTHON_IMPORT_NAME="zmq"
 
