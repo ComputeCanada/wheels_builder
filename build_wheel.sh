@@ -32,10 +32,11 @@ else
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
 fi
 
-if [[ -e "./config/${PACKAGE}-${VERSION}.sh" ]]; then
-	source ./config/${PACKAGE}-${VERSION}.sh
-elif [[ -e "./config/${PACKAGE}.sh" ]]; then
-	source ./config/${PACKAGE}.sh
+CONFIGDIR=$(dirname $0)/config
+if [[ -e "$CONFIGDIR/${PACKAGE}-${VERSION}.sh" ]]; then
+	source $CONFIGDIR/${PACKAGE}-${VERSION}.sh
+elif [[ -e "$CONFIGDIR/${PACKAGE}.sh" ]]; then
+	source $CONFIGDIR/${PACKAGE}.sh
 fi
 
 function single_test_import {
