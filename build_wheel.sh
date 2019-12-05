@@ -107,11 +107,11 @@ pushd $DIR
 module --force purge
 module load nixpkgs gcc/7.3.0
 for pv in $PYTHON_VERSIONS; do
-	if [[ -n "$MODULE_BUILD_DEPS" ]]; then
-		module load $MODULE_BUILD_DEPS
-	fi
 	if [[ -n "$MODULE_RUNTIME_DEPS" ]]; then
 		module load $MODULE_RUNTIME_DEPS
+	fi
+	if [[ -n "$MODULE_BUILD_DEPS" ]]; then
+		module load $MODULE_BUILD_DEPS
 	fi
 	module load $pv
 	module list
