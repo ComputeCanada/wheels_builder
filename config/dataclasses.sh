@@ -1,0 +1,1 @@
+PYTHON_VERSIONS="python/3.6"
