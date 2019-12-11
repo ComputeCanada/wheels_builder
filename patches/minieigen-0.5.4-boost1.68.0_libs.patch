@@ -1,0 +1,13 @@
+diff -u minieigen-0.5.4.orig/setup.py minieigen-0.5.4/setup.py
+--- minieigen-0.5.4.orig/setup.py	2018-10-13 10:14:49.000000000 -0230
++++ minieigen-0.5.4/setup.py	2019-12-11 12:15:41.059649068 -0330
+@@ -19,7 +19,7 @@
+     # * https://bugs.launchpad.net/panda3d/+bug/919237
+         define_macros+=[('EIGEN_DONT_VECTORIZE',None)]
+ else:
+-    libraries=['boost_python-py%d%d'%(sys.version_info[0],sys.version_info[1])]
++    libraries=['boost_python%d%d'%(sys.version_info[0],sys.version_info[1])]
+     library_dirs=[]
+     include_dirs=['/usr/include/eigen3','/usr/local/include/eigen3','minieigen']
+ 
+Common subdirectories: minieigen-0.5.4.orig/src and minieigen-0.5.4/src
