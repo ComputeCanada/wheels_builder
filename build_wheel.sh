@@ -209,6 +209,7 @@ EOF
 		cd ..
 		exit $SUCCESS
 	fi
+	chmod o+r ../$WHEEL_NAME
 
 	if [[ $WHEEL_NAME =~ .*-py3-.* || $WHEEL_NAME =~ .*py2.py3.* ]]; then
 		echo "Wheel is compatible with all further versions of python. Breaking"
