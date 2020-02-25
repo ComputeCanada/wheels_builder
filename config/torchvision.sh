@@ -1,8 +1,6 @@
-# torch_cpu is only for testing purposes. It is not in torchvision requirements.
-# torchvision should be installed along with : torch-[cg]pu
-PYTHON_DEPS="numpy six pillow-simd torch-cpu"
-
-# Remove torch requirements from wheel as the user need to either install torch-[cg]pu wheel
-# Otherwise, it does not install because torchvision has a `torch` requirement, and no pypi version is supplied, thus failing.
-PATCH_WHEEL_COMMANDS="unzip -o \$ARCHNAME && sed -i -e 's/Requires-Dist: torch//' torchvision-*.dist-info/METADATA; sed -i -e 's/, \"torch\"//' torchvision-*.dist-info/metadata.json && zip -u \$ARCHNAME -r $PACKAGE $PACKAGE-*.dist-info"
-
+PYTHON_DEPS="numpy six pillow-simd torch"
+MODULE_BUILD_DEPS="cuda/10.1"
+PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/pytorch/vision/archive/v${VERSION}.tar.gz"
+PACKAGE_DOWNLOAD_NAME="v${VERSION}.tar.gz"
+PACKAGE_FOLDER_NAME="vision-${VERSION}"
+PRE_BUILD_COMMANDS="export BUILD_VERSION=$VERSION"
