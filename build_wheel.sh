@@ -4,15 +4,18 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS=$(ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3* | grep -v 3.5 | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
-TEMP=$(getopt -o h --longoptions help,package:,version:,python: -n $0 -- "$@")
+TEMP=$(getopt -o h --longoptions help,recursive:,package:,version:,python: -n $0 -- "$@")
 eval set -- "$TEMP"
+ARG_RECURSIVE=1
 
 function print_usage {
-	echo "Usage: $0 --package <python package name> [--version <specific version] [--python=<comma separated list of python versions>]"
+	echo "Usage: $0 --package <python package name> [--version <specific version] [--recursive=<1|0>] [--python=<comma separated list of python versions>]"
 }
 
 while true; do
 	case "$1" in
+		--recursive)
+			ARG_RECURSIVE=$2; shift 2;;
 		--package)
 			ARG_PACKAGE=$2; shift 2;;
 		--version)
@@ -29,6 +32,7 @@ done
 STARTING_DIRECTORY=$(pwd)
 PACKAGE=$ARG_PACKAGE
 VERSION=$ARG_VERSION
+RECURSIVE=$ARG_RECURSIVE
 
 if [[ -z "$PACKAGE" ]]; then
 	print_usage
@@ -138,6 +142,30 @@ function test_import {
 
 }
 
+function wrapped_pip_install {
+	TMPFILE=$RANDOM.out
+	pip install $@ --no-cache --find-links=$TMP_WHEELHOUSE |& tee $TMPFILE
+	DOWNLOADED_DEPS=$(grep Downloading $TMPFILE | awk '{print $2}')
+	if [[ ! -z "$DOWNLOADED_DEPS" && $RECURSIVE -eq 1 ]]; then
+		echo "========================================================="
+		echo "The following depencencies were downloaded. Building them: $DOWNLOADED_DEPS"
+		for w in $DOWNLOADED_DEPS; do
+			echo "========================================================="
+			wheel_name=$(basename $w | sed -e 's/\([a-zA-Z0-9-]\)-[0-9]\..*/\1/g')
+			echo Building $wheel_name
+			pushd $STARTING_DIRECTORY
+			if [[ -z "$ARG_PYTHON_VERSIONS" ]]; then
+				./build_wheel.sh --package=$wheel_name --python=$ARG_PYTHON_VERSIONS
+			else
+				./build_wheel.sh --package=$wheel_name
+			fi
+			popd
+			echo "========================================================="
+		done
+		echo "Resuming building the main package"
+		echo "========================================================="
+	fi
+}
 PYTHON_DEPS="$PYTHON_DEPS $PYTHON_DEPS_DEFAULT"
 
 DIR=tmp.$$
@@ -167,7 +195,7 @@ for pv in $PYTHON_VERSIONS; do
 	source build_$PVDIR/bin/activate
 	pip install --no-index --upgrade pip setuptools wheel
 	if [[ -n "$PYTHON_DEPS" ]]; then
-		pip install $PYTHON_DEPS --find-links=$TMP_WHEELHOUSE
+		wrapped_pip_install $PYTHON_DEPS
 	fi
 	pip freeze
 	eval $PRE_DOWNLOAD_COMMANDS
@@ -237,7 +265,8 @@ EOF
 		module unload $MODULE_BUILD_DEPS
 	fi
 	module list
-	pip install ../$WHEEL_NAME --no-cache --find-links=$TMP_WHEELHOUSE
+	echo "Installing wheel"
+	wrapped_pip_install ../$WHEEL_NAME
 	if [[ -n "$PYTHON_IMPORT_NAME" ]]; then
 		test_import "$PYTHON_IMPORT_NAME" "$PYTHON_TESTS"
 	fi
