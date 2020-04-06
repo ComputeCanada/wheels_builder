@@ -4,8 +4,44 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS=$(ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3* | grep -v 3.5 | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
-PACKAGE=${1?Missing package name}
-VERSION=$2
+TEMP=$(getopt -o h --longoptions help,package:,version:,python: -n $0 -- "$@")
+eval set -- "$TEMP"
+
+function print_usage {
+	echo "Usage: $0 --package <python package name> [--version <specific version] [--python=<comma separated list of python versions>]"
+}
+
+while true; do
+	case "$1" in
+		--package)
+			ARG_PACKAGE=$2; shift 2;;
+		--version)
+			ARG_VERSION=$2; shift 2;;
+		--python)
+			ARG_PYTHON_VERSIONS=$2; shift 2;;
+		-h|--help)
+			print_usage; exit 0 ;;
+		--) 
+			shift; break ;;
+		*) echo "Unknown parameter $1"; print_usage; exit 1 ;;
+	esac
+done
+STARTING_DIRECTORY=$(pwd)
+PACKAGE=$ARG_PACKAGE
+VERSION=$ARG_VERSION
+
+if [[ -z "$PACKAGE" ]]; then
+	print_usage
+	exit 1
+fi
+
+if [[ ! -z "$ARG_PYTHON_VERSIONS" ]]; then
+	PYTHON_VERSIONS=""
+	for v in ${ARG_PYTHON_VERSIONS//,/ }; do
+		PYTHON_VERSIONS="python/$v $PYTHON_VERSIONS"
+	done
+fi
+
 PYTHON_IMPORT_NAME="$PACKAGE"
 PACKAGE_FOLDER_NAME="$PACKAGE"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE"
