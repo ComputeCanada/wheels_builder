@@ -163,8 +163,9 @@ for pv in $PYTHON_VERSIONS; do
 	PVDIR=${pv//\//-}
 
 	echo "Setting up build environment"
-	virtualenv build_$PVDIR || pyvenv build_$PVDIR
+	python -m venv build_$PVDIR || virtualenv build_$PVDIR || pyvenv build_$PVDIR
 	source build_$PVDIR/bin/activate
+	pip install --no-index --upgrade pip setuptools wheel
 	if [[ -n "$PYTHON_DEPS" ]]; then
 		pip install $PYTHON_DEPS --find-links=$TMP_WHEELHOUSE
 	fi
