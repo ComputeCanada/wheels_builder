@@ -208,12 +208,10 @@ for pv in $PYTHON_VERSIONS; do
 	eval $PRE_DOWNLOAD_COMMANDS
 	echo "Downloading source"
 	mkdir $PVDIR
-	eval $PACKAGE_DOWNLOAD_CMD
-	eval $POST_DOWNLOAD_COMMANDS
-	if [[ $PACKAGE_DOWNLOAD_NAME =~ (.zip|.tar.gz|.tgz|.whl|.tar.bz2)$ ]]; then
-		ARCHNAME="$PACKAGE_DOWNLOAD_NAME"
-	else
-		ARCHNAME=$(ls $PACKAGE_DOWNLOAD_NAME-[0-9]*{.zip,.tar.gz,.tgz,.whl,.tar.bz2})
+	ARCHNAME=$(eval $PACKAGE_DOWNLOAD_CMD |& tee download.log | grep "Saved " | awk '{print $2}')
+	echo "Downloaded $ARCHNAME"
+	if [[ ! -z $POST_DOWNLOAD_COMMANDS ]]; then
+		$POST_DOWNLOAD_COMMANDS
 	fi
 	# skip packages that are already in whl format
 	if [[ $ARCHNAME == *.whl ]]; then
@@ -222,9 +220,12 @@ for pv in $PYTHON_VERSIONS; do
 		cp -v $ARCHNAME ..
 		continue
 	fi
-	unzip $ARCHNAME -d $PVDIR || tar xfv $ARCHNAME -C $PVDIR
+	echo "Extracting archive $ARCHNAME..."
+	unzip $ARCHNAME -d $PVDIR &>/dev/null || tar xfv $ARCHNAME -C $PVDIR &>/dev/null
+	echo "Extraction done."
 	pushd $PVDIR
-	pushd $PACKAGE_FOLDER_NAME*
+	pushd $PACKAGE_FOLDER_NAME* || pushd *
+	echo "=============================="
 
 	echo "Patching"
 	for p in $PATCHES;
