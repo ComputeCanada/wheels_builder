@@ -4,12 +4,16 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS=$(ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3* | grep -v 3.5 | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
-TEMP=$(getopt -o h --longoptions help,recursive:,package:,version:,python: -n $0 -- "$@")
+TEMP=$(getopt -o h --longoptions help,keep-build-dir,recursive:,package:,version:,python: -n $0 -- "$@")
 eval set -- "$TEMP"
 ARG_RECURSIVE=1
-
+ARG_KEEP_BUILD_DIR=0
 function print_usage {
-	echo "Usage: $0 --package <python package name> [--version <specific version] [--recursive=<1|0>] [--python=<comma separated list of python versions>]"
+	echo "Usage: $0 --package <python package name> "
+	echo "         [--version <specific version]"
+	echo "         [--recursive=<1|0>]"
+	echo "         [--python=<comma separated list of python versions>]"
+	echo "         [--keep-build-dir]"
 }
 
 while true; do
@@ -22,6 +26,8 @@ while true; do
 			ARG_VERSION=$2; shift 2;;
 		--python)
 			ARG_PYTHON_VERSIONS=$2; shift 2;;
+		--keep-build-dir)
+			ARG_KEEP_BUILD_DIR=1; shift ;;
 		-h|--help)
 			print_usage; exit 0 ;;
 		--) 
@@ -286,6 +292,7 @@ EOF
 done
 
 popd
-
-echo "Build done, you can now remove $DIR"
+if [[ $ARG_KEEP_BUILD_DIR -ne 1 ]]; then
+	rm -rf $DIR
+fi
 echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/[generic,avx2,avx,sse3] and synchronize CVMFS"
