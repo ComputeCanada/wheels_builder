@@ -273,15 +273,6 @@ for pv in $PYTHON_VERSIONS; do
 
 	echo "=============================="
 	echo "Building"
-	if [[ "$PACKAGE" == "numpy" ]]; then
-		cat << EOF > site.cfg
-[mkl]
-library_dirs = $MKLROOT/lib/intel64
-include_dirs = $MKLROOT/include
-mkl_libs = mkl_rt
-lapack_libs =
-EOF
-	fi
 	if [[ ! -z "$PRE_BUILD_COMMANDS" ]]; then
 		log_command $PRE_BUILD_COMMANDS
 	fi
