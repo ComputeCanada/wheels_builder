@@ -173,7 +173,6 @@ function wrapped_pip_install {
 	fi
 	rm $TMPFILE
 }
-PYTHON_DEPS="$PYTHON_DEPS $PYTHON_DEPS_DEFAULT"
 
 DIR=tmp.$$
 mkdir $DIR
@@ -202,6 +201,7 @@ for pv in $PYTHON_VERSIONS; do
 	source build_$PVDIR/bin/activate
 	pip install --no-index --upgrade pip setuptools wheel
 	if [[ -n "$PYTHON_DEPS" ]]; then
+		wrapped_pip_install $PYTHON_DEPS_DEFAULT
 		wrapped_pip_install $PYTHON_DEPS
 	fi
 	pip freeze
