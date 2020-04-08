@@ -4,16 +4,18 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS=$(ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3* | grep -v 3.5 | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
-TEMP=$(getopt -o h --longoptions help,keep-build-dir,recursive:,package:,version:,python: -n $0 -- "$@")
+TEMP=$(getopt -o h --longoptions help,keep-build-dir,verbose:,recursive:,package:,version:,python: -n $0 -- "$@")
 eval set -- "$TEMP"
 ARG_RECURSIVE=1
 ARG_KEEP_BUILD_DIR=0
+ARG_VERBOSE_LEVEL=0
 function print_usage {
 	echo "Usage: $0 --package <python package name> "
 	echo "         [--version <specific version]"
 	echo "         [--recursive=<1|0>]"
 	echo "         [--python=<comma separated list of python versions>]"
 	echo "         [--keep-build-dir]"
+	echo "         [--verbose=<1,2,3>]"
 }
 
 while true; do
@@ -28,6 +30,8 @@ while true; do
 			ARG_PYTHON_VERSIONS=$2; shift 2;;
 		--keep-build-dir)
 			ARG_KEEP_BUILD_DIR=1; shift ;;
+		--verbose)
+			ARG_VERBOSE_LEVEL=$2; shift 2;;
 		-h|--help)
 			print_usage; exit 0 ;;
 		--) 
@@ -150,7 +154,14 @@ function test_import {
 
 function wrapped_pip_install {
 	TMPFILE=$RANDOM.out
-	pip install $@ --no-cache --find-links=$TMP_WHEELHOUSE |& tee $TMPFILE
+	if [[ $ARG_VERBOSE_LEVEL -ge 2 ]]; then
+		pip install $@ --no-cache --find-links=$TMP_WHEELHOUSE |& tee $TMPFILE
+	elif [[ $ARG_VERBOSE_LEVEL -ge 1 ]]; then
+		echo Running command: pip install $@ --no-cache --find-links=$TMP_WHEELHOUSE
+		pip install $@ --no-cache --find-links=$TMP_WHEELHOUSE &> $TMPFILE
+	else
+		pip install $@ --no-cache --find-links=$TMP_WHEELHOUSE &> $TMPFILE
+	fi
 	DOWNLOADED_DEPS=$(grep Downloading $TMPFILE | awk '{print $2}')
 	if [[ ! -z "$DOWNLOADED_DEPS" && $RECURSIVE -eq 1 ]]; then
 		echo "========================================================="
@@ -159,13 +170,13 @@ function wrapped_pip_install {
 			echo "========================================================="
 			wheel_name=$(basename $w | cut -d'-' -f 1)
 			echo Building $wheel_name
-			pushd $STARTING_DIRECTORY
+			log_command pushd $STARTING_DIRECTORY
 			if [[ -z "$ARG_PYTHON_VERSIONS" ]]; then
 				./build_wheel.sh --package=$wheel_name --python=$ARG_PYTHON_VERSIONS
 			else
 				./build_wheel.sh --package=$wheel_name
 			fi
-			popd
+			log_command popd
 			echo "========================================================="
 		done
 		echo "Resuming building the main package"
@@ -174,21 +185,26 @@ function wrapped_pip_install {
 	rm $TMPFILE
 }
 
+function log_command {
+	if [[ $ARG_VERBOSE_LEVEL -ge 1 ]]; then
+		echo "Running command: $@"
+	fi
+	if [[ $ARG_VERBOSE_LEVEL -ge 3 ]]; then
+		eval $@ 
+	elif [[ $ARG_VERBOSE_LEVEL -ge 2 ]]; then
+		eval $@ 2>/dev/null
+	else
+		eval $@ &>/dev/null
+	fi
+
+}
+
 DIR=tmp.$$
 mkdir $DIR
-pushd $DIR
+log_command pushd $DIR
 module --force purge
 module load nixpkgs gcc/7.3.0
 for pv in $PYTHON_VERSIONS; do
-	if [[ -n "$MODULE_RUNTIME_DEPS" ]]; then
-		module load $MODULE_RUNTIME_DEPS
-	fi
-	if [[ -n "$MODULE_BUILD_DEPS" ]]; then
-		module load $MODULE_BUILD_DEPS
-	fi
-	module load $pv
-	module list
-
 	if [[ $pv =~ python/2 ]]; then
 		PYTHON_CMD=python2
 	else
@@ -196,48 +212,65 @@ for pv in $PYTHON_VERSIONS; do
 	fi
 	PVDIR=${pv//\//-}
 
+	echo "Loading module $pv"
+	log_command module load $pv
+	echo "=============================="
 	echo "Setting up build environment"
-	python -m venv build_$PVDIR || virtualenv build_$PVDIR || pyvenv build_$PVDIR
+	if [[ -n "$MODULE_RUNTIME_DEPS" ]]; then
+		log_command module load $MODULE_RUNTIME_DEPS
+	fi
+	if [[ -n "$MODULE_BUILD_DEPS" ]]; then
+		log_command module load $MODULE_BUILD_DEPS
+	fi
+	log_command module list
+
+	log_command python -m venv build_$PVDIR || virtualenv build_$PVDIR || pyvenv build_$PVDIR
 	source build_$PVDIR/bin/activate
-	pip install --no-index --upgrade pip setuptools wheel
+	log_command pip install --no-index --upgrade pip setuptools wheel
 	if [[ -n "$PYTHON_DEPS" ]]; then
 		wrapped_pip_install $PYTHON_DEPS_DEFAULT
 		wrapped_pip_install $PYTHON_DEPS
 	fi
-	pip freeze
-	eval $PRE_DOWNLOAD_COMMANDS
+	log_command pip freeze
+	echo "=============================="
+	echo "=============================="
+	if [[ ! -z "$PRE_DOWNLOAD_COMMANDS" ]]; then
+		log_command $PRE_DOWNLOAD_COMMANDS
+	fi
 	echo "Downloading source"
 	mkdir $PVDIR
 	ARCHNAME=$(eval $PACKAGE_DOWNLOAD_CMD |& tee download.log | grep "Saved " | awk '{print $2}')
 	echo "Downloaded $ARCHNAME"
 	if [[ ! -z $POST_DOWNLOAD_COMMANDS ]]; then
-		$POST_DOWNLOAD_COMMANDS
+		log_command $POST_DOWNLOAD_COMMANDS
 	fi
-	# skip packages that are already in whl format
+#	# skip packages that are already in whl format
 	if [[ $ARCHNAME == *.whl ]]; then
 		# Patch the content of the wheel file.
-		eval "$PATCH_WHEEL_COMMANDS"
+		log_command "$PATCH_WHEEL_COMMANDS"
 		cp -v $ARCHNAME ..
 		continue
 	fi
 	echo "Extracting archive $ARCHNAME..."
 	unzip $ARCHNAME -d $PVDIR &>/dev/null || tar xfv $ARCHNAME -C $PVDIR &>/dev/null
 	echo "Extraction done."
-	pushd $PVDIR
-	pushd $PACKAGE_FOLDER_NAME* || pushd *
+	log_command pushd $PVDIR
+	log_command pushd $PACKAGE_FOLDER_NAME* || log_command pushd *
 	echo "=============================="
 
-	echo "Patching"
-	for p in $PATCHES;
-	do
-		patch --verbose -p1 < $p
-	done
+	if [[ ! -z "$PATCHES" ]]; then
+		echo "=============================="
+		echo "Patching"
+		for p in $PATCHES;
+		do
+			log_command patch --verbose -p1 < $p > /dev/null 
+		done
+		echo "Patching done"
+		echo "=============================="
+	fi
 
+	echo "=============================="
 	echo "Building"
-	pwd
-	ls
-	module list
-	which $PYTHON_CMD
 	if [[ "$PACKAGE" == "numpy" ]]; then
 		cat << EOF > site.cfg
 [mkl]
@@ -247,32 +280,43 @@ mkl_libs = mkl_rt
 lapack_libs =
 EOF
 	fi
-	eval $PRE_BUILD_COMMANDS
-	eval $PRE_BUILD_COMMANDS_DEFAULT
+	if [[ ! -z "$PRE_BUILD_COMMANDS" ]]; then
+		log_command $PRE_BUILD_COMMANDS
+	fi
+	log_command $PRE_BUILD_COMMANDS_DEFAULT
 	# change the name of the wheel to add a suffix
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
 		sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
 	fi
-	$PYTHON_CMD setup.py bdist_wheel $BDIST_WHEEL_ARGS |& tee build.log
-	pushd dist || cat build.log
-	WHEEL_NAME=$(ls *.whl)
-	eval "$POST_BUILD_COMMANDS"
-	if [[ -n "$RPATH_TO_ADD" ]]; then
-		eval echo "Running /cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path $WHEEL_NAME --add_path=$RPATH_TO_ADD --any_interpreter"
-		eval /cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path $WHEEL_NAME --add_path $RPATH_TO_ADD --any_interpreter
+	echo "Building the wheel...."
+	$PYTHON_CMD setup.py bdist_wheel $BDIST_WHEEL_ARGS &> build.log
+	if [[ $? -ne 0 ]]; then
+		echo "An error occured."
+		echo "Build log is in $(pwd)/build.log"
+	else
+		echo "Success."
 	fi
-	pwd
-	ls
+	log_command pushd dist || cat build.log
+	WHEEL_NAME=$(ls *.whl)
+	log_command "$POST_BUILD_COMMANDS"
+	if [[ -n "$RPATH_TO_ADD" ]]; then
+		log_command /cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path $WHEEL_NAME --add_path $RPATH_TO_ADD --any_interpreter
+	fi
 	cp -v $WHEEL_NAME $TMP_WHEELHOUSE
-	popd
-	popd
-	popd
+	log_command popd
+	log_command popd
+	log_command popd
 
+	rm $ARCHNAME
+	echo "Building done"
+	echo "=============================="
+
+	echo "=============================="
 	echo "Testing..."
 	if [[ -n "$MODULE_BUILD_DEPS" ]]; then
 		module unload $MODULE_BUILD_DEPS
 	fi
-	module list
+	log_command module list
 	echo "Installing wheel"
 	wrapped_pip_install ../$WHEEL_NAME
 	if [[ -n "$PYTHON_IMPORT_NAME" ]]; then
@@ -286,6 +330,8 @@ EOF
 		cd ..
 		exit $SUCCESS
 	fi
+	echo "Testing done"
+	echo "=============================="
 
 	if [[ $WHEEL_NAME =~ .*-py3-.* || $WHEEL_NAME =~ .*py2.py3.* ]]; then
 		echo "Wheel is compatible with all further versions of python. Breaking"
@@ -293,7 +339,7 @@ EOF
 	fi
 done
 
-popd
+log_command popd
 if [[ $ARG_KEEP_BUILD_DIR -ne 1 ]]; then
 	rm -rf $DIR
 fi
