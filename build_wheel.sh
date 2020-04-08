@@ -157,7 +157,7 @@ function wrapped_pip_install {
 		echo "The following depencencies were downloaded. Building them: $DOWNLOADED_DEPS"
 		for w in $DOWNLOADED_DEPS; do
 			echo "========================================================="
-			wheel_name=$(basename $w | sed -e 's/\([a-zA-Z0-9-]\)-[0-9]\..*/\1/g')
+			wheel_name=$(basename $w | cut -d'-' -f 1)
 			echo Building $wheel_name
 			pushd $STARTING_DIRECTORY
 			if [[ -z "$ARG_PYTHON_VERSIONS" ]]; then
@@ -171,6 +171,7 @@ function wrapped_pip_install {
 		echo "Resuming building the main package"
 		echo "========================================================="
 	fi
+	rm $TMPFILE
 }
 PYTHON_DEPS="$PYTHON_DEPS $PYTHON_DEPS_DEFAULT"
 
