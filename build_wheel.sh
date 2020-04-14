@@ -199,6 +199,7 @@ function log_command {
 
 }
 
+echo "Building wheel for $PACKAGE"
 DIR=tmp.$$
 mkdir $DIR
 log_command pushd $DIR
