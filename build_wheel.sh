@@ -94,10 +94,10 @@ function single_test_import {
 	NAME="$2"
 	TESTS="$3"
 	if [[ "$NAME" != "$CONST_NAME" ]]; then
-		echo "Testing import with name $NAME"
-		$PYTHON_CMD -c "import $NAME; $TESTS"
+		echo "Testing import with name $NAME... "
+		$PYTHON_CMD -c "import $NAME; $TESTS" &>/dev/null
 		RET=$?
-		test $RET -eq 0  && echo "Sucess!" || echo "Failed"
+		test $RET -eq 0  && echo -n "Sucess!" || echo -n "Failed"
 		return $RET
 	else
 		return 1
@@ -111,10 +111,10 @@ function test_import {
 	NAME=${NAME//-/_}
 
 	CONST_NAME="$NAME"
-	echo "Testing import with name $NAME"
-	$PYTHON_CMD -c "import $NAME; $TESTS"
+	echo "Testing import with name $NAME... "
+	$PYTHON_CMD -c "import $NAME; $TESTS" &> /dev/null
 	RET=$?
-	test $RET -eq 0  && echo "Sucess!" || echo "Failed"
+	test $RET -eq 0  && echo -n "Sucess!" || echo -n "Failed"
 
 	if [[ $RET -ne 0 ]]; then
 		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//python_/}"
