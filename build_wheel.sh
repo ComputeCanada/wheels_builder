@@ -93,11 +93,17 @@ function single_test_import {
 	CONST_NAME="$1"
 	NAME="$2"
 	TESTS="$3"
-	if [[ "$NAME" != "$CONST_NAME" ]]; then
-		echo "Testing import with name $NAME... "
-		$PYTHON_CMD -c "import $NAME; $TESTS" &>/dev/null
-		RET=$?
-		test $RET -eq 0  && echo -n "Sucess!" || echo -n "Failed"
+	FORCE=$4
+	if [[ "$NAME" != "$CONST_NAME" || $FORCE -eq 1 ]]; then
+		echo -n "Testing import with name $NAME... "
+		if [[ $ARG_VERBOSE_LEVEL -gt 1 ]]; then
+			$PYTHON_CMD -c "import $NAME; $TESTS" 
+			RET=$?
+		else
+			$PYTHON_CMD -c "import $NAME; $TESTS" 2>/dev/null
+			RET=$?
+		fi
+		test $RET -eq 0  && echo "Sucess!" || echo "Failed"
 		return $RET
 	else
 		return 1
@@ -111,10 +117,8 @@ function test_import {
 	NAME=${NAME//-/_}
 
 	CONST_NAME="$NAME"
-	echo "Testing import with name $NAME... "
-	$PYTHON_CMD -c "import $NAME; $TESTS" &> /dev/null
+	single_test_import "$CONST_NAME" "$NAME" "$TESTS" 1
 	RET=$?
-	test $RET -eq 0  && echo -n "Sucess!" || echo -n "Failed"
 
 	if [[ $RET -ne 0 ]]; then
 		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//python_/}"
