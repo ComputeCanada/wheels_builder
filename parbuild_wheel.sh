@@ -10,7 +10,7 @@ function ls_pythons()
 
 function print_usage
 {
-	echo "Usage: $0 --package <package name> --version <comma separated list of versions> [--python <comma separated list of python versions>]"
+	echo "Usage: $0 --package <comma separated list of package name> [--version <comma separated list of versions>] [--python <comma separated list of python versions>]"
 }
 
 TEMP=$(getopt -o h --longoptions help,package:,version:,python: --name $0 -- "$@")
@@ -33,16 +33,20 @@ while true; do
 	esac
 done
 
-if [[ -z "$ARG_PACKAGE" || -z "$ARG_VERSION" ]]; then
+if [[ -z "$ARG_PACKAGE" ]]; then
 	print_usage
 	exit 1
 fi
 
-wheel=$ARG_PACKAGE
-versions=$(echo $ARG_VERSION | tr ',' ' ')
+wheel=${ARG_PACKAGE//,/ }
+versions=${ARG_VERSION//,/ }
 pythons=$(echo ${ARG_PYTHON_VERSIONS-$(ls_pythons)} | tr ',' ' ')
 
+if [[ -n "$versions" ]]; then
+	cmd="bash build_wheel.sh --package {1} --version {2} --python {3} &> build-{1}-{2}-py{3}.log ::: ${wheel} ::: ${versions} ::: ${pythons}"
+else
+	cmd="bash build_wheel.sh --package {1} --python {2} &> build-{1}-py{2}.log ::: ${wheel} ::: ${pythons}"
+fi
 # Yes, two times the command, display what will be run and then run it.
-cmd="bash build_wheel.sh --package ${wheel} --version {1} --python {2} &> build-${wheel}-{1}-py{2}.log ::: ${versions} ::: ${pythons}"
 parallel --dry-run          $cmd
 parallel --joblog build.log $cmd
