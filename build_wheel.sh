@@ -315,6 +315,8 @@ for pv in $PYTHON_VERSIONS; do
 	wrapped_pip_install ../$WHEEL_NAME
 	if [[ -n "$PYTHON_IMPORT_NAME" ]]; then
 		test_import "$PYTHON_IMPORT_NAME" "$PYTHON_TESTS"
+	elif [[ -n "$TEST_COMMAND" ]]; then
+		$TEST_COMMAND
 	fi
 	SUCCESS=$?
 	deactivate
