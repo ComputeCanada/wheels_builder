@@ -4,11 +4,6 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS=$(ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3* | grep -v 3.5 | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
-TEMP=$(getopt -o h --longoptions help,keep-build-dir,verbose:,recursive:,package:,version:,python: -n $0 -- "$@")
-eval set -- "$TEMP"
-ARG_RECURSIVE=1
-ARG_KEEP_BUILD_DIR=0
-ARG_VERBOSE_LEVEL=0
 function print_usage {
 	echo "Usage: $0 --package <python package name> "
 	echo "         [--version <specific version]"
@@ -18,6 +13,13 @@ function print_usage {
 	echo "         [--verbose=<1,2,3>]"
 }
 
+TEMP=$(getopt -o h --longoptions help,keep-build-dir,verbose:,recursive:,package:,version:,python: -n $0 -- "$@")
+if [ $? != 0 ] ; then print_usage; exit 1 ; fi
+eval set -- "$TEMP"
+
+ARG_RECURSIVE=1
+ARG_KEEP_BUILD_DIR=0
+ARG_VERBOSE_LEVEL=0
 while true; do
 	case "$1" in
 		--recursive)
