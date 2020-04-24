@@ -15,7 +15,7 @@ PRE_BUILD_COMMANDS=$(cat <<-END
 	cd .. &&
 	mkdir build &&
 	cd build &&
-	cmake -DCMAKE_SKIP_RPATH=ON -DBUILD_NVJPEG=OFF -DCMAKE_PREFIX_PATH=$EBROOTPROTOBUF -DProtobuf_INCLUDE_DIRS=$EBROOTPROTOBUF/include -DProtobuf_LIBRARIES=$EBROOTPROTOBUF/lib -DProtobuf_LIBRARY=$EBROOTPROTOBUF/lib/libprotobuf.so -DBUILD_TEST=OFF -DBUILD_BENCHMARK=OFF -DFFMPEG_ROOT_DIR=\$(realpath ../ffmpeg-4.2.1) -Davformat_INCLUDE_DIRS=\$(realpath ../ffmpeg-4.2.1/include) .. &&
+	cmake -DCMAKE_SKIP_RPATH=ON -DBUILD_NVJPEG=ON -DCMAKE_PREFIX_PATH=$EBROOTPROTOBUF -DProtobuf_INCLUDE_DIRS=$EBROOTPROTOBUF/include -DProtobuf_LIBRARIES=$EBROOTPROTOBUF/lib -DProtobuf_LIBRARY=$EBROOTPROTOBUF/lib/libprotobuf.so -DBUILD_TEST=OFF -DBUILD_BENCHMARK=OFF -DFFMPEG_ROOT_DIR=\$(realpath ../ffmpeg-4.2.1) -Davformat_INCLUDE_DIRS=\$(realpath ../ffmpeg-4.2.1/include) .. &&
 	make -j &&
 	cd dali/python
 END
