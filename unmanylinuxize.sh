@@ -1,22 +1,53 @@
 #!/bin/bash
 
-if [[ -z "$PYTHON_VERSIONS" ]]; then
-        PYTHON_VERSIONS=$(ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3* | grep -v 3.5 | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
+function ls_pythons()
+{
+	ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3* | grep -v 3.5 | grep -Po "\d\.\d" | sort -u | tr '\n' ','
+}
+
+function print_usage
+{
+	echo "Usage: $0 --package <package name> [--version <version>] [--python <comma separated list of python versions>]"
+}
+
+TEMP=$(getopt -o h --longoptions help,package:,version:,python: --name $0 -- "$@")
+if [ $? != 0 ] ; then print_usage; exit 1 ; fi
+eval set -- "$TEMP"
+
+ARG_PACKAGE=""
+ARG_VERSION=""
+while true; do
+	case "$1" in
+		--package)
+			ARG_PACKAGE=$2; shift 2;;
+		--version)
+			ARG_VERSION=$2; shift 2;;
+		--python)
+			ARG_PYTHON_VERSIONS=$2; shift 2;;
+		-h|--help)
+			print_usage; exit 0 ;;
+		--)
+			shift; break ;;
+		*) echo "Unknown parameter $1"; print_usage; exit 1 ;;
+	esac
+done
+
+if [[ -z "$ARG_PACKAGE" ]]; then
+	print_usage
+	exit 1
 fi
 
-PACKAGE=${1?Missing package name}
-VERSION=$2
 if [[ -n "$VERSION" ]]; then
-	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE==$VERSION"
+	PACKAGE_DOWNLOAD_ARGUMENT="$ARG_PACKAGE==$ARG_VERSION"
 else
-	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
+	PACKAGE_DOWNLOAD_ARGUMENT="$ARG_PACKAGE"
 fi
 
 TEMP_DIR=tmp.$$
 mkdir $TEMP_DIR
 cd $TEMP_DIR
-for pv in $PYTHON_VERSIONS; do
-	module load $pv
+for pv in $(echo ${ARG_PYTHON_VERSIONS-$(ls_pythons)} | tr ',' ' '); do
+	module load python/$pv
 	PYTHONPATH= pip download --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
 done
 for w in *.whl; do
