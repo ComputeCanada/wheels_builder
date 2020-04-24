@@ -23,6 +23,8 @@ for w in *.whl; do
 	setrpaths.sh --path $w
 	mv $w ${w//$(echo $w | grep -Po "manylinux\d+")/linux}
 done
-mv *.whl ..
+# Ensure wheels are all readable!
+chmod a+r *.whl
+cp -vp *.whl ..
 cd ..
 rm -rf $TEMP_DIR
