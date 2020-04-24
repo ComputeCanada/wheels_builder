@@ -249,6 +249,9 @@ for pv in $PYTHON_VERSIONS; do
 	echo "Downloading source"
 	mkdir $PVDIR
 	ARCHNAME=$(eval $PACKAGE_DOWNLOAD_CMD |& tee download.log | grep "Saved " | awk '{print $2}')
+	if [[ $PACKAGE_DOWNLOAD_METHOD == "Git" ]]; then
+		ARCHNAME=$PACKAGE_DOWNLOAD_NAME
+	fi
 	echo "Downloaded $ARCHNAME"
 	if [[ ! -z $POST_DOWNLOAD_COMMANDS ]]; then
 		log_command $POST_DOWNLOAD_COMMANDS
