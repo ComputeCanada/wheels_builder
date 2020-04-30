@@ -43,7 +43,7 @@ if [[ -z "$ARG_PACKAGE" ]]; then
 	exit 1
 fi
 
-if [[ -n "$VERSION" ]]; then
+if [[ -n "$ARG_VERSION" ]]; then
 	PACKAGE_DOWNLOAD_ARGUMENT="$ARG_PACKAGE==$ARG_VERSION"
 else
 	PACKAGE_DOWNLOAD_ARGUMENT="$ARG_PACKAGE"
