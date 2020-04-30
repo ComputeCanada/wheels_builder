@@ -54,7 +54,10 @@ mkdir $TEMP_DIR
 cd $TEMP_DIR
 for pv in $(echo ${ARG_PYTHON_VERSIONS-$(ls_pythons)} | tr ',' ' '); do
 	module load python/$pv
+	python -m venv env-$pv && source env-$pv/bin/activate
+	pip install -U pip
 	PYTHONPATH= pip download --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
+	deactivate
 done
 
 setrpaths_cmd="setrpaths.sh --path \$w"
