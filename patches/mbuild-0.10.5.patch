@@ -1,0 +1,19 @@
+diff --git a/setup.py b/setup.py
+index 8bcf237a..4bcbbab3 100755
+--- a/setup.py
++++ b/setup.py
+@@ -145,6 +145,14 @@ if __name__ == '__main__':
+         },
+         package_dir={'mbuild': 'mbuild'},
+         include_package_data=True,
++        install_requires=[
++            'numpy',
++            'scipy',
++            'pandas',
++            'oset',
++            'ParmEd',
++            'mdtraj',
++        ],
+         license="MIT",
+         zip_safe=False,
+         keywords='mbuild',
