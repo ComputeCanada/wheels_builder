@@ -209,8 +209,13 @@ echo "Building wheel for $PACKAGE"
 DIR=tmp.$$
 mkdir $DIR
 log_command pushd $DIR
-module --force purge
-module load nixpkgs gcc/7.3.0
+if [[ -z "$EBROOTGENTOO" ]]; then
+	module --force purge
+	module load nixpkgs gcc/7.3.0
+else
+	module --force purge
+	module load gentoo/2020 gcc/9.3.0
+fi
 for pv in $PYTHON_VERSIONS; do
 	if [[ $pv =~ python/2 ]]; then
 		PYTHON_CMD=python2
