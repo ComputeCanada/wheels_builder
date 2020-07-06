@@ -359,5 +359,5 @@ fi
 if [[ $ARG_AUTOCOPY -ne 1 ]]; then
 	echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/[generic,avx2,avx,sse3] and synchronize CVMFS"
 else
-	./cp_wheels.sh --delete
+	./cp_wheels.sh --remove
 fi
