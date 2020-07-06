@@ -13,13 +13,14 @@ function print_usage {
 	echo "         [--verbose=<1,2,3>]"
 }
 
-TEMP=$(getopt -o h --longoptions help,keep-build-dir,verbose:,recursive:,package:,version:,python: -n $0 -- "$@")
+TEMP=$(getopt -o h --longoptions help,keep-build-dir,autocopy,verbose:,recursive:,package:,version:,python: -n $0 -- "$@")
 if [ $? != 0 ] ; then print_usage; exit 1 ; fi
 eval set -- "$TEMP"
 
 ARG_RECURSIVE=1
 ARG_KEEP_BUILD_DIR=0
 ARG_VERBOSE_LEVEL=0
+ARG_AUTOCOPY=0
 while true; do
 	case "$1" in
 		--recursive)
@@ -32,6 +33,8 @@ while true; do
 			ARG_PYTHON_VERSIONS=$2; shift 2;;
 		--keep-build-dir)
 			ARG_KEEP_BUILD_DIR=1; shift ;;
+		--autocopy)
+			ARG_AUTOCOPY=1; shift ;;
 		--verbose)
 			ARG_VERBOSE_LEVEL=$2; shift 2;;
 		-h|--help)
@@ -353,4 +356,8 @@ log_command popd
 if [[ $ARG_KEEP_BUILD_DIR -ne 1 ]]; then
 	rm -rf $DIR
 fi
-echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/[generic,avx2,avx,sse3] and synchronize CVMFS"
+if [[ $ARG_AUTOCOPY -ne 1 ]]; then
+	echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/[generic,avx2,avx,sse3] and synchronize CVMFS"
+else
+	./cp_wheels.sh --delete
+fi
