@@ -39,7 +39,7 @@ while true; do
 			ARG_VERBOSE_LEVEL=$2; shift 2;;
 		-h|--help)
 			print_usage; exit 0 ;;
-		--) 
+		--)
 			shift; break ;;
 		*) echo "Unknown parameter $1"; print_usage; exit 1 ;;
 	esac
@@ -102,7 +102,7 @@ function single_test_import {
 	if [[ "$NAME" != "$CONST_NAME" || $FORCE -eq 1 ]]; then
 		echo -n "Testing import with name $NAME... "
 		if [[ $ARG_VERBOSE_LEVEL -gt 1 ]]; then
-			$PYTHON_CMD -c "import $NAME; $TESTS" 
+			$PYTHON_CMD -c "import $NAME; $TESTS"
 			RET=$?
 		else
 			$PYTHON_CMD -c "import $NAME; $TESTS" 2>/dev/null
@@ -199,7 +199,7 @@ function log_command {
 		echo "Running command: $@"
 	fi
 	if [[ $ARG_VERBOSE_LEVEL -ge 3 ]]; then
-		eval $@ 
+		eval $@
 	elif [[ $ARG_VERBOSE_LEVEL -ge 2 ]]; then
 		eval $@ 2>/dev/null
 	else
@@ -283,7 +283,7 @@ for pv in $PYTHON_VERSIONS; do
 		echo "Patching"
 		for p in $PATCHES;
 		do
-			log_command patch --verbose -p1 < $p > /dev/null 
+			log_command patch --verbose -p1 < $p > /dev/null
 		done
 		echo "Patching done"
 		echo "=============================="
@@ -310,8 +310,15 @@ for pv in $PYTHON_VERSIONS; do
 	log_command pushd dist || cat build.log
 	WHEEL_NAME=$(ls *.whl)
 	log_command "$POST_BUILD_COMMANDS"
-	if [[ -n "$RPATH_TO_ADD" ]]; then
-		log_command /cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path $WHEEL_NAME --add_path $RPATH_TO_ADD --any_interpreter
+	if [[ -n "$RPATH_TO_ADD" || -n "$RPATH_ADD_ORIGIN" ]]; then
+		setrpaths_cmd="/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path ${WHEEL_NAME}"
+		if [[ ! -z "$RPATH_TO_ADD" ]]; then
+			setrpaths_cmd="${setrpaths_cmd} --add_path ${RPATH_TO_ADD} --any_interpreter"
+		fi
+		if [[ ! -z "$RPATH_ADD_ORIGIN" ]]; then
+			setrpaths_cmd="${setrpaths_cmd} --add_origin"
+		fi
+		log_command $setrpaths_cmd
 	fi
 	cp -v $WHEEL_NAME $TMP_WHEELHOUSE
 	log_command popd
