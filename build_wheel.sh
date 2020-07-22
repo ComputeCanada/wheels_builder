@@ -1,5 +1,7 @@
 #!/bin/env bash
 
+THIS_SCRIPT=$0
+
 if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS=$(ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3* | grep -v 3.5 | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
@@ -181,9 +183,9 @@ function wrapped_pip_install {
 			echo Building $wheel_name
 			log_command pushd $STARTING_DIRECTORY
 			if [[ ! -z "$ARG_PYTHON_VERSIONS" ]]; then
-				./build_wheel.sh --package=$wheel_name --recursive=0 --python=$ARG_PYTHON_VERSIONS
+				$THIS_SCRIPT --package=$wheel_name --recursive=0 --python=$ARG_PYTHON_VERSIONS
 			else
-				./build_wheel.sh --package=$wheel_name --recursive=0
+				$THIS_SCRIPT --package=$wheel_name --recursive=0
 			fi
 			log_command popd
 			echo "========================================================="
