@@ -4,7 +4,7 @@ if [[ -z $EBROOTGENTOO ]]; then
 else
 	MODULE_BUILD_DEPS="imkl/2020.1.217"
 fi
-PYTHON_DEPS="nose pytest cython"
+PYTHON_DEPS="nose pytest cython hypothesis"
 PYTHON_DEPS_DEFAULT=""
 PYTHON_TESTS="numpy.__config__.show(); numpy.test()"
 
