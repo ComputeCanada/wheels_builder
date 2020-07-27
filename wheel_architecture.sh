@@ -23,8 +23,8 @@ function version_lte {
 
 NIX_GLIBC="/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lib/libc.so.6"
 GENTOO_GLIBC="/cvmfs/soft.computecanada.ca/gentoo/2020/lib64/libc.so.6"
-NIX_GLIBC_VERSION=$(strings "$NIX_GLIBC" | grep "^GLIBC" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
-GENTOO_GLIBC_VERSION=$(strings "$GENTOO_GLIBC" | grep "^GLIBC" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
+NIX_GLIBC_VERSION=$(strings "$NIX_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
+GENTOO_GLIBC_VERSION=$(strings "$GENTOO_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 
 for fname in $(find . -type f); do
 	filetype=$(file -b $fname)
@@ -36,10 +36,10 @@ for fname in $(find . -type f); do
 			interpreter=$(patchelf --print-interpreter "$fname")
 		fi
 		rpath=$(patchelf --print-rpath $fname)
-		min_required_glibc=$(strings "$fname" | grep "^GLIBC" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
+		min_required_glibc=$(strings "$fname" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 	elif [[ $filetype =~ $REX_SO ]]; then
 		rpath=$(patchelf --print-rpath $fname)
-		min_required_glibc=$(strings "$fname" | grep "^GLIBC" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
+		min_required_glibc=$(strings "$fname" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 	else
 		continue
 	fi
