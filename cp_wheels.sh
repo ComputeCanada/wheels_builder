@@ -36,7 +36,7 @@ function cp_wheel {
 	COMPAT=$2
 	ARCHITECTURE=$3
 	REMOVE=$4
-
+	RESULT=1
 	echo chmod ug+rw,o+r $1
 	if [[ "$ARG_DRY_RUN" == "" ]]; then
 		chmod ug+rw,o+r $1
@@ -45,14 +45,16 @@ function cp_wheel {
 		echo cp $1 $WHEELHOUSE_ROOT/generic
 		if [[ "$ARG_DRY_RUN" == "" ]]; then
 			cp $1 $WHEELHOUSE_ROOT/generic
+			RESULT=$?
 		fi
 	else 
 		echo cp $1 $WHEELHOUSE_ROOT/$COMPAT/$ARCHITECTURE
 		if [[ "$ARG_DRY_RUN" == "" ]]; then
 			cp $1 $WHEELHOUSE_ROOT/$COMPAT/$ARCHITECTURE
+			RESULT=$?
 		fi
 	fi
-	if [[ "$REMOVE" == "1" ]]; then
+	if [[ "$REMOVE" == "1" && "$RESULT" == "0" ]]; then
 		echo rm "$1"
 		if [[ "$ARG_DRY_RUN" == "" ]]; then
 			rm "$1"
