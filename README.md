@@ -34,6 +34,25 @@ Usage: wheel_architecture.sh  <FILENAME>.whl
 * nix     avx2    : requires NIX and depends on libraries located in arch/avx2
 * ...
 
+*NOTE*: While the script tries to make a good job, there are cases e.g. when a wheel
+depends on a certain library or certain version of a library that is available only 
+in one of the NIX or Gentoo layers but not the other, where it makes a wrong prediction.
+
+Make sure to test it!
+
+### `cp_wheels.sh`
+
+Copies all wheels in the current directory to the predicted location in the wheelhouse
+after adjusting the permissions. 
+
+```
+Usage: cp_wheels.sh [--wheel <wheel file>] [--remove] [--dry-run]
+
+   --wheel <wheel file>   Process only this wheel (otherwise all in the $CWD)
+   --remove               Delete the wheel after copying.
+   --dry-run              Just print the commands, but don't execute anything.
+```
+
 
 ### `config/<package>.sh`
 
