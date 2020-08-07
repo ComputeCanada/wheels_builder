@@ -2,6 +2,17 @@
 
 Scripts to automate building Python wheels for Compute Canada's wheelhouse.
 
+**Table of Content:**
+
+* [Quick Start](#quick-start)
+  * [`build_wheel.sh`](#build_wheelsh)
+  * [`wheel_architecture.sh`](#wheel_architecturesh)
+  * [`cp_wheels.sh`](#cp_wheelssh)
+  * [`parbuild_wheel.sh`](#parbuild_wheelsh)
+  * [`protobuf_optimized_wheel.sh`](#protobuf_optimized_wheelsh)
+  * [`unmanylinuxize.sh`](#unmanylinuxizesh)
+  * [`config/<package>.sh`](#configpackagesh)
+
 
 ## Quick Start
 
