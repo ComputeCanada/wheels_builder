@@ -8,5 +8,4 @@ if [[ "$RSNT_ARCH" == "avx2" ]]; then
 elif [[ "$RSNT_ARCH" == "avx512" ]]; then
 	export CFLAGS="-march=skylake-avx512"
 fi
-PATCHES="$PWD/patches/roboschool-cpp-household.patch"
-
+PATCHES="roboschool-cpp-household.patch"
