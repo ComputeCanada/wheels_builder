@@ -176,7 +176,7 @@ function wrapped_pip_install {
 	DOWNLOADED_DEPS=$(grep Downloading $TMPFILE | awk '{print $2}')
 	if [[ ! -z "$DOWNLOADED_DEPS" && $RECURSIVE -eq 1 ]]; then
 		echo "========================================================="
-		echo "The following depencencies were downloaded. Building them: $DOWNLOADED_DEPS"
+		echo "The following dependencies were downloaded. Building them: $DOWNLOADED_DEPS"
 		for w in $DOWNLOADED_DEPS; do
 			echo "========================================================="
 			wheel_name=$(basename $w | cut -d'-' -f 1)
