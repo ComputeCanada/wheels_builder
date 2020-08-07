@@ -63,7 +63,7 @@ See [below](#configpackagesh) for a list of options.
 -------------------------------------------------------------------------------
 ### `wheel_architecture.sh`
 
-Analyzes the content of the wheel and makes some prediction into which subtree
+Analyzes the content of the wheel and makes some prediction into which sub-directory
 of our wheelhouse the wheel needs to be placed.
 
 ```
@@ -99,14 +99,17 @@ Usage: cp_wheels.sh [--wheel <wheel file>] [--remove] [--dry-run]
 -------------------------------------------------------------------------------
 ### `parbuild_wheel.sh`
 
+**TODO**
 
 -------------------------------------------------------------------------------
 ### `protobuf_optimized_wheel.sh`
 
+**TODO**
+
 -------------------------------------------------------------------------------
 ### `unmanylinuxize.sh`
 
-A number of (diffucult to build) Python packages are distributed as binary wheels
+A number of (difficult to build) Python packages are distributed as binary wheels
 that are compatible with many common Linux distributions and therefore tagged 
 with `manylinux` in the filename.  These are -- out of the box -- incompatible
 with the CC software stack, because most of our libraries live in either the NIX
@@ -125,12 +128,10 @@ Usage: unmanylinuxize.sh --package <package name>
 -------------------------------------------------------------------------------
 ### `config/<package>.sh`
 
-`build_wheel.sh` will try to source `${PACKAGE}-${VERSION}.sh` or `${PACKAGE}.sh` 
-from the `config` directory, which allows for some package- and version- specific 
-configurations.
+`build_wheel.sh` will try to source `${PACKAGE}-${VERSION}.sh` or `${PACKAGE}.sh` (whichever it finds first)
+from the `config` directory, which allows for some package- and version- specific configurations.
 
-To see examples on how to use these options, just grep through the `config/*.sh`
-files to find other recipes that use them.
+To see examples on how to use these options, just grep through the `config/*.sh` files to find other recipes that use them.
 
 Variable                    | Description
 ----------------------------|---------------------------------------------------
