@@ -280,12 +280,13 @@ for pv in $PYTHON_VERSIONS; do
 	log_command pushd $PACKAGE_FOLDER_NAME* || log_command pushd *
 	echo "=============================="
 
+	PATCHESDIR=$(dirname $0)/patches
 	if [[ ! -z "$PATCHES" ]]; then
 		echo "=============================="
 		echo "Patching"
 		for p in $PATCHES;
 		do
-			log_command patch --verbose -p1 < $p > /dev/null
+			log_command patch --verbose -p1 < ${PATCHESDIR}/$p > /dev/null
 		done
 		echo "Patching done"
 		echo "=============================="
