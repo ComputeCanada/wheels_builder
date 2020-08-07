@@ -148,7 +148,7 @@ Variable                    | Description
 `PACKAGE_DOWNLOAD_METHOD`   | 
 `PACKAGE_FOLDER_NAME`       | In case extracted folder has a name different from `$PACKAGE`. (default: `$PACKAGE`)
 `PACKAGE_SUFFIX`            | Add this suffix to our package name, e.g. `-cpu` or `-gpu`. (default: "")
-`PATCHES`                   | Applies these patch-files before building. 
+`PATCHES`                   | Applies these patch-files before building. Specify as a single or list of patch files, that have been placed in the `patches/` directory.
 `PATCH_WHEEL_COMMANDS`      | Specify shell commands to patch a wheel in order to make it compatible with our stack.
 `PRE_DOWNLOAD_COMMANDS`     | Specify shell commands to be executed before downloading the package.
 `POST_DOWNLOAD_COMMANDS`    | Specify shell commands to be executed after downloading the package.
