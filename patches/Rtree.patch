@@ -1,0 +1,13 @@
+diff -ru Rtree-0.9.4.orig/rtree/core.py Rtree-0.9.4/rtree/core.py
+--- Rtree-0.9.4.orig/rtree/core.py	2020-08-18 21:09:07.710934814 +0000
++++ Rtree-0.9.4/rtree/core.py	2020-08-18 21:39:05.380413036 +0000
+@@ -130,6 +130,9 @@
+     if 'SPATIALINDEX_C_LIBRARY' in os.environ:
+         lib_name = os.environ['SPATIALINDEX_C_LIBRARY']
+         rt = ctypes.CDLL(lib_name)
++    elif 'EBROOTLIBSPATIALINDEX' in os.environ:
++        lib_name = os.path.join(os.environ['EBROOTLIBSPATIALINDEX'],"lib","libspatialindex_c.so.4")
++        rt = ctypes.CDLL(lib_name)
+     else:
+         lib_name = find_library('spatialindex_c')
+         rt = ctypes.CDLL(lib_name)
