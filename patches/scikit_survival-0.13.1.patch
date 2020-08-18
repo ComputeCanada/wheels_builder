@@ -1,0 +1,17 @@
+The setup.py of scikit-survival version 0.13.1 does not specify
+a version in the setup_package() function, which causes the
+wheel to get the version 0.0.0.
+This patch sets the proper version.
+
+diff --git a/setup.py b/setup.py
+index 1e9c697..afdef80 100644
+--- a/setup.py
++++ b/setup.py
+@@ -172,6 +172,7 @@ def get_extensions():
+ def setup_package():
+     setup(
+         name='scikit-survival',
++        version='0.13.1',
+         url='https://github.com/sebp/scikit-survival',
+         project_urls={
+             "Bug Tracker": "https://github.com/sebp/scikit-survival/issues",
