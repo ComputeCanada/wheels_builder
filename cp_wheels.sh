@@ -37,6 +37,10 @@ function cp_wheel {
 	ARCHITECTURE=$3
 	REMOVE=$4
 	RESULT=1
+	if [[ "$COMPAT" == "unknown" ]]; then
+		echo "Error, wheel with unknown compatibility layer encountered. $NAME, $COMPAT, $ARCHITECTURE"
+		exit
+	fi
 	echo chmod ug+rw,o+r $1
 	if [[ "$ARG_DRY_RUN" == "" ]]; then
 		chmod ug+rw,o+r $1
@@ -47,7 +51,7 @@ function cp_wheel {
 			cp $1 $WHEELHOUSE_ROOT/generic
 			RESULT=$?
 		fi
-	else 
+	elif [[ "$COMPAT" == "gentoo" || "$COMPAT" == "nix" ]]; then
 		echo cp $1 $WHEELHOUSE_ROOT/$COMPAT/$ARCHITECTURE
 		if [[ "$ARG_DRY_RUN" == "" ]]; then
 			cp $1 $WHEELHOUSE_ROOT/$COMPAT/$ARCHITECTURE

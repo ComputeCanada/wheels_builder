@@ -70,15 +70,15 @@ for fname in $(find . -type f); do
 		echo $fname requires a glibc more recent than that provided by Gentoo: $min_required_glibc ">" $GENTOO_GLIBC_VERSION >&2
 	fi
 
-	$NIX_LDD "$fname" | grep "not found" >/dev/null
+	$NIX_LDD "$fname" | grep "not found" >&2
 	NIX_HAVE_LIBS=$?
-	$GENTOO_LDD "$fname" | grep "not found" >/dev/null
+	$GENTOO_LDD "$fname" | grep "not found" >&2
 	GENTOO_HAVE_LIBS=$?
 	if [[ $NIX_HAVE_LIBS -eq 0 ]]; then
 		WORKS_ON_NIX=0
 		echo $fname is missing some libraries in Nix >&2
 	fi
-	if [[ $GENTO_HAVE_LIBS -eq 0 ]]; then
+	if [[ $GENTOO_HAVE_LIBS -eq 0 ]]; then
 		WORKS_ON_GENTOO=0
 		echo $fname is missing some libraries in Gentoo >&2
 	fi
