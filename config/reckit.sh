@@ -1,0 +1,2 @@
+PYTHON_DEPS="pandas"
+
