@@ -64,7 +64,6 @@ function cp_wheel {
 
 if [[ "$ARG_DRY_RUN" == "1" ]]; then
 	echo "Not doing operations (dry-run)"
-	PREFIX=echo
 fi
 
 if [ -z "$ARG_WHEEL" ]
@@ -75,7 +74,7 @@ else
 fi
 
 for w in $WHEEL_LIST; do
-        $PREFIX cp_wheel $w $(bash wheel_architecture.sh $w 2>/dev/null) $ARG_REMOVE
+        cp_wheel $w $(bash wheel_architecture.sh $w 2>/dev/null) $ARG_REMOVE
 done
 
 
