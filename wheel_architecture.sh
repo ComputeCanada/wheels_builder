@@ -5,6 +5,8 @@ fullname=$(readlink -f $filename)
 
 tmp=$(mktemp --directory)
 cd $tmp
+WORKS_ON_GENTOO=1
+WORKS_ON_NIX=1
 
 unzip -q $fullname
 REX_DYNAMIC="^ELF 64-bit LSB.*dynamically linked.*"
@@ -23,6 +25,8 @@ function version_lte {
 
 NIX_GLIBC="/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lib/libc.so.6"
 GENTOO_GLIBC="/cvmfs/soft.computecanada.ca/gentoo/2020/lib64/libc.so.6"
+NIX_LDD="/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/ldd"
+GENTOO_LDD="/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/ldd"
 NIX_GLIBC_VERSION=$(strings "$NIX_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 GENTOO_GLIBC_VERSION=$(strings "$GENTOO_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 
