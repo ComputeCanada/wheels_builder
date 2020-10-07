@@ -110,7 +110,7 @@ function single_test_import {
 			$PYTHON_CMD -c "import $NAME; $TESTS" 2>/dev/null
 			RET=$?
 		fi
-		test $RET -eq 0  && echo "Sucess!" || echo "Failed"
+		test $RET -eq 0  && echo "Success!" || echo "Failed"
 		return $RET
 	else
 		return 1
