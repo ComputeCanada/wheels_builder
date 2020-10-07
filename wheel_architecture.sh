@@ -48,21 +48,42 @@ for fname in $(find . -type f); do
 	rpath=$(echo $rpath | sed -e "s;[^:]*/Core/python[^:]*;;g")
 	
 	if [[ $rpath =~ 'nix' || $rpath =~ 'easybuild/software/2017' ]]; then
-		COMPATIBILITY_LAYER='nix'
+		WORKS_ON_GENTOO=0
 		echo $fname is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
 	elif [[ $rpath =~ 'gentoo' || $rpath =~ 'easybuild/software/2020' || $rpath =~ 'easybuild/software/2019' ]]; then
-		COMPATIBILITY_LAYER='gentoo'
+		WORKS_ON_NIX=0
 		echo $fname is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
 	fi
 	if [[ "$(version_lte $min_required_glibc $NIX_GLIBC_VERSION)" == "no" ]]; then
-		COMPATIBILITY_LAYER='gentoo'
+		WORKS_ON_NIX=0
 		echo $fname requires a glibc more recent than that provided by Nix: $min_required_glibc ">" $NIX_GLIBC_VERSION >&2
 	fi
 	if [[ "$(version_lte $min_required_glibc $GENTOO_GLIBC_VERSION)" == "no" ]]; then
-		COMPATIBILITY_LAYER='unknown'
+		WORKS_ON_GENTOO=0
 		echo $fname requires a glibc more recent than that provided by Gentoo: $min_required_glibc ">" $GENTOO_GLIBC_VERSION >&2
 	fi
-	
+
+	$NIX_LDD "$fname" | grep "not found" >&2
+	NIX_HAVE_LIBS=$?
+	$GENTOO_LDD "$fname" | grep "not found" >&2
+	GENTOO_HAVE_LIBS=$?
+	if [[ $NIX_HAVE_LIBS -eq 0 ]]; then
+		WORKS_ON_NIX=0
+		echo $fname is missing some libraries in Nix >&2
+	fi
+	if [[ $GENTOO_HAVE_LIBS -eq 0 ]]; then
+		WORKS_ON_GENTOO=0
+		echo $fname is missing some libraries in Gentoo >&2
+	fi
+	if [[ $WORKS_ON_GENTOO -eq 1 && $WORKS_ON_NIX -eq 1 ]]; then
+		COMPATIBILITY_LAYER="generic"
+	elif [[ $WORKS_ON_GENTOO -eq 1 ]]; then
+		COMPATIBILITY_LAYER="gentoo"
+	elif [[ $WORKS_ON_NIX -eq 1 ]]; then
+		COMPATIBILITY_LAYER="nix"
+	else
+		COMPATIBILITY_LAYER="unknown"
+	fi
 
 	if [[ $rpath =~ '/sse3/' && $ARCHITECTURE == "generic" ]]; then
 		ARCHITECTURE='sse3'
