@@ -166,6 +166,7 @@ function test_import {
 function wrapped_pip_install {
 	TMPFILE=$RANDOM.out
 	if [[ $ARG_VERBOSE_LEVEL -ge 2 ]]; then
+		echo Running command: pip install $@ --no-cache --find-links=$TMP_WHEELHOUSE
 		pip install $@ --no-cache --find-links=$TMP_WHEELHOUSE |& tee $TMPFILE
 	elif [[ $ARG_VERBOSE_LEVEL -ge 1 ]]; then
 		echo Running command: pip install $@ --no-cache --find-links=$TMP_WHEELHOUSE
