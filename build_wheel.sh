@@ -179,7 +179,7 @@ function wrapped_pip_install {
 		echo "The following dependencies were downloaded. Building them: $DOWNLOADED_DEPS"
 		for w in $DOWNLOADED_DEPS; do
 			echo "========================================================="
-			wheel_name=$(basename $w | cut -d'-' -f 1)
+			wheel_name=$(basename $w | grep -Po '^[\w-_]+-' | sed 's/.$//')
 			echo Building $wheel_name
 			log_command pushd $STARTING_DIRECTORY
 			if [[ ! -z "$ARG_PYTHON_VERSIONS" ]]; then
