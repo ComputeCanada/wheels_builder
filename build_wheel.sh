@@ -184,9 +184,9 @@ function wrapped_pip_install {
 			echo Building $wheel_name
 			log_command pushd $STARTING_DIRECTORY
 			if [[ ! -z "$ARG_PYTHON_VERSIONS" ]]; then
-				$THIS_SCRIPT --package=$wheel_name --recursive=0 --python=$ARG_PYTHON_VERSIONS
+				bash $THIS_SCRIPT --package=$wheel_name --recursive=0 --python=$ARG_PYTHON_VERSIONS
 			else
-				$THIS_SCRIPT --package=$wheel_name --recursive=0
+				bash $THIS_SCRIPT --package=$wheel_name --recursive=0
 			fi
 			log_command popd
 			echo "========================================================="
