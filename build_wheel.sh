@@ -263,7 +263,7 @@ for pv in $PYTHON_VERSIONS; do
 	if [[ $PACKAGE_DOWNLOAD_METHOD == "Git" ]]; then
 		ARCHNAME=$PACKAGE_DOWNLOAD_NAME
 	fi
-	echo "Downloaded $ARCHNAME"
+	echo "Downloaded '$ARCHNAME'"
 	if [[ ! -z $POST_DOWNLOAD_COMMANDS ]]; then
 		log_command $POST_DOWNLOAD_COMMANDS
 	fi
@@ -273,6 +273,11 @@ for pv in $PYTHON_VERSIONS; do
 		log_command "$PATCH_WHEEL_COMMANDS"
 		cp -v $ARCHNAME ..
 		continue
+	fi
+	if [[ -z "$ARCHNAME" ]]; then
+		echo "Error while downloading package. Aborting..."
+		echo "See : $PWD/download.log"
+		exit 1
 	fi
 	echo "Extracting archive $ARCHNAME..."
 	unzip $ARCHNAME -d $PVDIR &>/dev/null || tar xfv $ARCHNAME -C $PVDIR &>/dev/null
