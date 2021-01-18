@@ -259,7 +259,7 @@ for pv in $PYTHON_VERSIONS; do
 	fi
 	echo "Downloading source"
 	mkdir $PVDIR
-	ARCHNAME=$(eval $PACKAGE_DOWNLOAD_CMD |& tee download.log | grep "Saved " | awk '{print $2}')
+	ARCHNAME=$(PIP_CONFIG_FILE= eval $PACKAGE_DOWNLOAD_CMD |& tee download.log | grep "Saved " | awk '{print $2}')
 	if [[ $PACKAGE_DOWNLOAD_METHOD == "Git" ]]; then
 		ARCHNAME=$PACKAGE_DOWNLOAD_NAME
 	fi
