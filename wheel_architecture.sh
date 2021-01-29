@@ -30,8 +30,10 @@ GENTOO_LDD="/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/ldd"
 NIX_GLIBC_VERSION=$(strings "$NIX_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 GENTOO_GLIBC_VERSION=$(strings "$GENTOO_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 
+OIFS="$IFS"
+IFS=$'\n'
 for fname in $(find . -type f); do
-	filetype=$(file -b $fname)
+	filetype=$(file -b "$fname")
 	rpath=''
 	interpreter=''
 	min_required_glibc=''
@@ -39,10 +41,10 @@ for fname in $(find . -type f); do
 		if [[ $filetype =~ $REX_OS_INTERPRETER || $filetype =~ $REX_LINUX_INTERPRETER || $filetype =~ $REX_LSB_INTERPRETER ]]; then
 			interpreter=$(patchelf --print-interpreter "$fname")
 		fi
-		rpath=$(patchelf --print-rpath $fname)
+		rpath=$(patchelf --print-rpath "$fname")
 		min_required_glibc=$(strings "$fname" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 	elif [[ $filetype =~ $REX_SO ]]; then
-		rpath=$(patchelf --print-rpath $fname)
+		rpath=$(patchelf --print-rpath "$fname")
 		min_required_glibc=$(strings "$fname" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 	else
 		continue
@@ -53,18 +55,18 @@ for fname in $(find . -type f); do
 	
 	if [[ $rpath =~ 'nix' || $rpath =~ 'easybuild/software/2017' ]]; then
 		WORKS_ON_GENTOO=0
-		echo $fname is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
+		echo "$fname" is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
 	elif [[ $rpath =~ 'gentoo' || $rpath =~ 'easybuild/software/2020' || $rpath =~ 'easybuild/software/2019' ]]; then
 		WORKS_ON_NIX=0
-		echo $fname is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
+		echo "$fname" is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
 	fi
 	if [[ "$(version_lte $min_required_glibc $NIX_GLIBC_VERSION)" == "no" ]]; then
 		WORKS_ON_NIX=0
-		echo $fname requires a glibc more recent than that provided by Nix: $min_required_glibc ">" $NIX_GLIBC_VERSION >&2
+		echo "$fname" requires a glibc more recent than that provided by Nix: $min_required_glibc ">" $NIX_GLIBC_VERSION >&2
 	fi
 	if [[ "$(version_lte $min_required_glibc $GENTOO_GLIBC_VERSION)" == "no" ]]; then
 		WORKS_ON_GENTOO=0
-		echo $fname requires a glibc more recent than that provided by Gentoo: $min_required_glibc ">" $GENTOO_GLIBC_VERSION >&2
+		echo "$fname" requires a glibc more recent than that provided by Gentoo: $min_required_glibc ">" $GENTOO_GLIBC_VERSION >&2
 	fi
 
 	$NIX_LDD "$fname" | grep "not found" >&2
@@ -73,11 +75,11 @@ for fname in $(find . -type f); do
 	GENTOO_HAVE_LIBS=$?
 	if [[ $NIX_HAVE_LIBS -eq 0 ]]; then
 		WORKS_ON_NIX=0
-		echo $fname is missing some libraries in Nix >&2
+		echo "$fname" is missing some libraries in Nix >&2
 	fi
 	if [[ $GENTOO_HAVE_LIBS -eq 0 ]]; then
 		WORKS_ON_GENTOO=0
-		echo $fname is missing some libraries in Gentoo >&2
+		echo "$fname" is missing some libraries in Gentoo >&2
 	fi
 	if [[ $WORKS_ON_GENTOO -eq 1 && $WORKS_ON_NIX -eq 1 ]]; then
 		COMPATIBILITY_LAYER="generic"
@@ -91,18 +93,19 @@ for fname in $(find . -type f); do
 
 	if [[ $rpath =~ '/sse3/' && $ARCHITECTURE == "generic" ]]; then
 		ARCHITECTURE='sse3'
-		echo $fname is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
+		echo "$fname" is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
 	elif [[ $rpath =~ '/avx/' && ($ARCHITECTURE == "generic" || $ARCHITECTURE == "sse3") ]]; then
 		ARCHITECTURE="avx"
-		echo $fname is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
+		echo "$fname" is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
 	elif [[ $rpath =~ '/avx2/' && ($ARCHITECTURE == "generic" || $ARCHITECTURE == "sse3" || $ARCHITECTURE == "avx") ]]; then
 		ARCHITECTURE="avx2"
-		echo $fname is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
+		echo "$fname" is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
 	elif [[ $rpath =~ '/avx512/' ]]; then
 		ARCHITECTURE="avx512"
-		echo $fname is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
+		echo "$fname" is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
 	fi
 done
+IFS="$OIFS"
 
 cd - &> /dev/null
 rm -rf $tmp
