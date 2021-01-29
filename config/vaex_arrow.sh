@@ -1,1 +1,1 @@
-MODULE_RUNTIME_DEPS="gcc/8.3 arrow/0.16"
+MODULE_RUNTIME_DEPS="gcc/9.3 arrow/2.0.0"
