@@ -1,1 +1,1 @@
-MODULE_BUILD_DEPS="gcc/7.3.0 cuda/10.1"
+MODULE_BUILD_DEPS="gcc/9.3.0 cuda/11.0"
