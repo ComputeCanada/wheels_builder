@@ -1,0 +1,26 @@
+--- phono3py-1.22.0-orig/setup.py	2021-02-18 05:43:43.037042094 +0000
++++ phono3py-1.22.0/setup.py	2021-02-18 05:54:12.444879825 +0000
+@@ -78,14 +78,21 @@
+ #   Phono3py complex values are handled based on those provided by Netlib
+ #   lapacke. However MKL lapacke doesn't provide some macros and functions
+ #   that provided Netlib. This macro defines those used in phono3py among them.
+-if os.path.isfile("setup_mkl.py"):
++if True:
+     # This supposes that MKL multithread BLAS is used.
+     # This is invoked when setup_mkl.py exists on the current directory.
+ 
+     print("MKL LAPACKE is to be used.")
+     print("Use of icc is assumed (CC='icc').")
+ 
+-    from setup_mkl import mkl_extra_link_args_lapacke, mkl_include_dirs_lapacke
++    iccroot = os.environ["EBROOTICC"]
++    mklroot = os.environ["MKLROOT"]
++
++    mkl_extra_link_args_lapacke = [
++        "-L%s/lib/intel64" % mklroot, "-lmkl_rt",
++        "-L%s/lib/intel64" % iccroot, "-lsvml", "-liomp5", "-limf"]
++
++    mkl_include_dirs_lapacke = ["%s/include" % mklroot]
+ 
+     #### Examples of setup_mkl.py ####
+     # For 2015
