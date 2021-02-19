@@ -211,27 +211,8 @@ function log_command {
 
 }
 
-echo "Building wheel for $PACKAGE"
-DIR=tmp.$$
-mkdir $DIR
-log_command pushd $DIR
-if [[ -z "$EBROOTGENTOO" ]]; then
-	module --force purge
-	module load nixpkgs gcc/7.3.0
-else
-	module --force purge
-	module load gentoo/2020 gcc/9.3.0
-fi
-for pv in $PYTHON_VERSIONS; do
-	if [[ $pv =~ python/2 ]]; then
-		PYTHON_CMD=python2
-	else
-		PYTHON_CMD=python3
-	fi
-	PVDIR=${pv//\//-}
-
-	echo "Loading module $pv"
-	log_command module load $pv
+function setup()
+{
 	echo "=============================="
 	echo "Setting up build environment"
 	if [[ -n "$MODULE_RUNTIME_DEPS" ]]; then
@@ -253,6 +234,10 @@ for pv in $PYTHON_VERSIONS; do
 	fi
 	log_command pip freeze
 	echo "=============================="
+}
+
+function download()
+{
 	echo "=============================="
 	if [[ ! -z "$PRE_DOWNLOAD_COMMANDS" ]]; then
 		log_command $PRE_DOWNLOAD_COMMANDS
@@ -267,26 +252,30 @@ for pv in $PYTHON_VERSIONS; do
 	if [[ ! -z $POST_DOWNLOAD_COMMANDS ]]; then
 		log_command $POST_DOWNLOAD_COMMANDS
 	fi
-#	# skip packages that are already in whl format
-	if [[ $ARCHNAME == *.whl ]]; then
-		# Patch the content of the wheel file.
-		log_command "$PATCH_WHEEL_COMMANDS"
-		cp -v $ARCHNAME ..
-		continue
-	fi
 	if [[ -z "$ARCHNAME" ]]; then
 		echo "Error while downloading package. Aborting..."
 		echo "See : $PWD/download.log"
 		exit 1
 	fi
-	echo "Extracting archive $ARCHNAME..."
-	unzip $ARCHNAME -d $PVDIR &>/dev/null || tar xfv $ARCHNAME -C $PVDIR &>/dev/null
-	echo "Extraction done."
-	log_command pushd $PVDIR
-	log_command pushd $PACKAGE_FOLDER_NAME* || log_command pushd *
+#	# skip packages that are already in whl format
+	if [[ $ARCHNAME == *.whl ]]; then
+		# Patch the content of the wheel file.
+		log_command "$PATCH_WHEEL_COMMANDS"
+		cp -v $ARCHNAME $TMP_WHEELHOUSE
+		WHEEL_NAME=$(ls *.whl)
+	else
+		echo "Extracting archive $ARCHNAME..."
+		unzip $ARCHNAME -d $PVDIR &>/dev/null || tar xfv $ARCHNAME -C $PVDIR &>/dev/null
+		echo "Extraction done."
+		log_command pushd $PVDIR
+		log_command pushd $PACKAGE_FOLDER_NAME* || log_command pushd *
+	fi
 	echo "=============================="
+}
 
-	PATCHESDIR=$(dirname $0)/patches
+function patch()
+{
+	PATCHESDIR=$(dirname $THIS_SCRIPT)/patches
 	if [[ ! -z "$PATCHES" ]]; then
 		echo "=============================="
 		echo "Patching"
@@ -297,7 +286,10 @@ for pv in $PYTHON_VERSIONS; do
 		echo "Patching done"
 		echo "=============================="
 	fi
+}
 
+function build()
+{
 	echo "=============================="
 	echo "Building"
 	if [[ ! -z "$PRE_BUILD_COMMANDS" ]]; then
@@ -337,7 +329,10 @@ for pv in $PYTHON_VERSIONS; do
 	rm $ARCHNAME
 	echo "Building done"
 	echo "=============================="
+}
 
+function test_whl()
+{
 	echo "=============================="
 	echo "Testing..."
 	if [[ -n "$MODULE_BUILD_DEPS" ]]; then
@@ -361,6 +356,41 @@ for pv in $PYTHON_VERSIONS; do
 	fi
 	echo "Testing done"
 	echo "=============================="
+}
+
+echo "Building wheel for $PACKAGE"
+DIR=tmp.$$
+mkdir $DIR
+log_command pushd $DIR
+if [[ -z "$EBROOTGENTOO" ]]; then
+	module --force purge
+	module load nixpkgs gcc/7.3.0
+else
+	module --force purge
+	module load gentoo/2020 gcc/9.3.0
+fi
+for pv in $PYTHON_VERSIONS; do
+	if [[ $pv =~ python/2 ]]; then
+		PYTHON_CMD=python2
+	else
+		PYTHON_CMD=python3
+	fi
+	PVDIR=${pv//\//-}
+
+	echo "Loading module $pv"
+	log_command module load $pv
+
+	setup
+
+	download
+
+	if [[ $ARCHNAME != *.whl ]]; then
+		patch
+
+		build
+	fi
+
+	test_whl
 
 	if [[ $WHEEL_NAME =~ .*-py3-.* || $WHEEL_NAME =~ .*py2.py3.* ]]; then
 		echo "Wheel is compatible with all further versions of python. Breaking"
