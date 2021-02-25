@@ -49,6 +49,13 @@ else
 	PACKAGE_DOWNLOAD_ARGUMENT="$ARG_PACKAGE"
 fi
 
+CONFIGDIR=$(dirname $0)/config
+if [[ -e "$CONFIGDIR/${ARG_PACKAGE}-${ARG_VERSION}.sh" ]]; then
+	source $CONFIGDIR/${ARG_PACKAGE}-${ARG_VERSION}.sh
+elif [[ -e "$CONFIGDIR/${ARG_PACKAGE}.sh" ]]; then
+	source $CONFIGDIR/${ARG_PACKAGE}.sh
+fi
+
 TEMP_DIR=tmp.$$
 mkdir $TEMP_DIR
 cd $TEMP_DIR
@@ -60,16 +67,17 @@ for pv in $(echo ${ARG_PYTHON_VERSIONS-$(ls_pythons)} | tr ',' ' '); do
 	deactivate
 done
 
-setrpaths_cmd="setrpaths.sh --path \$w"
+setrpaths_cmd="setrpaths.sh --path \$ARCHNAME"
 if [[ ! -z "$ARG_ADD_PATH" ]]; then
 	setrpaths_cmd="${setrpaths_cmd} --add_path ${ARG_ADD_PATH} --any_interpreter"
 fi
 if [[ "$ARG_ADD_ORIGIN" == "1" ]]; then
 	setrpaths_cmd="${setrpaths_cmd} --add_origin"
 fi
-for w in *.whl; do
+for ARCHNAME in *.whl; do
 	eval $setrpaths_cmd
-	mv $w ${w//$(echo $w | grep -Po "manylinux\d+")/linux}
+	eval "$PATCH_WHEEL_COMMANDS"
+	mv $ARCHNAME ${ARCHNAME//$(echo $ARCHNAME | grep -Po "manylinux\d+")/linux}
 done
 
 # Ensure wheels are all readable!
