@@ -39,6 +39,8 @@ function cp_wheel {
 	RESULT=1
 	if [[ "$COMPAT" == "unknown" ]]; then
 		echo "Error, wheel with unknown compatibility layer encountered. $NAME, $COMPAT, $ARCHITECTURE"
+		echo "Run the following for more details: "
+		echo "bash wheel_architecture.sh $NAME"
 		exit
 	fi
 	echo chmod ug+rw,o+r $1
