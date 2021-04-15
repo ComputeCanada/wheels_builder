@@ -1,0 +1,52 @@
+HiCAssembler tries to import the class HiCMatrix from hicexplorer
+even though it's part of the hicmatrix package.
+2021-04-15 Oliver Stueker
+
+diff -ru HiCAssembler-1.1.1.orig/hicassembler/HiCAssembler.py HiCAssembler-1.1.1/hicassembler/HiCAssembler.py
+--- HiCAssembler-1.1.1.orig/hicassembler/HiCAssembler.py	2018-10-04 16:12:18.000000000 -0230
++++ HiCAssembler-1.1.1/hicassembler/HiCAssembler.py	2021-04-15 17:24:16.756252271 -0230
+@@ -5,7 +5,7 @@
+ import copy
+ import sys
+ 
+-import hicexplorer.HiCMatrix as HiCMatrix
++import hicmatrix.HiCMatrix as HiCMatrix
+ import hicexplorer.hicMergeMatrixBins
+ import hicexplorer.hicFindTADs as hicFindTADs
+ from functools import wraps
+diff -ru HiCAssembler-1.1.1.orig/hicassembler/plotScaffoldInteractive.py HiCAssembler-1.1.1/hicassembler/plotScaffoldInteractive.py
+--- HiCAssembler-1.1.1.orig/hicassembler/plotScaffoldInteractive.py	2018-10-04 16:12:18.000000000 -0230
++++ HiCAssembler-1.1.1/hicassembler/plotScaffoldInteractive.py	2021-04-15 17:24:16.758252281 -0230
+@@ -7,7 +7,7 @@
+ import matplotlib.pyplot as plt
+ 
+ import sys
+-import hicexplorer.HiCMatrix as HiCMatrix
++import hicmatrix.HiCMatrix as HiCMatrix
+ from hicexplorer.utilities import writableFile
+ from hicexplorer.utilities import toString, toBytes
+ 
+diff -ru HiCAssembler-1.1.1.orig/hicassembler/plotScaffoldsHiC.py HiCAssembler-1.1.1/hicassembler/plotScaffoldsHiC.py
+--- HiCAssembler-1.1.1.orig/hicassembler/plotScaffoldsHiC.py	2018-10-04 16:12:18.000000000 -0230
++++ HiCAssembler-1.1.1/hicassembler/plotScaffoldsHiC.py	2021-04-15 17:24:16.758252281 -0230
+@@ -7,7 +7,7 @@
+ import matplotlib.pyplot as plt
+ 
+ import sys
+-import hicexplorer.HiCMatrix as HiCMatrix
++import hicmatrix.HiCMatrix as HiCMatrix
+ from hicexplorer.utilities import writableFile
+ from hicexplorer.utilities import toString, toBytes
+ 
+diff -ru HiCAssembler-1.1.1.orig/hicassembler/Scaffolds.py HiCAssembler-1.1.1/hicassembler/Scaffolds.py
+--- HiCAssembler-1.1.1.orig/hicassembler/Scaffolds.py	2018-10-04 16:12:18.000000000 -0230
++++ HiCAssembler-1.1.1/hicassembler/Scaffolds.py	2021-04-15 17:24:16.759252285 -0230
+@@ -4,7 +4,7 @@
+ from scipy.sparse import csr_matrix, lil_matrix, triu
+ import logging
+ import time
+-import hicexplorer.HiCMatrix as HiCMatrix
++import hicmatrix.HiCMatrix as HiCMatrix
+ from hicassembler.PathGraph import PathGraph, PathGraphEdgeNotPossible, PathGraphException
+ 
+ from hicexplorer.reduceMatrix import reduce_matrix
