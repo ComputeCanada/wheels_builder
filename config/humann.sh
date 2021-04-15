@@ -1,0 +1,6 @@
+PYTHON_DEPS="numpy biopython biom_format matplotlib scipy MetaPhlAn"
+MODULE_BUILD_DEPS="gcc/7.3.0 bowtie2/2.3.5.1 scipy-stack/2019b diamond/0.9.32 glpk/4.65"
+PACKAGE_DOWNLOAD_ARGUMENT="https://files.pythonhosted.org/packages/9d/57/08aa836c56651f0a4e03f5883860a803bc4aabb2d1357df5f0d6f0841edf/humann-{VERSION}.tar.gz"
+PACKAGE_DOWNLOAD_NAME="humann-{VERSION}.tar.gz"
+PACKAGE_FOLDER_NAME="humann-${VERSION}"
+PRE_BUILD_COMMANDS="export BUILD_VERSION=$VERSION"

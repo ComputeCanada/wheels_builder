@@ -1,0 +1,5 @@
+MODULE_BUILD_DEPS="gcc/9.3.0 openmpi/4.0.3 fftw-mpi/3.3.8 scipy-stack/2020b hdf5-mpi/1.10.6"
+PYTHON_DEPS="nose numpy six Cython unittest2 scipy sympy"
+PRE_DOWNLOAD_COMMANDS="export FFTW_LIBRARY_DIR=$EBROOTFFTW/lib"
+PYTHON_IMPORT_NAME="mpi4py_fft"
+PYTHON_TESTS="from mpi4py_fft import DistArray; from mpi4py_fft.pencil import Pencil, Subcomm"

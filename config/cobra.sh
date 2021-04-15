@@ -1,0 +1,2 @@
+MODULE_BUILD_DEPS="gcc/7.3.0 glpk/4.65"
+
