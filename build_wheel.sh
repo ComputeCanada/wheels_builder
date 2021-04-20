@@ -366,7 +366,9 @@ if [[ -z "$EBROOTGENTOO" ]]; then
 	module --force purge
 	module load nixpkgs gcc/7.3.0
 else
+	ARCH_TO_LOAD="$EBVERSIONARCH"
 	module --force purge
+	module load arch/${ARCH_TO_LOAD:-sse3}
 	module load gentoo/2020 gcc/9.3.0
 fi
 for pv in $PYTHON_VERSIONS; do
