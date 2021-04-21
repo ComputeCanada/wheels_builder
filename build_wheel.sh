@@ -3,7 +3,7 @@
 THIS_SCRIPT=$0
 
 if [[ -z "$PYTHON_VERSIONS" ]]; then
-	PYTHON_VERSIONS=$(ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/20*/Core/python/3* | grep -v 3.5 | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
+	PYTHON_VERSIONS=$(ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/20*/Core/python/3* | grep -v "3.[56]" | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
 function print_usage {
@@ -73,7 +73,7 @@ TMP_WHEELHOUSE=$(pwd)
 PATCHES=""
 # Make sure $PACKAGE_DOWNLOAD_ARGUMENT is not expanded right away
 # Do not collect binaries and don't install dependencies
-PACKAGE_DOWNLOAD_CMD="pip download --no-cache --no-binary \$PACKAGE_DOWNLOAD_ARGUMENT --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
+PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary \$PACKAGE_DOWNLOAD_ARGUMENT --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py'
 
 PYTHON_DEPS_DEFAULT="numpy scipy cython"
