@@ -1,0 +1,2 @@
+MODULE_RUNTIME_DEPS="gcc/9 arrow/2.0.0"
+PYTHON_IMPORT_NAME="pegasus"
