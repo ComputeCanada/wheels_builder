@@ -47,11 +47,15 @@ For most questions, use the default (press enter). However:
 I did not build with TensorRT support since we don't have a version compatible with CUDA 11.
 
 The configure script will ask for details about the CUDA installation. I paste the following lines to answer the 5 questions:
- 11
- 8
- 2.7
- /cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/cudacore/11.0.2,/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/cudnn/8.0.3,/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/nccl/2.7.8
- 3.5,3.7,6.0,7.0,7.5
+
+```
+11
+8
+2.7
+/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/cudacore/11.0.2,/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/cudnn/8.0.3,/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/nccl/2.7.8
+3.5,3.7,6.0,7.0,7.5
+
+```
 
 Note: the last line is for compute capabilities. 3.x are for Hélios.
 
@@ -60,25 +64,35 @@ There is one variable that the configure script does not allow to set, and has t
 The configure step produces a config file: <code>.tf_configure.bazelrc</code>
 
 Add:
- build --action_env GCC_HOST_COMPILER_PREFIX="/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin"
+```
+build --action_env GCC_HOST_COMPILER_PREFIX="/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin"
+```
 
 ### Patching the wheel 
 
 NOTE: You will need to use a patched version of patchelf (built by Bart Oldeman). I have made it available here <code>/home/lemc2220/bin/patchelf</code>. It is used by <code>setrpaths.sh</code>. To use the patched version, do:
 
- export PATH=/home/lemc2220/bin:$PATH
+```
+export PATH=/home/lemc2220/bin:$PATH
+```
 
 Then you can patch the wheel:
 
- setrpaths.sh --path WHEEL.whl --add_path LIB_PATHS --any_interpreter --add_origin
+```
+setrpaths.sh --path WHEEL.whl --add_path LIB_PATHS --any_interpreter --add_origin
+```
 
 Where LIB_PATHS are the CUDA_PATHS present in the configure file, but with colons, and with an added lib or lib64 at the end. Example:
 
- /cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/cudacore/11.0.2/lib64:/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/cudnn/8.0.3/lib64:/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/nccl/2.7.8/lib64
+```
+/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/cudacore/11.0.2/lib64:/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/cudnn/8.0.3/lib64:/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/nccl/2.7.8/lib64
+```
 
 Complete command example:
 
- setrpaths.sh --path tensorflow-2.5.0-cp38-cp38-linux_x86_64.whl --add_path /cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/cudacore/11.0.2/lib64:/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/cudnn/8.0.3/lib64:/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/nccl/2.7.8/lib64 --any_interpreter --add_origin
+```
+setrpaths.sh --path tensorflow-2.5.0-cp38-cp38-linux_x86_64.whl --add_path /cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/cudacore/11.0.2/lib64:/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/cudnn/8.0.3/lib64:/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/nccl/2.7.8/lib64 --any_interpreter --add_origin
+```
 
 ## Tips
 
@@ -92,24 +106,26 @@ Complete command example:
 
 Notes: You will have to replace the virtualenv paths.
 
- build --action_env PYTHON_BIN_PATH="/home/lemc2220/source/venv-tfbuild/bin/python3"
- build --action_env PYTHON_LIB_PATH="/home/lemc2220/source/venv-tfbuild/lib/python3.8/site-packages"
- build --python_path="/home/lemc2220/source/venv-tfbuild/bin/python3"
- build --action_env TF_CUDA_VERSION="11"
- build --action_env TF_CUDNN_VERSION="8"
- build --action_env TF_NCCL_VERSION="2.7"
- build --action_env TF_CUDA_PATHS="/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/cudacore/11.0.2,/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/cudnn/8.0.3,/cvmfs/soft.computecanada.ca/easybuild/ software/2020/CUDA/cuda11.0/nccl/2.7.8"
- build --action_env CUDA_TOOLKIT_PATH="/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/cudacore/11.0.2"
- build --action_env TF_CUDA_COMPUTE_CAPABILITIES="3.5,3.7,6.0,7.0,7.5"
- build --action_env GCC_HOST_COMPILER_PREFIX="/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin"
- build --action_env GCC_HOST_COMPILER_PATH="/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc"
- build --config=cuda
- build:opt --copt=-Wno-sign-compare
- build:opt --host_copt=-Wno-sign-compare
- test --flaky_test_attempts=3
- test --test_size_filters=small,medium
- test --test_env=LD_LIBRARY_PATH
- test:v1 --test_tag_filters=-benchmark-test,-no_oss,-no_gpu,-oss_serial
- test:v1 --build_tag_filters=-benchmark-test,-no_oss,-no_gpu
- test:v2 --test_tag_filters=-benchmark-test,-no_oss,-no_gpu,-oss_serial,-v1only
- test:v2 --build_tag_filters=-benchmark-test,-no_oss,-no_gpu,-v1only
+```
+build --action_env PYTHON_BIN_PATH="/home/lemc2220/source/venv-tfbuild/bin/python3"
+build --action_env PYTHON_LIB_PATH="/home/lemc2220/source/venv-tfbuild/lib/python3.8/site-packages"
+build --python_path="/home/lemc2220/source/venv-tfbuild/bin/python3"
+build --action_env TF_CUDA_VERSION="11"
+build --action_env TF_CUDNN_VERSION="8"
+build --action_env TF_NCCL_VERSION="2.7"
+build --action_env TF_CUDA_PATHS="/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/cudacore/11.0.2,/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/cudnn/8.0.3,/cvmfs/soft.computecanada.ca/easybuild/ software/2020/CUDA/cuda11.0/nccl/2.7.8"
+build --action_env CUDA_TOOLKIT_PATH="/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/cudacore/11.0.2"
+build --action_env TF_CUDA_COMPUTE_CAPABILITIES="3.5,3.7,6.0,7.0,7.5"
+build --action_env GCC_HOST_COMPILER_PREFIX="/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin"
+build --action_env GCC_HOST_COMPILER_PATH="/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc"
+build --config=cuda
+build:opt --copt=-Wno-sign-compare
+build:opt --host_copt=-Wno-sign-compare
+test --flaky_test_attempts=3
+test --test_size_filters=small,medium
+test --test_env=LD_LIBRARY_PATH
+test:v1 --test_tag_filters=-benchmark-test,-no_oss,-no_gpu,-oss_serial
+test:v1 --build_tag_filters=-benchmark-test,-no_oss,-no_gpu
+test:v2 --test_tag_filters=-benchmark-test,-no_oss,-no_gpu,-oss_serial,-v1only
+test:v2 --build_tag_filters=-benchmark-test,-no_oss,-no_gpu,-v1only
+```
