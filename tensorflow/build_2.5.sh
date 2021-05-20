@@ -5,6 +5,9 @@
 set -e  # Stop on error, like a serious programming language
 
 : ${BAZEL_BIN_PATH:?Variable not set or empty}  # BAZEL_BIN_PATH must contain the bazel executable (managed by bazelisk)
+: ${TF_SOURCE_PATH:?Variable not set or empty}
+
+cd $TF_SOURCE_PATH
 
 PATCHELF_BIN_PATH=/home/lemc2220/bin  # Use the patched patchelf built by Bart Oldeman
 

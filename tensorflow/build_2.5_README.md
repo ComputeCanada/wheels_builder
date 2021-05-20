@@ -1,4 +1,6 @@
-These are the steps I (Carl Lemaire) followed to build TF 2.5.
+This documents how I built TF 2.5.
+
+Author: Carl Lemaire
 
 ## Script
 
@@ -7,13 +9,15 @@ I have made a script (build_2.5.sh) with which I have succesfully build TF 2.5, 
 This script has some depenencies:
 
 * Get bazelisk (https://github.com/bazelbuild/bazelisk). Just download the release and rename (or symlink) it as `bazel`. Then, set `BAZEL_BIN_PATH` to the path that contains the `bazel` executable.
-* Checkout the tensorflow source (at the right version, see TF docs)
-* `cd` inside the tensorflow source
-* A patched version of `patchelf`. I have made it available on the build node, and it's used by the script.
+* Checkout the tensorflow source (at the right version, see TF docs), then set `TF_SOURCE_PATH`.
+* Make sure you have the patched version of `patchelf`. I have made it available on the build node, and the path is hardcoded in the script.
+* You will have to answer the questions from the `configure` step. Please refer to the "configure" section below.
 
 It's useful to refer to the docs: https://www.tensorflow.org/install/source
 
 ## Steps 
+
+The following describes the manual steps.
 
 You will have to repeat those steps to make a wheel for each python version. Load the corresponding python module.
 
@@ -51,7 +55,7 @@ The configure script will ask for details about the CUDA installation. I paste t
 
 Note: the last line is for compute capabilities. 3.x are for Hélios.
 
-There is one variable that the configure script does not allow to set, and has to be set manually:
+There is one variable that the configure script does not allow to set, and has to be set manually (note that my script can set it):
 
 The configure step produces a config file: <code>.tf_configure.bazelrc</code>
 
