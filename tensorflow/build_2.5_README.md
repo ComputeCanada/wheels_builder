@@ -4,16 +4,19 @@ Author: Carl Lemaire
 
 ## Script
 
-I have made a script (build_2.5.sh) with which I have succesfully build TF 2.5, for python versions 3.6, 3.7 and 3.8.
+I have made a script (build_2.5.sh) with which I have succesfully built TF 2.5, for python versions 3.6, 3.7 and 3.8.
 
-This script has some depenencies:
+How to use:
 
 * Get bazelisk (https://github.com/bazelbuild/bazelisk). Just download the release and rename (or symlink) it as `bazel`. Then, set `BAZEL_BIN_PATH` to the path that contains the `bazel` executable.
-* Checkout the tensorflow source (at the right version, see TF docs), then set `TF_SOURCE_PATH`.
-* Make sure you have the patched version of `patchelf`. I have made it available on the build node, and the path is hardcoded in the script.
-* You will have to answer the questions from the `configure` step. Please refer to the "configure" section below.
+* Checkout the tensorflow source, and checkout the right version (e.g. `git checkout r2.5`); then set `TF_SOURCE_PATH`.
+* Run the script. The wheels will be output in the working dir.
 
-It's useful to refer to the docs: https://www.tensorflow.org/install/source
+Notes:
+
+* The configure step is skipped, by providing some files instead. If that fails, you can enable the configure step using `DO_CONFIGURE=1`. Please refer to the "configure" section below on how to answer the questions.
+* It's useful to refer to the docs: https://www.tensorflow.org/install/source
+* The script uses a patched version of `patchelf`. I have made it available on the build node, and the path is hardcoded in the script.
 
 ## Steps 
 

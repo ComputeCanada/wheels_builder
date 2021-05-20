@@ -7,9 +7,19 @@ set -e  # Stop on error, like a serious programming language
 : ${BAZEL_BIN_PATH:?Variable not set or empty}  # BAZEL_BIN_PATH must contain the bazel executable (managed by bazelisk)
 : ${TF_SOURCE_PATH:?Variable not set or empty}
 
+final_out_path=$(pwd)
+
 cd $TF_SOURCE_PATH
 
-PATCHELF_BIN_PATH=/home/lemc2220/bin  # Use the patched patchelf built by Bart Oldeman
+if [ "$DO_CONFIGURE" != 1 ]; then
+    # We will skip the configure step by creating `.tf_configure.bazelrc` and `tools/python_bin_path.sh`
+    this_script_parent_dir=$(dirname "$(readlink -f "$0")")
+    configure_file=$this_script_parent_dir/tf_2.5_configure.bazelrc
+    cp $configure_file .tf_configure.bazelrc
+    grep PYTHON_BIN_PATH .tf_configure.bazelrc | sed -e 's/build --action_env/export/' > tools/python_bin_path.sh
+fi
+
+PATCHELF_BIN_PATH=/home/lemc2220/bin/patchelf  # Use the patched patchelf built by Bart Oldeman, this dir contains the executable
 
 export PATH=$BAZEL_BIN_PATH:$PATCHELF_BIN_PATH:$PATH
 
@@ -47,7 +57,9 @@ do
     bazel build --config=cuda //tensorflow/tools/pip_package:build_pip_package
     ./bazel-bin/tensorflow/tools/pip_package/build_pip_package $wheels_out_path/$PYTHON_VERSION
     setrpaths.sh --path $wheels_out_path/$PYTHON_VERSION/tensorflow*.whl --add_path /cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/cudacore/11.0.2/lib64:/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/cudnn/8.0.3/lib64:/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/nccl/2.7.8/lib64 --any_interpreter --add_origin
+    mv $wheels_out_path/$PYTHON_VERSION/tensorflow*.whl $final_out_path
 
     deactivate
 done
 
+cd $final_out_path
