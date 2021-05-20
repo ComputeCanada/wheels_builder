@@ -273,7 +273,7 @@ function download()
 	echo "=============================="
 }
 
-function patch()
+function patch_function()
 {
 	PATCHESDIR=$(dirname $THIS_SCRIPT)/patches
 	if [[ ! -z "$PATCHES" ]]; then
@@ -387,7 +387,7 @@ for pv in $PYTHON_VERSIONS; do
 	download
 
 	if [[ $ARCHNAME != *.whl ]]; then
-		patch
+		patch_function
 
 		build
 	fi
