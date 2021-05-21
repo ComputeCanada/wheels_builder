@@ -11,7 +11,9 @@ final_out_path=$(pwd)
 
 cd $TF_SOURCE_PATH
 
-if [ "$DO_CONFIGURE" != 1 ]; then
+if [ "$DO_CONFIGURE" == 1 ]; then
+    [ -e .tf_configure.bazelrc ] && rm .tf_configure.bazelrc
+else
     # We will skip the configure step by creating `.tf_configure.bazelrc` and `tools/python_bin_path.sh` (this second file is created later)
     this_script_parent_dir=$(dirname "$(readlink -f "$0")")
     configure_file=$this_script_parent_dir/tf_2.5_configure.bazelrc
@@ -31,7 +33,7 @@ else
     mkdir -p $wheels_out_path
 fi 
 
-module load gcc/9.3 cuda/11.0 cudnn/8 nccl/2.7
+module load gcc/9.3 cuda/11.1 cudnn/8.2 nccl/2.8.4
 
 for PYTHON_VERSION in 3.6 3.7 3.8;
 do
@@ -67,7 +69,7 @@ do
     bazel clean
     bazel build --config=cuda //tensorflow/tools/pip_package:build_pip_package
     ./bazel-bin/tensorflow/tools/pip_package/build_pip_package $wheels_out_path/$PYTHON_VERSION
-    setrpaths.sh --path $wheels_out_path/$PYTHON_VERSION/tensorflow*.whl --add_path /cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/cudacore/11.0.2/lib64:/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/cudnn/8.0.3/lib64:/cvmfs/soft.computecanada.ca/easybuild/software/2020/CUDA/cuda11.0/nccl/2.7.8/lib64 --any_interpreter --add_origin
+    setrpaths.sh --path $wheels_out_path/$PYTHON_VERSION/tensorflow*.whl --add_path $EBROOTCUDA/lib64:$EBROOTCUDNN/lib64:$EBROOTNCCL/lib64 --any_interpreter --add_origin
     mv $wheels_out_path/$PYTHON_VERSION/tensorflow*.whl $final_out_path
 
     deactivate
