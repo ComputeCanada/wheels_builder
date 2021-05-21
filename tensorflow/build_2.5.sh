@@ -12,11 +12,10 @@ final_out_path=$(pwd)
 cd $TF_SOURCE_PATH
 
 if [ "$DO_CONFIGURE" != 1 ]; then
-    # We will skip the configure step by creating `.tf_configure.bazelrc` and `tools/python_bin_path.sh`
+    # We will skip the configure step by creating `.tf_configure.bazelrc` and `tools/python_bin_path.sh` (this second file is created later)
     this_script_parent_dir=$(dirname "$(readlink -f "$0")")
     configure_file=$this_script_parent_dir/tf_2.5_configure.bazelrc
     cp $configure_file .tf_configure.bazelrc
-    grep PYTHON_BIN_PATH .tf_configure.bazelrc | sed -e 's/build --action_env/export/' > tools/python_bin_path.sh
 fi
 
 PATCHELF_BIN_PATH=/home/lemc2220/bin/patchelf  # Use the patched patchelf built by Bart Oldeman, this dir contains the executable
@@ -46,12 +45,24 @@ do
     pip install numpy==1.19.2 wheel
     pip install keras_preprocessing --no-deps
 
-    if [ ! -f .tf_configure.bazelrc ]; then
+    if [ -f .tf_configure.bazelrc ]; then
+        # .tf_configure.bazelrc exists, either if configure done by you, or created above by this script
+
+        # Replace the dummy string VENV_PATH if present
+        env_path=$(realpath env-build)
+        sed -i "s/VENV_PATH/$env_path/" .tf_configure.bazelrc
+
+        # Make sure the python version is correct in the file
+        sed -i -r "s/python3\.[0-9]+/python${PYTHON_VERSION}/" .tf_configure.bazelrc
+
+        # Create `tools/python_bin_path.sh` from `.tf_configure.bazelrc`
+        grep PYTHON_BIN_PATH .tf_configure.bazelrc | sed -e 's/build --action_env/export/' > tools/python_bin_path.sh
+    else
+        # run configure step to make `.tf_configure.bazelrc` and `tools/python_bin_path.sh`
+
         ./configure
         echo 'build --action_env GCC_HOST_COMPILER_PREFIX="/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin"' >> .tf_configure.bazelrc
     fi
-
-    sed -i -r "s/python3\.[0-9]+/python${PYTHON_VERSION}/" .tf_configure.bazelrc
 
     bazel clean
     bazel build --config=cuda //tensorflow/tools/pip_package:build_pip_package
