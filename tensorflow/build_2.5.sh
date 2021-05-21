@@ -50,7 +50,7 @@ do
 
         # Replace the dummy string VENV_PATH if present
         env_path=$(realpath env-build)
-        sed -i "s/VENV_PATH/$env_path/" .tf_configure.bazelrc
+        sed -i "s|VENV_PATH|$env_path|" .tf_configure.bazelrc
 
         # Make sure the python version is correct in the file
         sed -i -r "s/python3\.[0-9]+/python${PYTHON_VERSION}/" .tf_configure.bazelrc
