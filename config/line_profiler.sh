@@ -1,0 +1,2 @@
+MODULE_RUNTIME_DEPS="gcc"
+PYTHON_DEPS="scikit-build"
