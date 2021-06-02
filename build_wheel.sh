@@ -338,6 +338,9 @@ function test_whl()
 	if [[ -n "$MODULE_BUILD_DEPS" ]]; then
 		module unload $MODULE_BUILD_DEPS
 	fi
+	if [[ -n "$MODULE_RUNTIME_DEPS" ]]; then
+		module load $MODULE_RUNTIME_DEPS
+	fi
 	log_command module list
 	echo "Installing wheel"
 	wrapped_pip_install ../$WHEEL_NAME
