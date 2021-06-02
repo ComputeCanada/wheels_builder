@@ -1,0 +1,2 @@
+PYTHON_IMPORT_NAME='skdim'
+MODULE_RUNTIME_DEPS='scipy-stack'
