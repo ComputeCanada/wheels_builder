@@ -1,0 +1,3 @@
+export MKL_THREADING_LAYER="GNU"
+MODULE_BUILD_DEPS="openmpi mpi4py"
+MODULE_RUNTIME_DEPS="openmpi mpi4py"
