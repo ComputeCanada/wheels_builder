@@ -1,0 +1,3 @@
+MODULE_RUNTIME_DEPS="StdEnv/2020 gcc arrow"
+PYTHON_DEPS="gitdb"
+PYTHON_IMPORT_NAME="git"
