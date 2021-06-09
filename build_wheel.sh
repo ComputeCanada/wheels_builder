@@ -371,7 +371,12 @@ if [[ -z "$EBROOTGENTOO" ]]; then
 else
 	ARCH_TO_LOAD="$EBVERSIONARCH"
 	module --force purge
-	module load arch/${ARCH_TO_LOAD:-sse3}
+	# if there are module dependencies, we really should build with our primary architecture rather than the compatibility one
+	if [[ -n "$MODULE_BUILD_DEPS" && -n "$MODULE_RUNTIME_DEPS" ]]; then
+		module load arch/${ARCH_TO_LOAD:-sse3}
+	else
+		module load arch/${ARCH_TO_LOAD:-avx2}
+	fi
 	module load gentoo/2020 gcc/9.3.0
 fi
 for pv in $PYTHON_VERSIONS; do
