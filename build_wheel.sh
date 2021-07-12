@@ -3,7 +3,7 @@
 THIS_SCRIPT=$0
 
 if [[ -z "$PYTHON_VERSIONS" ]]; then
-	PYTHON_VERSIONS=$(module --terse spider python | grep -v "/2\.\|/3.[56]" | grep -Po "\d\.\d" | sort -u)
+	PYTHON_VERSIONS=$(module --terse spider python | grep -v "/2\.\|/3.[56]" | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
 fi
 
 function print_usage {
