@@ -3,7 +3,7 @@
 THIS_SCRIPT=$0
 
 if [[ -z "$PYTHON_VERSIONS" ]]; then
-	PYTHON_VERSIONS=$(ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/20*/Core/python/3* | grep -v "3.[56]" | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
+	PYTHON_VERSIONS=$(module --terse spider python | grep -v "/2\.\|/3.[56]" | grep -Po "\d\.\d" | sort -u)
 fi
 
 function print_usage {
