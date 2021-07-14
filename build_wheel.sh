@@ -263,6 +263,9 @@ function download()
 		log_command "$PATCH_WHEEL_COMMANDS"
 		cp -v $ARCHNAME $TMP_WHEELHOUSE
 		WHEEL_NAME=$(ls *.whl)
+		# add a computecanada local_version
+		$STARTING_DIRECTORY/patch_wheel.sh --local_version --wheel $WHEEL_NAME && rm $WHEEL_NAME
+		WHEEL_NAME=$(ls *.whl)
 	else
 		echo "Extracting archive $ARCHNAME..."
 		unzip $ARCHNAME -d $PVDIR &>/dev/null || tar xfv $ARCHNAME -C $PVDIR &>/dev/null
@@ -309,6 +312,9 @@ function build()
 		echo "Success."
 	fi
 	log_command pushd dist || cat build.log
+	WHEEL_NAME=$(ls *.whl)
+	# add a computecanada local_version
+	$STARTING_DIRECTORY/patch_wheel.sh --local_version --wheel $WHEEL_NAME && rm $WHEEL_NAME
 	WHEEL_NAME=$(ls *.whl)
 	log_command "$POST_BUILD_COMMANDS"
 	if [[ -n "$RPATH_TO_ADD" || -n "$RPATH_ADD_ORIGIN" ]]; then
