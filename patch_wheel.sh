@@ -38,22 +38,17 @@ unzip -q $filepath
 
 
 if [[ $ARG_LOCAL_VERSION -eq 1 ]]; then
+	local_version="computecanada"
 	filename=$(basename $filepath)
 	# split by -
 	components=(${filename//-/ })
 	name=${components[0]}
 	version=${components[1]}
-	prefix="$name-$version"
 
-	# check if the version already contains a local version
+	# check if the version already contains a local version, if so, add to it with . separator
 	if [[ $version =~ .*\+.* ]]; then
-		# split by +
-		version_components=(${version//+/ })
-		existing_local_version=${version_components[1]}
-		local_version="$existing_local_version.computecanada"
-		new_version="${version_components[0]}+$local_version"
+		new_version="$version.$local_version"
 	else
-		local_version="computecanada"
 		new_version="$version+$local_version"
 	fi
 
