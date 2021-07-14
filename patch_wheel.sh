@@ -7,7 +7,9 @@ function print_usage
 	echo "Usage: $0 --wheel <wheel file> [--local_version]"
 	echo "  --local_version will add a '+computecanada' local version ot the wheel"
 }
-
+function cleanup {
+	rm -rf $tmp
+}
 TEMP=$(getopt -o h --longoptions help,wheel:,local_version --name $0 -- "$@")
 if [ $? != 0 ] ; then print_usage; exit 1 ; fi
 eval set -- "$TEMP"
@@ -47,6 +49,11 @@ if [[ $ARG_LOCAL_VERSION -eq 1 ]]; then
 
 	# check if the version already contains a local version, if so, add to it with . separator
 	if [[ $version =~ .*\+.* ]]; then
+		if [[ $version =~ .*\+$local_version.* ]]; then
+			echo "This wheel already has the computecanada local version. Skipping"
+			cleanup
+			exit 0
+		fi
 		new_version="$version.$local_version"
 	else
 		new_version="$version+$local_version"
@@ -67,6 +74,6 @@ zip -rq $new_filepath .
 
 
 cd -
-rm -rf $tmp
+cleanup
 
 
