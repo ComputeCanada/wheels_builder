@@ -4,7 +4,8 @@ THIS_SCRIPT=$0
 
 function print_usage
 {
-	echo "Usage: $0 [--wheel <wheel file>]"
+	echo "Usage: $0 --wheel <wheel file> [--cctag]"
+	echo "  --cctag will add a '+computecanada' local version ot the wheel"
 }
 
 TEMP=$(getopt -o h --longoptions help,wheel:,cctag --name $0 -- "$@")
@@ -24,6 +25,10 @@ while true; do
 		*) echo "Unknown parameter $1"; print_usage; exit 1 ;;
 	esac
 done
+if [[ "$ARG_WHEEL" == "" ]]; then
+	print_usage
+	exit 1
+fi
 
 fullname=$(readlink -f $ARG_WHEEL)
 newname=$fullname
