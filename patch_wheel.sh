@@ -4,11 +4,11 @@ THIS_SCRIPT=$0
 
 function print_usage
 {
-	echo "Usage: $0 --wheel <wheel file> [--cctag]"
-	echo "  --cctag will add a '+computecanada' local version ot the wheel"
+	echo "Usage: $0 --wheel <wheel file> [--local_version]"
+	echo "  --local_version will add a '+computecanada' local version ot the wheel"
 }
 
-TEMP=$(getopt -o h --longoptions help,wheel:,cctag --name $0 -- "$@")
+TEMP=$(getopt -o h --longoptions help,wheel:,local_version --name $0 -- "$@")
 if [ $? != 0 ] ; then print_usage; exit 1 ; fi
 eval set -- "$TEMP"
 
@@ -16,8 +16,8 @@ while true; do
 	case "$1" in
 		--wheel)
 			ARG_WHEEL=$2; shift 2;;
-		--cctag)
-			ARG_CCTAG=1; shift ;;
+		--local_version)
+			ARG_LOCAL_VERSION=1; shift ;;
 		-h|--help)
 			print_usage; exit 0 ;;
 		--)
@@ -25,33 +25,53 @@ while true; do
 		*) echo "Unknown parameter $1"; print_usage; exit 1 ;;
 	esac
 done
-if [[ "$ARG_WHEEL" == "" ]]; then
+if [[ "$ARG_WHEEL" == "" ]]; then
 	print_usage
 	exit 1
 fi
 
-fullname=$(readlink -f $ARG_WHEEL)
-newname=$fullname
+filepath=$(readlink -f $ARG_WHEEL)
+new_filepath=$filepath
 tmp=$(mktemp --directory)
-pushd $tmp
-unzip -q $fullname
+cd $tmp 
+unzip -q $filepath
 
-if [[ $ARG_CCTAG -eq 1 ]]; then
-	tag="+computecanada"
-	newname=$(echo $fullname | sed -e "s/\([^-]*\)-\([^-]*\)-\(.*\)\.whl/\1-\2$tag-\3.whl/g")
+
+if [[ $ARG_LOCAL_VERSION -eq 1 ]]; then
+	filename=$(basename $filepath)
+	# split by -
+	components=(${filename//-/ })
+	name=${components[0]}
+	version=${components[1]}
+	prefix="$name-$version"
+
+	# check if the version already contains a local version
+	if [[ $version =~ .*\+.* ]]; then
+		# split by +
+		version_components=(${version//+/ })
+		existing_local_version=${version_components[1]}
+		local_version="$existing_local_version.computecanada"
+		new_version="${version_components[0]}+$local_version"
+	else
+		local_version="computecanada"
+		new_version="$version+$local_version"
+	fi
+
+	new_filepath=$(echo $filepath | sed -e "s/$name-$version-\(.*\).whl/$name-$new_version-\1.whl/g")
 
 	# rename the dist-info folder
 	distinfo=*dist-info
-	newdistinfo=$(echo $distinfo | sed -e "s/\([^-]*\)-\([^-]*\)\(.*\).dist-info/\1-\2$tag\3.dist-info/g")
+	newdistinfo=$(echo $distinfo | sed -e "s/$name-$version\(.*\).dist-info/$name-$new_version\1.dist-info/g")
 	mv $distinfo $newdistinfo
 
 	# change the version in the METADATA file
-	sed -i -e "s/^Version:\(.*\)\([^ ]*\)\(.*\)/Version:\1\2$tag\3/g" $newdistinfo/METADATA
+	sed -i -e "s/^Version: $version/Version: $new_version/g" $newdistinfo/METADATA
 
 fi
-zip -rq $newname .
+zip -rq $new_filepath .
 
 
-popd
+cd -
 rm -rf $tmp
+
 
