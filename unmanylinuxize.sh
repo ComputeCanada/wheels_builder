@@ -13,7 +13,7 @@ function print_usage
 TEMP=$(getopt -o h --longoptions help,package:,version:,python:,add_path:,add_origin --name $0 -- "$@")
 if [ $? != 0 ] ; then print_usage; exit 1 ; fi
 eval set -- "$TEMP"
-
+START_DIR=$(pwd)
 ARG_PACKAGE=""
 ARG_VERSION=""
 ARG_ADD_PATH=""
@@ -78,6 +78,9 @@ for ARCHNAME in *.whl; do
 	eval $setrpaths_cmd
 	eval "$PATCH_WHEEL_COMMANDS"
 	mv $ARCHNAME ${ARCHNAME//$(echo $ARCHNAME | grep -Po "manylinux\d+")/linux}
+done
+for ARCHNAME in *.whl; do
+	$START_DIR/patch_wheel.sh --local_version --wheel $ARCHNAME && rm $ARCHNAME
 done
 
 # Ensure wheels are all readable!

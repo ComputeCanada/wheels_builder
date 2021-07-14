@@ -52,7 +52,7 @@ if [[ $ARG_LOCAL_VERSION -eq 1 ]]; then
 		if [[ $version =~ .*\+$local_version.* ]]; then
 			echo "This wheel already has the computecanada local version. Skipping"
 			cleanup
-			exit 0
+			exit 1
 		fi
 		new_version="$version.$local_version"
 	else
