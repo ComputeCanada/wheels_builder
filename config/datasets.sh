@@ -1,0 +1,2 @@
+MODULE_BUILD_DEPS="gcc arrow"
+#PYTHON_DEPS=''
