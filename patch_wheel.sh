@@ -6,11 +6,14 @@ function print_usage
 {
 	echo "Usage: $0 --wheel <wheel file> [--local_version]"
 	echo "  --local_version will add a '+computecanada' local version ot the wheel"
+	echo "  --update_req <requirement value> will update requirements."
+	echo "    for example: --update_req \"numpy (<1.23.0,>=1.20.0)\""
+	echo "    Warning: make sure to use the correct syntax"
 }
 function cleanup {
 	rm -rf $tmp
 }
-TEMP=$(getopt -o h --longoptions help,wheel:,local_version --name $0 -- "$@")
+TEMP=$(getopt -o h --longoptions help,wheel:,local_version,update_req: --name $0 -- "$@")
 if [ $? != 0 ] ; then print_usage; exit 1 ; fi
 eval set -- "$TEMP"
 
@@ -20,6 +23,9 @@ while true; do
 			ARG_WHEEL=$2; shift 2;;
 		--local_version)
 			ARG_LOCAL_VERSION=1; shift ;;
+		--update_req)
+			ARG_UPDATE_REQUIREMENTS=1;
+			ARG_REQUIREMENTS_NEW_VALUE="$2"; shift 2;;
 		-h|--help)
 			print_usage; exit 0 ;;
 		--)
@@ -69,6 +75,13 @@ if [[ $ARG_LOCAL_VERSION -eq 1 ]]; then
 	# change the version in the METADATA file
 	sed -i -e "s/^Version: $version/Version: $new_version/g" $newdistinfo/METADATA
 
+fi
+if [[ $ARG_UPDATE_REQUIREMENTS -eq 1 ]]; then
+	WORDS=(${ARG_REQUIREMENTS_NEW_VALUE})
+	ARG_REQUIREMENTS_SOURCE_PATTERN=${WORDS[0]}
+	distinfo=*dist-info
+	# update the requirement
+	sed -i -e "s/Requires-Dist: $ARG_REQUIREMENTS_SOURCE_PATTERN.*/Requires-Dist: $ARG_REQUIREMENTS_NEW_VALUE/g" $distinfo/METADATA
 fi
 zip -rq $new_filepath .
 
