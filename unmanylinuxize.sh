@@ -77,7 +77,7 @@ fi
 for ARCHNAME in *.whl; do
 	eval $setrpaths_cmd
 	eval "$PATCH_WHEEL_COMMANDS"
-	mv $ARCHNAME ${ARCHNAME//$(echo $ARCHNAME | grep -Po "manylinux\d+")/linux}
+	mv $ARCHNAME ${ARCHNAME//$(echo $ARCHNAME | grep -Po 'manylinux.*x86_64')/linux_x86_64}
 done
 for ARCHNAME in *.whl; do
 	$START_DIR/patch_wheel.sh --local_version --wheel $ARCHNAME && rm $ARCHNAME
