@@ -55,7 +55,7 @@ if [[ $ARG_LOCAL_VERSION -eq 1 ]]; then
 
 	# check if the version already contains a local version, if so, add to it with . separator
 	if [[ $version =~ .*\+.* ]]; then
-		if [[ $version =~ .*\+$local_version.* ]]; then
+		if [[ $version =~ .*$local_version.* ]]; then
 			echo "This wheel already has the computecanada local version. Skipping"
 			cleanup
 			exit 1
