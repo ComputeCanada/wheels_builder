@@ -261,11 +261,10 @@ function download()
 	if [[ $ARCHNAME == *.whl ]]; then
 		# Patch the content of the wheel file.
 		log_command "$PATCH_WHEEL_COMMANDS"
-		cp -v $ARCHNAME $TMP_WHEELHOUSE
-		WHEEL_NAME=$(ls *.whl)
 		# add a computecanada local_version
-		$STARTING_DIRECTORY/patch_wheel.sh --local_version --wheel $WHEEL_NAME && rm $WHEEL_NAME
+		$STARTING_DIRECTORY/patch_wheel.sh --local_version --wheel $ARCHNAME && rm $ARCHNAME
 		WHEEL_NAME=$(ls *.whl)
+		cp -v $WHEEL_NAME $TMP_WHEELHOUSE
 	else
 		echo "Extracting archive $ARCHNAME..."
 		unzip $ARCHNAME -d $PVDIR &>/dev/null || tar xfv $ARCHNAME -C $PVDIR &>/dev/null
