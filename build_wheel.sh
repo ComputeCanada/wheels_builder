@@ -350,10 +350,10 @@ function test_whl()
 	log_command module list
 	echo "Installing wheel"
 	wrapped_pip_install ../$WHEEL_NAME
-	if [[ -n "$PYTHON_IMPORT_NAME" ]]; then
-		test_import "$PYTHON_IMPORT_NAME" "$PYTHON_TESTS"
-	elif [[ -n "$TEST_COMMAND" ]]; then
+	if [[ -n "$TEST_COMMAND" ]]; then
 		$TEST_COMMAND
+	elif [[ -n "$PYTHON_IMPORT_NAME" ]]; then
+		test_import "$PYTHON_IMPORT_NAME" "$PYTHON_TESTS"
 	fi
 	SUCCESS=$?
 	deactivate
