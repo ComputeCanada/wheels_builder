@@ -49,10 +49,10 @@ if [[ ! -z "$ARG_REQUIREMENTS" ]]; then
 	cmd1="bash build_wheel.sh --package {1} --version {2} --python {3} &> build-{1}-{2}-py{3}.log :::: - ::: ${pythons}"
 	cmd2="bash build_wheel.sh --package {1} --python {2} &> build-{1}-py{2}.log :::: - ::: ${pythons}"
 
-	# Exclude anything python 2.7 and keep only requirements == lines
-	awk '!/python_version ~= "2.7.0"/ && /==/ {print $1}' $ARG_REQUIREMENTS | sed 's/;$//' | parallel --colsep '==' --dry-run $cmd1 | tee -a $cmdsfile
-	# Exclude anything python 2.7 and keep only named requirements lines
-	awk '!/python_version ~= "2.7.0"/ && /^\w+$/ {print $1}' $ARG_REQUIREMENTS | sed 's/;$//' | parallel --dry-run $cmd2 | tee -a $cmdsfile
+	# Keep only requirements == lines
+	awk '/^\w+==(\w|\.)+$/ {print $1}' $ARG_REQUIREMENTS | sed 's/;$//' | parallel --colsep '==' --dry-run $cmd1 | tee -a $cmdsfile
+	# Keep only named requirements lines
+	awk '/^\w+$/ {print $1}' $ARG_REQUIREMENTS | sed 's/;$//' | parallel --dry-run $cmd2 | tee -a $cmdsfile
 	parallel --joblog $logfile < $cmdsfile
 else
 	wheel=${ARG_PACKAGE//,/ }
