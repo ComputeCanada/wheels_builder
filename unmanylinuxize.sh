@@ -80,7 +80,7 @@ for ARCHNAME in *.whl; do
 	mv $ARCHNAME ${ARCHNAME//$(echo $ARCHNAME | grep -Po 'manylinux.*x86_64')/linux_x86_64}
 done
 for ARCHNAME in *.whl; do
-	$START_DIR/patch_wheel.sh --local_version --wheel $ARCHNAME && rm $ARCHNAME
+	$START_DIR/manipulate_wheels.py --insert_local_version --wheels $ARCHNAME --inplace && rm $ARCHNAME
 done
 
 # Ensure wheels are all readable!

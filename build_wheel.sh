@@ -262,7 +262,7 @@ function download()
 		# Patch the content of the wheel file.
 		log_command "$PATCH_WHEEL_COMMANDS"
 		# add a computecanada local_version
-		$STARTING_DIRECTORY/patch_wheel.sh --local_version --wheel $ARCHNAME && rm $ARCHNAME
+		$STARTING_DIRECTORY/manipulate_wheels.py --insert_local_version --wheels $ARCHNAME --inplace && rm $ARCHNAME
 		WHEEL_NAME=$(ls *.whl)
 		cp -v $WHEEL_NAME $TMP_WHEELHOUSE
 	else
@@ -313,7 +313,7 @@ function build()
 	log_command pushd dist || cat build.log
 	WHEEL_NAME=$(ls *.whl)
 	# add a computecanada local_version
-	$STARTING_DIRECTORY/patch_wheel.sh --local_version --wheel $WHEEL_NAME && rm $WHEEL_NAME
+	$STARTING_DIRECTORY/manipulate_wheels.py --insert_local_version --wheels --inplace $WHEEL_NAME && rm $WHEEL_NAME
 	WHEEL_NAME=$(ls *.whl)
 	log_command "$POST_BUILD_COMMANDS"
 	if [[ -n "$RPATH_TO_ADD" || -n "$RPATH_ADD_ORIGIN" ]]; then
