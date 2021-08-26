@@ -313,7 +313,7 @@ function build()
 	log_command pushd dist || cat build.log
 	WHEEL_NAME=$(ls *.whl)
 	# add a computecanada local_version
-	$STARTING_DIRECTORY/manipulate_wheels.py --insert_local_version --wheels --inplace $WHEEL_NAME && rm $WHEEL_NAME
+	$STARTING_DIRECTORY/manipulate_wheels.py --insert_local_version --inplace --wheels $WHEEL_NAME && rm $WHEEL_NAME
 	WHEEL_NAME=$(ls *.whl)
 	log_command "$POST_BUILD_COMMANDS"
 	if [[ -n "$RPATH_TO_ADD" || -n "$RPATH_ADD_ORIGIN" ]]; then
