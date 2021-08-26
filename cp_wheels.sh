@@ -74,7 +74,7 @@ fi
 
 if [ -z "$ARG_WHEEL" ]
 then
-        WHEEL_LIST=*.whl
+        WHEEL_LIST=*computecanada*.whl
 else
         WHEEL_LIST=$ARG_WHEEL
 fi
