@@ -54,62 +54,67 @@ def main():
     for w in args.wheels:
         wf_basename = os.path.basename(w)
         wf_dirname = os.path.dirname(w)
-        with WheelFile(w) as wf:
-            if args.print_req:
-                print("Requirements for wheel %s:" % w)
-                print("==========================")
-                for req in wf.metadata.requires_dists:
-                    print(req)
-                print("==========================")
-                continue
+        if args.print_req:
+            print("Requirements for wheel %s:" % w)
+        try:
+            with WheelFile(w) as wf:
+                if args.print_req:
+                    print("==========================")
+                    for req in wf.metadata.requires_dists:
+                        print(req)
+                    print("==========================")
+                    continue
 
-            wf2 = None
-            if args.insert_local_version:
-                version = str(wf.version)
-                if LOCAL_VERSION in version:
-                    if args.verbose:
-                        print("wheel %s already has the %s local version. Skipping" % (w, LOCAL_VERSION))
-                else:
-                    if "+" in version:
-                        version += ".%s" % LOCAL_VERSION
+                wf2 = None
+                if args.insert_local_version:
+                    version = str(wf.version)
+                    if LOCAL_VERSION in version:
+                        if args.verbose:
+                            print("wheel %s already has the %s local version. Skipping" % (w, LOCAL_VERSION))
                     else:
-                        version += "+%s" % LOCAL_VERSION
-                    if args.verbose:
-                        print("Updating version of wheel %s to %s" % (w, version))
-                    wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=version)
-
-            if args.update_req:
-                if not wf2:
-                    wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR)
-                for req in args.update_req:
-                    req_name = re.split(REQ_SEP, req)[0]
-                    new_req = []
-                    for curr_req in wf2.metadata.requires_dists:
-                        curr_req_name = re.split(REQ_SEP, curr_req)[0]
-                        # if it is the same name, update the requirement
-                        if curr_req_name == req_name:
-                            if args.verbose:
-                                print("Updating requirement %s of wheel %s to %s" % (curr_req, w, req))
-                            new_req += [req]
+                        if "+" in version:
+                            version += ".%s" % LOCAL_VERSION
                         else:
-                            new_req += [curr_req]
-                    wf2.metadata.requires_dists = new_req
-            wf2_full_filename = wf2.filename
-            wf2_dirname = os.path.dirname(wf2_full_filename)
-            wf2_basename = os.path.basename(wf2_full_filename)
-            target_file = wf2_full_filename
-            wf2.close()
-            if args.inplace:
-                target_file = os.path.join(wf_dirname, wf2_basename)
-                if os.path.exists(target_file):
-                    if args.force:
-                        print("Since --force was used, overwriting existing wheel")
-                        os.remove(target_file)
-                    else:
-                        print("Error, resulting wheels has the same name as existing one. Aborting.")
-                        exit(1)
-                os.rename(wf2_full_filename, target_file)
-            print("New wheel created %s" % target_file)
+                            version += "+%s" % LOCAL_VERSION
+                        if args.verbose:
+                            print("Updating version of wheel %s to %s" % (w, version))
+                        wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=version)
+
+                if args.update_req:
+                    if not wf2:
+                        wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR)
+                    for req in args.update_req:
+                        req_name = re.split(REQ_SEP, req)[0]
+                        new_req = []
+                        for curr_req in wf2.metadata.requires_dists:
+                            curr_req_name = re.split(REQ_SEP, curr_req)[0]
+                            # if it is the same name, update the requirement
+                            if curr_req_name == req_name:
+                                if args.verbose:
+                                    print("Updating requirement %s of wheel %s to %s" % (curr_req, w, req))
+                                new_req += [req]
+                            else:
+                                new_req += [curr_req]
+                        wf2.metadata.requires_dists = new_req
+                wf2_full_filename = wf2.filename
+                wf2_dirname = os.path.dirname(wf2_full_filename)
+                wf2_basename = os.path.basename(wf2_full_filename)
+                target_file = wf2_full_filename
+                wf2.close()
+                if args.inplace:
+                    target_file = os.path.join(wf_dirname, wf2_basename)
+                    if os.path.exists(target_file):
+                        if args.force:
+                            print("Since --force was used, overwriting existing wheel")
+                            os.remove(target_file)
+                        else:
+                            print("Error, resulting wheels has the same name as existing one. Aborting.")
+                            exit(1)
+                    os.rename(wf2_full_filename, target_file)
+                print("New wheel created %s" % target_file)
+        except Exception as e:
+            print("Exception:%s" % str(e))
+            continue
 
 if __name__ == "__main__":
     main()
