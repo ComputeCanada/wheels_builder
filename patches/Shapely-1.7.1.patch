@@ -1,0 +1,11 @@
+diff -ur Shapely-1.7.1-orig/setup.py Shapely-1.7.1/setup.py
+--- Shapely-1.7.1-orig/setup.py	2021-09-22 02:36:29.761066970 +0000
++++ Shapely-1.7.1/setup.py	2021-09-22 02:50:46.465507564 +0000
+@@ -193,7 +193,6 @@
+ setup_args = dict(
+     name                = 'Shapely',
+     version             = str(shapely_version),
+-    requires            = ['Python (>=2.7)', 'libgeos_c (>=3.3)'],
+     description         = 'Geometric objects, predicates, and operations',
+     license             = 'BSD',
+     keywords            = 'geometry topology gis',
