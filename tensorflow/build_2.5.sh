@@ -22,6 +22,11 @@ fi
 
 PATCHELF_BIN_PATH=/home/lemc2220/bin/patchelf  # Use the patched patchelf built by Bart Oldeman, this dir contains the executable
 
+if [ ! -f $PATCHELF_BIN_PATH/patchelf ]; then
+    echo "Patched version of patchelf not found. To ignore this error, set PATCHELF_BIN_PATH to a path that contains a patchelf executable."
+    exit 1
+fi
+
 export PATH=$BAZEL_BIN_PATH:$PATCHELF_BIN_PATH:$PATH
 
 wheels_out_path=/tmp/$USER/tensorflow_pkg
@@ -31,9 +36,20 @@ if [ -d $wheels_out_path ]; then
     exit 1
 else
     mkdir -p $wheels_out_path
-fi 
+fi
 
+# WARNING: Make sure these nvidia lib versions correspond to those in the build configuration!
 module load gcc/9.3 cuda/11.1 cudnn/8.2 nccl/2.8.4
+
+# These are the paths that will be added to the RPATHs
+# WARNING: This should match the loaded modules above.
+lib_paths=$EBROOTCUDA/lib64:$EBROOTCUDNN/lib64:$EBROOTNCCL/lib64
+
+if [[ $lib_paths == *":/lib64"* ]]; then
+    # Having /lib64 in the RPATH screws everything
+    echo "An empty \$EBROOT variable was used to set lib_paths. Either load the module or change lib_paths."
+    exit 1
+fi
 
 for PYTHON_VERSION in 3.6 3.7 3.8;
 do
@@ -69,7 +85,7 @@ do
     bazel clean
     bazel build --config=cuda //tensorflow/tools/pip_package:build_pip_package
     ./bazel-bin/tensorflow/tools/pip_package/build_pip_package $wheels_out_path/$PYTHON_VERSION
-    setrpaths.sh --path $wheels_out_path/$PYTHON_VERSION/tensorflow*.whl --add_path $EBROOTCUDA/lib64:$EBROOTCUDNN/lib64:$EBROOTNCCL/lib64 --any_interpreter --add_origin
+    setrpaths.sh --path $wheels_out_path/$PYTHON_VERSION/tensorflow*.whl --add_path $lib_paths --any_interpreter --add_origin
     mv $wheels_out_path/$PYTHON_VERSION/tensorflow*.whl $orig_working_dir
 
     deactivate
