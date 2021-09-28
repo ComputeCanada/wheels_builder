@@ -15,7 +15,7 @@ Then, I updated the build config. This can be done by running `DO_CONFIGURE=1 bu
 * CUDA version: `11.2` (Just `11` will not work. `11.2.2` won't work, for a different reason.)
 * cuDNN version: `8.2`
 * NCCL: press enter for the default config.
-* When asked for CUDA paths, provide the following string, with the env variables **resolved**: `$EBROOTCUDA,$EBROOTCUDNN`.
+* When asked for CUDA paths, provide the following string, with the env variables **replaced by their value (path)**: `$EBROOTCUDA,$EBROOTCUDNN`.
 * CUDA compute capabilities: `3.5,3.7,6.0,7.0,7.5`. (This covers all GPUs in Compute Canada.)
 * For the other prompts press enter to keep the default value.
 
