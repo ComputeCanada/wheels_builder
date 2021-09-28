@@ -19,3 +19,10 @@ Then, I updated the build config. This can be done by running `DO_CONFIGURE=1 bu
 * CUDA compute capabilities: `3.5,3.7,6.0,7.0,7.5`. (This covers all GPUs in Compute Canada.)
 * For the other prompts press enter to keep the default value.
 
+---
+
+After the build, before calling `cp_wheels.sh`, we have to add the `+computecanada` local version, by running:
+
+```
+manipulate_wheels.py -i --inplace -w tensorflow-2.6.0-cp3*.whl
+```
