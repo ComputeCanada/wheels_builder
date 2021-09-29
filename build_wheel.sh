@@ -1,6 +1,7 @@
 #!/bin/env bash
 
 THIS_SCRIPT=$0
+SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$THIS_SCRIPT")")
 
 if [[ -z "$PYTHON_VERSIONS" ]]; then
 	PYTHON_VERSIONS=$(module --terse spider python | grep -v "/2\.\|/3.[56]" | grep -Po "\d\.\d" | sort -u | sed 's#^#python/#')
@@ -89,7 +90,7 @@ else
 	PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE"
 fi
 
-CONFIGDIR=$(dirname $0)/config
+CONFIGDIR=$SCRIPT_DIR/config
 if [[ -e "$CONFIGDIR/${PACKAGE}-${VERSION}.sh" ]]; then
 	source $CONFIGDIR/${PACKAGE}-${VERSION}.sh
 elif [[ -e "$CONFIGDIR/${PACKAGE}.sh" ]]; then
@@ -262,7 +263,7 @@ function download()
 		# Patch the content of the wheel file.
 		log_command "$PATCH_WHEEL_COMMANDS"
 		# add a computecanada local_version
-		$STARTING_DIRECTORY/manipulate_wheels.py --insert_local_version --wheels $ARCHNAME --inplace && rm $ARCHNAME
+		$SCRIPT_DIR/manipulate_wheels.py --insert_local_version --wheels $ARCHNAME --inplace && rm $ARCHNAME
 		WHEEL_NAME=$(ls *.whl)
 		cp -v $WHEEL_NAME $TMP_WHEELHOUSE
 	else
@@ -277,7 +278,7 @@ function download()
 
 function patch_function()
 {
-	PATCHESDIR=$(dirname $THIS_SCRIPT)/patches
+	PATCHESDIR=$SCRIPT_DIR/patches
 	if [[ ! -z "$PATCHES" ]]; then
 		echo "=============================="
 		echo "Patching"
@@ -313,7 +314,7 @@ function build()
 	log_command pushd dist || cat build.log
 	WHEEL_NAME=$(ls *.whl)
 	# add a computecanada local_version
-	$STARTING_DIRECTORY/manipulate_wheels.py --insert_local_version --inplace --wheels $WHEEL_NAME && rm $WHEEL_NAME
+	$SCRIPT_DIR/manipulate_wheels.py --insert_local_version --inplace --wheels $WHEEL_NAME && rm $WHEEL_NAME
 	WHEEL_NAME=$(ls *.whl)
 	log_command "$POST_BUILD_COMMANDS"
 	if [[ -n "$RPATH_TO_ADD" || -n "$RPATH_ADD_ORIGIN" ]]; then
@@ -420,5 +421,5 @@ fi
 if [[ $ARG_AUTOCOPY -ne 1 ]]; then
 	echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/[generic,avx2,avx,sse3] and synchronize CVMFS"
 else
-	./cp_wheels.sh --remove
+	$SCRIPT_DIR/cp_wheels.sh --remove
 fi
