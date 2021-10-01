@@ -12,7 +12,7 @@ Scripts to automate building Python wheels for Compute Canada's wheelhouse.
   * [`protobuf_optimized_wheel.sh`](#protobuf_optimized_wheelsh)
   * [`unmanylinuxize.sh`](#unmanylinuxizesh)
   * [`config/<package>.sh`](#configpackagesh)
-  * [`manipulate_wheels.py`](#manipulatewheelspy)
+  * [`manipulate_wheels.py`](#manipulate_wheelspy)
 
 
 ## Quick Start
