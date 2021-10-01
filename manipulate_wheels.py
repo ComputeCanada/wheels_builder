@@ -10,6 +10,7 @@ TMP_DIR = "./tmp"
 # list of separators to split a requirement into name and version specifier
 # i.e. numpy >= 1.19
 REQ_SEP = "=|<|>|~|!| "
+RENAME_SEP = "->"
 def create_argparser():
     """
     Returns an arguments parser for `patch_wheel` command.
@@ -84,15 +85,17 @@ def main():
                     if not wf2:
                         wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR)
                     for req in args.update_req:
-                        req_name = re.split(REQ_SEP, req)[0]
+                        # If an update does rename a requirement, split from and to, else ignore
+                        from_req, to_req = req.split(RENAME_SEP) if RENAME_SEP in req else (req, req)
+                        req_name = re.split(REQ_SEP, from_req)[0]
                         new_req = []
                         for curr_req in wf2.metadata.requires_dists:
                             curr_req_name = re.split(REQ_SEP, curr_req)[0]
                             # if it is the same name, update the requirement
                             if curr_req_name == req_name:
                                 if args.verbose:
-                                    print("Updating requirement %s of wheel %s to %s" % (curr_req, w, req))
-                                new_req += [req]
+                                    print(f"{w}: updating requirement {curr_req} to {to_req}")
+                                new_req += [to_req]
                             else:
                                 new_req += [curr_req]
                         wf2.metadata.requires_dists = new_req
