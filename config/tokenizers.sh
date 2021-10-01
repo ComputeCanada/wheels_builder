@@ -1,2 +1,3 @@
 PYTHON_DEPS="setuptools_rust"
-MODULE_BUILD_DEPS="rust/1.41.0"
+MODULE_BUILD_DEPS="rust"
+PRE_BUILD_COMMANDS="cd bindings/python"
