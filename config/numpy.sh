@@ -1,8 +1,8 @@
-PRE_BUILD_COMMANDS='echo [mkl] > site.cfg; echo library_dirs = $MKLROOT/lib/intel64 >> site.cfg; echo include_dirs = $MKLROOT/include >> site.cfg; echo mkl_libs = mkl_rt >> site.cfg; echo lapack_libs = >> site.cfg'
+PRE_BUILD_COMMANDS='module load flexiblascore/.3.0.4; echo "[DEFAULT]" > site.cfg; echo "library_dirs = $EBROOTFLEXIBLASCORE/lib" >> site.cfg; echo "include_dirs = $EBROOTFLEXIBLASCORE/include/flexiblas" >> site.cfg; echo "[atlas]" >> site.cfg; echo "atlas_libs = flexiblas" >> site.cfg; echo "[lapack]" >> site.cfg; echo "lapack_libs = flexiblas" >> site.cfg'
 if [[ -z $EBROOTGENTOO ]]; then
 	MODULE_BUILD_DEPS="imkl/2019.2.187"
 else
-	MODULE_BUILD_DEPS="imkl/2020.1.217"
+	MODULE_BUILD_DEPS="flexiblascore/.3.0.4"
 fi
 PYTHON_DEPS="nose pytest cython hypothesis"
 PYTHON_DEPS_DEFAULT=""
