@@ -7,10 +7,10 @@ function ls_pythons()
 
 function print_usage
 {
-	echo "Usage: $0 --package <package name> [--version <version>] [--python <comma separated list of python versions>]"
+	echo "Usage: $0 --package <package name> [--version <version>] [--python <comma separated list of python versions>] [--find_links https://index.url]"
 }
 
-TEMP=$(getopt -o h --longoptions help,package:,version:,python:,add_path:,add_origin --name $0 -- "$@")
+TEMP=$(getopt -o h --longoptions help,package:,version:,python:,add_path:,find_links:,add_origin --name $0 -- "$@")
 if [ $? != 0 ] ; then print_usage; exit 1 ; fi
 eval set -- "$TEMP"
 START_DIR=$(pwd)
@@ -18,6 +18,7 @@ ARG_PACKAGE=""
 ARG_VERSION=""
 ARG_ADD_PATH=""
 ARG_ADD_ORIGIN=0
+ARG_FIND_LINKS=""
 while true; do
 	case "$1" in
 		--package)
@@ -30,6 +31,8 @@ while true; do
 			ARG_ADD_PATH=$2; shift 2 ;;
 		--add_origin)
 			ARG_ADD_ORIGIN=1; shift 1;;
+		--find_links)
+			ARG_FIND_LINKS=$2; shift 2;;
 		-h|--help)
 			print_usage; exit 0 ;;
 		--)
@@ -56,6 +59,10 @@ elif [[ -e "$CONFIGDIR/${ARG_PACKAGE}.sh" ]]; then
 	source $CONFIGDIR/${ARG_PACKAGE}.sh
 fi
 
+if [[ ! -z "$ARG_FIND_LINKS" ]]; then
+	export PIP_FIND_LINKS=$ARG_FIND_LINKS
+fi
+#a
 TEMP_DIR=tmp.$$
 mkdir $TEMP_DIR
 cd $TEMP_DIR
