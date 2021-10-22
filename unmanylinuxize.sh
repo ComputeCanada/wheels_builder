@@ -1,5 +1,8 @@
 #!/bin/bash
 
+THIS_SCRIPT=$0
+SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$THIS_SCRIPT")")
+
 function ls_pythons()
 {
 	ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/20*/Core/python/3* /cvmfs/soft.computecanada.ca/easybuild/software/2020/avx*/Core/python/3* | grep -v "3.[56]" | grep -Po "\d\.\d" | sort -u | tr '\n' ','
@@ -87,7 +90,7 @@ for ARCHNAME in *.whl; do
 	mv $ARCHNAME ${ARCHNAME//$(echo $ARCHNAME | grep -Po 'manylinux.*x86_64')/linux_x86_64}
 done
 for ARCHNAME in *.whl; do
-	$START_DIR/manipulate_wheels.py --insert_local_version --wheels $ARCHNAME --inplace && rm $ARCHNAME
+	$SCRIPT_DIR/manipulate_wheels.py --insert_local_version --wheels $ARCHNAME --inplace && rm $ARCHNAME
 done
 
 # Ensure wheels are all readable!
