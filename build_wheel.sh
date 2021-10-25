@@ -67,6 +67,7 @@ fi
 PYTHON_IMPORT_NAME="$PACKAGE"
 PACKAGE_FOLDER_NAME="$PACKAGE"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE"
+UPDATE_REQUIREMENTS=""
 RPATH_TO_ADD=""
 BDIST_WHEEL_ARGS=""
 PRE_DOWNLOAD_COMMANDS=""
@@ -314,7 +315,11 @@ function build()
 	log_command pushd dist || cat build.log
 	WHEEL_NAME=$(ls *.whl)
 	# add a computecanada local_version
-	$SCRIPT_DIR/manipulate_wheels.py --insert_local_version --inplace --wheels $WHEEL_NAME && rm $WHEEL_NAME
+	if [[ -z "$UPDATE_REQUIREMENTS" ]]; then
+		log_command $SCRIPT_DIR/manipulate_wheels.py --insert_local_version --inplace --wheels $WHEEL_NAME && rm $WHEEL_NAME
+	else
+		log_command $SCRIPT_DIR/manipulate_wheels.py --insert_local_version --inplace --wheels $WHEEL_NAME --update_req $UPDATE_REQUIREMENTS && rm $WHEEL_NAME
+	fi
 	WHEEL_NAME=$(ls *.whl)
 	log_command "$POST_BUILD_COMMANDS"
 	if [[ -n "$RPATH_TO_ADD" || -n "$RPATH_ADD_ORIGIN" ]]; then
