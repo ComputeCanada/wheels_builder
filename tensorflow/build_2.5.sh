@@ -7,6 +7,9 @@ set -e  # Stop on error, like a serious programming language
 : ${BAZEL_BIN_PATH:?Variable not set or empty}  # BAZEL_BIN_PATH must contain the bazel executable (managed by bazelisk)
 : ${TF_SOURCE_PATH:?Variable not set or empty}
 
+python_versions_default=$(ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/20*/Core/python/3* /cvmfs/soft.computecanada.ca/easybuild/software/2020/avx*/Core/python/3* | grep -v "3.[56]" | grep -Po "\d\.\d" | sort -u | tr '\n' ' ')
+: ${PYTHON_VERSIONS:=$python_versions_default}  # e.g. 3.7,3.8
+
 orig_working_dir=$(pwd)
 
 cd $TF_SOURCE_PATH
@@ -39,7 +42,7 @@ else
 fi
 
 # WARNING: Make sure these nvidia lib versions correspond to those in the build configuration!
-module load gcc/9.3 cuda/11.1 cudnn/8.2 nccl/2.8.4
+module load gcc/9.3.0 cuda cudnn nccl
 
 # These are the paths that will be added to the RPATHs
 # WARNING: This should match the loaded modules above.
@@ -51,7 +54,7 @@ if [[ $lib_paths == *":/lib64"* ]]; then
     exit 1
 fi
 
-for PYTHON_VERSION in 3.6 3.7 3.8;
+for PYTHON_VERSION in $(echo $PYTHON_VERSIONS | tr ',' ' ');
 do
     mkdir $wheels_out_path/$PYTHON_VERSION
     module load python/$PYTHON_VERSION
