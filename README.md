@@ -162,6 +162,7 @@ Variable                    | Description
 `RPATH_ADD_ORIGIN`          | This will run `setrpaths.sh --path ${WHEEL_NAME} --add_origin`.
 `RPATH_TO_ADD`              | This will run `setrpaths.sh --path ${WHEEL_NAME} --add_path $RPATH_TO_ADD`.
 `TEST_COMMAND`              | Alternative shell command to test the wheel.
+`UPDATE_REQUIREMENTS`       | One or more requirements to update. These will be changed by `manipulate_wheels.py` after the wheel is done building.
 
 ### `manipulate_wheels.py`
 #### Usage
