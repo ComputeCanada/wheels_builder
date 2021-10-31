@@ -3,7 +3,9 @@ import os
 import sys
 import re
 import argparse
+import traceback
 from wheelfile import WheelFile
+
 
 LOCAL_VERSION = "computecanada"
 TMP_DIR = "./tmp"
@@ -116,7 +118,7 @@ def main():
                     os.rename(wf2_full_filename, target_file)
                 print("New wheel created %s" % target_file)
         except Exception as e:
-            print("Exception:%s" % str(e))
+            print("Exception: %s" % traceback.format_exc())
             continue
 
 if __name__ == "__main__":
