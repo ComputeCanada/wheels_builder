@@ -81,7 +81,7 @@ def main():
                             version += "+%s" % LOCAL_VERSION
                         if args.verbose:
                             print("Updating version of wheel %s to %s" % (w, version))
-                        wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=version)
+                wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=version)
 
                 if args.update_req:
                     if not wf2:
