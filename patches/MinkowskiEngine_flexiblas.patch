@@ -1,0 +1,22 @@
+diff --git a/setup.py b/setup.py
+index e7bd640..da16e4a 100644
+--- a/setup.py
++++ b/setup.py
+@@ -179,7 +179,7 @@ FAST_MATH, argv = _argparse("--fast_math", argv)
+ if FAST_MATH:
+     NVCC_FLAGS.append("--use_fast_math")
+ 
+-BLAS_LIST = ["openblas", "mkl", "atlas", "blas"]
++BLAS_LIST = ["flexiblas", "openblas", "mkl", "atlas", "blas"]
+ if not (BLAS is False):  # False only when not set, str otherwise
+     assert BLAS in BLAS_LIST, f"Blas option {BLAS} not in valid options {BLAS_LIST}"
+     if BLAS == "mkl":
+@@ -316,7 +316,7 @@ ext_modules = [
+ setup(
+     name="MinkowskiEngine",
+     version=find_version("MinkowskiEngine", "__init__.py"),
+-    install_requires=["torch", "numpy"],
++    install_requires=["torch>=1.10.0", "numpy>=1.21.2"],
+     packages=["MinkowskiEngine", "MinkowskiEngine.utils", "MinkowskiEngine.modules"],
+     package_dir={"MinkowskiEngine": "./MinkowskiEngine"},
+     ext_modules=ext_modules,
