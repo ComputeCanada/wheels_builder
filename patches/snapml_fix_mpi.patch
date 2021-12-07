@@ -1,0 +1,14 @@
+diff -Nru snapml/snapml.orig/__init__.py snapml/snapml/__init__.py
+--- snapml/snapml.orig/__init__.py	2021-12-07 14:26:51.103666334 -0500
++++ snapml/snapml/__init__.py	2021-12-07 14:28:54.888406314 -0500
+@@ -16,7 +16,9 @@
+ if os.name != "nt":
+     from ctypes.util import find_library
+ 
+-    lib_name = find_library("mpi")
++    # OpenMPI must be available and find_library must return libname, otherwise accepts that it crashes
++    # Use full path and library in order for CDLL to properly load the SO. On Unix, find_library returns only the libname, not the full path as on Mac OS.
++    lib_name = os.path.join(os.environ['EBROOTOPENMPI'], 'lib', find_library("mpi"))
+     ctypes.CDLL(lib_name, mode=ctypes.RTLD_GLOBAL)
+ 
+ mpi_vars = {"OMPI_COMM_WORLD_LOCAL_RANK": 0}
