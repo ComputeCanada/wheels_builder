@@ -381,9 +381,15 @@ if [[ -z "$EBROOTGENTOO" ]]; then
 	module load nixpkgs gcc/7.3.0
 else
 	ARCH_TO_LOAD="$EBVERSIONARCH"
+	# Figure out cheaply if the wheel needs an arch module to build
+	for mod in $MODULE_BUILD_DEPS; do
+		if [[ "${mod##arch/}" != "$mod" ]]; then
+		       ARCH_TO_LOAD="${mod##arch/}"
+		fi
+	done
 	module --force purge
 	# if there are module dependencies, we really should build with our primary architecture rather than the compatibility one
-	if [[ -n "$MODULE_BUILD_DEPS" && -n "$MODULE_RUNTIME_DEPS" ]]; then
+	if [[ -z "$MODULE_BUILD_DEPS" && -z "$MODULE_RUNTIME_DEPS" ]]; then
 		module load arch/${ARCH_TO_LOAD:-sse3}
 	else
 		module load arch/${ARCH_TO_LOAD:-avx2}
