@@ -346,12 +346,14 @@ function test_whl()
 {
 	echo "=============================="
 	echo "Testing..."
+	deactivate
 	if [[ -n "$MODULE_BUILD_DEPS" ]]; then
 		module unload $MODULE_BUILD_DEPS
 	fi
 	if [[ -n "$MODULE_RUNTIME_DEPS" ]]; then
 		module load $MODULE_RUNTIME_DEPS
 	fi
+	source build_$PVDIR/bin/activate
 	log_command module list
 	echo "Installing wheel"
 	wrapped_pip_install ../$WHEEL_NAME
