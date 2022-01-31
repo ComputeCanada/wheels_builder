@@ -1,0 +1,15 @@
+--- setup.py.orig	2022-01-31 16:49:39.721975826 -0330
++++ setup.py	2022-01-31 16:52:06.876009112 -0330
+@@ -89,6 +89,12 @@
+         },
+         package_dir={"mbuild": "mbuild"},
+         include_package_data=True,
++        install_requires=[
++            'ele',
++            'numpy',
++            'ParmEd>=3.4.3',
++            'scipy',
++        ],
+         license="MIT",
+         zip_safe=False,
+         keywords="mbuild",
