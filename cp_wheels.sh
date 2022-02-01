@@ -66,6 +66,9 @@ function cp_wheel {
 			exit
 		fi
 	fi
+	if [[ "$COMPAT" == "generic" && "$ARCHITECTURE" != "generic" ]]; then
+		COMPAT=gentoo
+	fi
 	echo chmod ug+rw,o+r $1
 	if [[ "$ARG_DRY_RUN" == "" ]]; then
 		chmod ug+rw,o+r $1
