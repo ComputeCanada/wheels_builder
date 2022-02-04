@@ -5,7 +5,7 @@ SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$THIS_SCRIPT")")
 
 function ls_pythons()
 {
-	ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/20*/Core/python/3* /cvmfs/soft.computecanada.ca/easybuild/software/2020/avx*/Core/python/3* | grep -v "3.[56]" | grep -Po "\d\.\d" | sort -u | tr '\n' ','
+	ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/20*/Core/python/3* /cvmfs/soft.computecanada.ca/easybuild/software/2020/avx*/Core/python/3* | grep -v "3.[567]" | grep -Po "\d\.\d+" | sort -u | tr '\n' ','
 }
 
 function print_usage
