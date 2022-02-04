@@ -67,6 +67,11 @@ function cp_wheel {
 		fi
 	fi
 	if [[ "$COMPAT" == "generic" && "$ARCHITECTURE" != "generic" ]]; then
+		# Wheels that include C extensions but have no dependencies on
+		# external libraries are detected for the generic compatibility
+		# layer but can still be arch-specific if they make use of SIMD
+		# instructions. In that case, we put them in gentoo since new
+		# wheels might be incompatible with the older glibc in Nix.
 		COMPAT=gentoo
 	fi
 	echo chmod ug+rw,o+r $1
