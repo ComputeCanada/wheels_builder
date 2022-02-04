@@ -78,7 +78,7 @@ PATCHES=""
 PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary \$PACKAGE_DOWNLOAD_ARGUMENT --no-use-pep517 --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py'
 
-PYTHON_DEPS_DEFAULT="numpy scipy cython"
+PYTHON_DEPS_DEFAULT="numpy~=1.21.2 scipy cython"
 
 PYTHON27_ONLY="cogent OBITools gdata qcli emperor RSeQC preprocess Amara pysqlite IPTest ipaddress functools32 blmath bamsurgeon"
 if [[ $PYTHON27_ONLY =~ $PACKAGE ]]; then
