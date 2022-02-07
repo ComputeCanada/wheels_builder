@@ -313,7 +313,11 @@ function build()
 		sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
 	fi
 	echo "Building the wheel...."
-	$PYTHON_CMD setup.py bdist_wheel $BDIST_WHEEL_ARGS &> build.log
+	if [[ -f "setup.py" ]]; then
+		$PYTHON_CMD setup.py bdist_wheel $BDIST_WHEEL_ARGS &> build.log
+	elif [[ -f "pyproject.toml" ]]; then
+		log_command pip wheel . &> build.log
+	fi
 	if [[ $? -ne 0 ]]; then
 		echo "An error occured."
 		echo "Build log is in $(pwd)/build.log"
