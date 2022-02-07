@@ -81,7 +81,7 @@ PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g"
 PYTHON_DEPS_DEFAULT="numpy~=1.21.2 scipy cython"
 
 PYTHON27_ONLY="cogent OBITools gdata qcli emperor RSeQC preprocess Amara pysqlite IPTest ipaddress functools32 blmath bamsurgeon"
-if [[ $PYTHON27_ONLY =~ $PACKAGE ]]; then
+if [[ $PYTHON27_ONLY =~ " $PACKAGE " ]]; then
 	PYTHON_VERSIONS="python/2.7"
 fi
 
