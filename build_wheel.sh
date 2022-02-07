@@ -250,14 +250,22 @@ function download()
 	if [[ $PACKAGE_DOWNLOAD_METHOD == "Git" ]]; then
 		ARCHNAME=$PACKAGE_DOWNLOAD_NAME
 	fi
-	echo "Downloaded '$ARCHNAME'"
-	if [[ ! -z $POST_DOWNLOAD_COMMANDS ]]; then
-		log_command $POST_DOWNLOAD_COMMANDS
+	if [[ -z "$ARCHNAME" ]]; then
+		grep -l "Disabling PEP 517 processing" $PWD/download.log
+		if [[ $? -eq 0 ]]; then
+			echo "This package does not support disabling PEP 517. Trying again without --no-use-pep517"
+			PACKAGE_DOWNLOAD_CMD=${PACKAGE_DOWNLOAD_CMD//--no-use-pep517/}
+			ARCHNAME=$(PIP_CONFIG_FILE= eval $PACKAGE_DOWNLOAD_CMD |& tee download.log | grep "Saved " | awk '{print $2}')
+		fi
 	fi
+	echo "Downloaded '$ARCHNAME'"
 	if [[ -z "$ARCHNAME" ]]; then
 		echo "Error while downloading package. Aborting..."
 		echo "See : $PWD/download.log"
 		exit 1
+	fi
+	if [[ ! -z $POST_DOWNLOAD_COMMANDS ]]; then
+		log_command $POST_DOWNLOAD_COMMANDS
 	fi
 #	# skip packages that are already in whl format
 	if [[ $ARCHNAME == *.whl ]]; then
