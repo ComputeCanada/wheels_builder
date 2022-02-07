@@ -388,6 +388,10 @@ function test_whl()
 
 function adjust_numpy_requirements_based_on_link_info()
 {
+	# don't modify numpy wheels themselves
+	if [[ $WHEEL_NAME =~ numpy-.* ]]; then
+		return
+	fi
 	# only linux_x86_64 wheels will contain .so'
 	if [[ $WHEEL_NAME =~ .*linux_x86_64.* ]]; then
 		cwd=$(pwd)
