@@ -114,7 +114,7 @@ def main():
                             os.remove(target_file)
                         else:
                             print("Error, resulting wheels has the same name as existing one. Aborting.")
-                            exit(1)
+                            sys.exit(1)
                     os.rename(wf2_full_filename, target_file)
                 print("New wheel created %s" % target_file)
         except Exception as e:
