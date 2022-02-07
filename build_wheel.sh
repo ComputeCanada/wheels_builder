@@ -382,6 +382,24 @@ function test_whl()
 	echo "=============================="
 }
 
+function adjust_numpy_requirements_based_on_link_info()
+{
+	# only linux_x86_64 wheels will contain .so'
+	if [[ $WHEEL_NAME =~ .*linux_x86_64.* ]]; then
+		cwd=$(pwd)
+		tmpdir=/tmp/wheel_builder_$BASHPID_$RANDOM
+		mkdir $tmpdir && pushd $tmpdir
+		log_command unzip $cwd/../$WHEEL_NAME
+		num_links=$(grep -l "module compiled against API version .* but this version of numpy is .*" $(find . -name '*.so') | wc -l)
+		popd
+		rm -rf $tmpdir
+		if [[ $num_links -gt 0 ]]; then
+			numpy_build_version=$(pip show numpy | grep Version | awk '{print $2}' | sed -e "s/\([0-9]\.[0-9]*\)\..*/\1/g")
+			echo "Found $num_links shared objects that mention a specific version of API of numpy. Pinning the minimum required version of numpy to $numpy_build_version"
+		fi
+	fi
+}
+
 echo "Building wheel for $PACKAGE"
 DIR=tmp.$$
 mkdir $DIR
@@ -427,6 +445,8 @@ for pv in $PYTHON_VERSIONS; do
 		build
 	fi
 
+	adjust_numpy_requirements_based_on_link_info
+	
 	test_whl
 
 	if [[ $WHEEL_NAME =~ .*-py3-.* || $WHEEL_NAME =~ .*py2.py3.* ]]; then
