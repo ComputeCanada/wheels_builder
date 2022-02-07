@@ -69,8 +69,8 @@ def main():
                     continue
 
                 wf2 = None
+                version = str(wf.version)
                 if args.insert_local_version:
-                    version = str(wf.version)
                     if LOCAL_VERSION in version:
                         if args.verbose:
                             print("wheel %s already has the %s local version. Skipping" % (w, LOCAL_VERSION))
@@ -85,7 +85,8 @@ def main():
 
                 if args.update_req:
                     if not wf2:
-                        wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR)
+                        wf2 = WheelFile.from_wheelfile(
+                            wf, file_or_path=TMP_DIR, version=version)
                     for req in args.update_req:
                         # If an update does rename a requirement, split from and to, else ignore
                         from_req, to_req = req.split(RENAME_SEP) if RENAME_SEP in req else (req, req)
