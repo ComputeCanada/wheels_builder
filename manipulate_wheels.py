@@ -69,24 +69,23 @@ def main():
                     continue
 
                 wf2 = None
-                version = str(wf.version)
+                wheel_ver = str(wf.version)
                 if args.insert_local_version:
-                    if LOCAL_VERSION in version:
+                    if LOCAL_VERSION in wheel_ver:
                         if args.verbose:
                             print("wheel %s already has the %s local version. Skipping" % (w, LOCAL_VERSION))
                     else:
-                        if "+" in version:
-                            version += ".%s" % LOCAL_VERSION
+                        if "+" in wheel_ver:
+                            wheel_ver += ".%s" % LOCAL_VERSION
                         else:
-                            version += "+%s" % LOCAL_VERSION
+                            wheel_ver += "+%s" % LOCAL_VERSION
                         if args.verbose:
-                            print("Updating version of wheel %s to %s" % (w, version))
-                wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=version)
+                            print("Updating version of wheel %s to %s" % (w, wheel_ver))
+                wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=wheel_ver)
 
                 if args.update_req:
                     if not wf2:
-                        wf2 = WheelFile.from_wheelfile(
-                            wf, file_or_path=TMP_DIR, version=version)
+                        wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=wheel_ver)
                     for req in args.update_req:
                         # If an update does rename a requirement, split from and to, else ignore
                         from_req, to_req = req.split(RENAME_SEP) if RENAME_SEP in req else (req, req)
