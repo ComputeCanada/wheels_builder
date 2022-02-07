@@ -4,6 +4,7 @@ import sys
 import re
 import argparse
 import traceback
+from packaging import version
 from wheelfile import WheelFile
 
 
@@ -34,6 +35,7 @@ def create_argparser():
     parser.add_argument("-w", "--wheels", nargs="+", required=True, default=None, help="Specifies which wheels to patch")
     parser.add_argument("-i", "--insert_local_version", action='store_true', help="Adds the +computecanada local version")
     parser.add_argument("-u", "--update_req", nargs="+", default=None, help="Updates requirements of the wheel.")
+    parser.add_argument("--set_min_numpy", default=None, help="Sets the minimum required numpy version.")
     parser.add_argument("--inplace", action='store_true', help="Work in the same directory as the existing wheel instead of a temporary location")
     parser.add_argument("--force", action='store_true', help="If combined with --inplace, overwrites existing wheel if the resulting wheel has the same name")
     parser.add_argument("-p", "--print_req", action='store_true', help="Prints the current requirements")
@@ -50,7 +52,7 @@ def main():
     if not os.path.exists(TMP_DIR):
         os.makedirs(TMP_DIR)
 
-    if not args.insert_local_version and not args.update_req and not args.print_req:
+    if not args.insert_local_version and not args.update_req and not args.set_min_numpy and not args.print_req:
         print("No action requested. Quitting")
         return
 
@@ -69,24 +71,23 @@ def main():
                     continue
 
                 wf2 = None
-                version = str(wf.version)
+                wheel_ver = str(wf.version)
                 if args.insert_local_version:
-                    if LOCAL_VERSION in version:
+                    if LOCAL_VERSION in wheel_ver:
                         if args.verbose:
                             print("wheel %s already has the %s local version. Skipping" % (w, LOCAL_VERSION))
                     else:
-                        if "+" in version:
-                            version += ".%s" % LOCAL_VERSION
+                        if "+" in wheel_ver:
+                            wheel_ver += ".%s" % LOCAL_VERSION
                         else:
-                            version += "+%s" % LOCAL_VERSION
+                            wheel_ver += "+%s" % LOCAL_VERSION
                         if args.verbose:
-                            print("Updating version of wheel %s to %s" % (w, version))
-                wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=version)
+                            print("Updating version of wheel %s to %s" % (w, wheel_ver))
+                wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=wheel_ver)
 
                 if args.update_req:
                     if not wf2:
-                        wf2 = WheelFile.from_wheelfile(
-                            wf, file_or_path=TMP_DIR, version=version)
+                        wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=wheel_ver)
                     for req in args.update_req:
                         # If an update does rename a requirement, split from and to, else ignore
                         from_req, to_req = req.split(RENAME_SEP) if RENAME_SEP in req else (req, req)
@@ -102,6 +103,50 @@ def main():
                             else:
                                 new_req += [curr_req]
                         wf2.metadata.requires_dists = new_req
+
+                if args.set_min_numpy:
+                    if not wf2:
+                        wf2 = WheelFile.from_wheelfile(
+                            wf, file_or_path=TMP_DIR, version=wheel_ver)
+                    new_req = []
+                    for curr_req in wf.metadata.requires_dists:
+                        if re.search(r'^numpy\W', curr_req):
+                            # find exiting version requirements (split on '(' and ')')
+                            parse_req = re.search(r"^([^(]+\()([^)]+)(\).*)", curr_req)
+                            if parse_req:
+                                req_tokens = list(parse_req.groups())
+                                # split version spec-set into separate specs
+                                req_versions = req_tokens[1].split(',')
+                                for i, version_spec in enumerate(req_versions):
+                                    if '>' in version_spec:
+                                        # case: old minimum version is lower than our minimal version
+                                        if version.parse(re.sub(REQ_SEP, '', version_spec)) < version.parse(args.set_min_numpy):
+                                            req_versions[i] = '>='+args.set_min_numpy
+                                    elif '<' in version_spec:
+                                        # case: existing maximum version is higher than our minimal version
+                                        if version.parse(re.sub(REQ_SEP, '', version_spec)) <= version.parse(args.set_min_numpy):
+                                            print(f"Error: this wheel {w} requires numpy {version_spec}, but requested numpy is >={args.set_min_numpy}.")
+                                            sys.exit(1)
+                                req_tokens[1] = ','.join(req_versions)
+                            else:
+                                # case: no specific vesion was requested, so we just add ours
+                                req_tokens = ['numpy (', '>='+args.set_min_numpy, ')'+curr_req.replace('numpy', '')]
+
+                            to_req = ''.join(req_tokens)
+                            if curr_req != to_req:
+                                if args.verbose:
+                                    print(f"{w}: updating requirement {curr_req} to {to_req}")
+                                new_req.append(to_req)
+                            else:
+                                if args.verbose:
+                                    print(f"{w}: no change needed (from {curr_req} to {to_req})")
+                                new_req.append(curr_req)
+                            # sys.exit(1) #TODO remove
+                        else:
+                            new_req.append(curr_req)
+
+                    wf2.metadata.requires_dists = new_req
+
                 wf2_full_filename = wf2.filename
                 wf2_dirname = os.path.dirname(wf2_full_filename)
                 wf2_basename = os.path.basename(wf2_full_filename)
@@ -115,7 +160,7 @@ def main():
                             os.remove(target_file)
                         else:
                             print("Error, resulting wheels has the same name as existing one. Aborting.")
-                            exit(1)
+                            sys.exit(1)
                     os.rename(wf2_full_filename, target_file)
                 print("New wheel created %s" % target_file)
         except Exception as e:
