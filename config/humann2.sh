@@ -1,4 +1,4 @@
-PYTHON_DEPS="numpy biopython biom_format matplotlib scipy MetaPhlAn"
+PYTHON_DEPS="numpy~=$NUMPY_DEFAULT_VERSION biopython biom_format matplotlib scipy MetaPhlAn"
 MODULE_BUILD_DEPS="gcc/7.3.0 bowtie2/2.3.5.1 scipy-stack/2019b diamond/0.9.32 glpk/4.65"
 PACKAGE_DOWNLOAD_ARGUMENT="https://files.pythonhosted.org/packages/58/e8/d64074e0c9e8d5cef5c3a430739831eb9930fc2c3647b6dbff70ccd5a953/humann2-{VERSION}.tar.gz"
 PACKAGE_DOWNLOAD_NAME="humann2-{VERSION}.tar.gz"

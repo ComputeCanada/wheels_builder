@@ -1,5 +1,5 @@
 PACKAGE="justblast"
-PYTHON_DEPS="numpy scipy distributed dask dill tqdm psutils"
+PYTHON_DEPS="numpy~=$NUMPY_DEFAULT_VERSION scipy distributed dask dill tqdm psutils"
 PYTHON_IMPORT_NAME=$PACKAGE
 PACKAGE_FOLDER_NAME=$PACKAGE
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/jshleap/justblast/archive/2020.0.4.tar.gz"
