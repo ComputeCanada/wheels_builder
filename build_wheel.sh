@@ -255,7 +255,7 @@ function download()
 	if [[ -z "$ARCHNAME" ]]; then
 		grep -l "Disabling PEP 517 processing" $PWD/download.log
 		if [[ $? -eq 0 ]]; then
-			echo "This package does not support disabling PEP 517. Trying again without --no-use-pep517"
+			echo "Package $PACKAGE_DOWNLOAD_NAME does not support disabling PEP 517. Trying again without --no-use-pep517"
 			PACKAGE_DOWNLOAD_CMD=${PACKAGE_DOWNLOAD_CMD//--no-use-pep517/}
 			ARCHNAME=$(PIP_CONFIG_FILE= eval $PACKAGE_DOWNLOAD_CMD |& tee download.log | grep "Saved " | awk '{print $2}')
 		fi
@@ -268,21 +268,6 @@ function download()
 	fi
 	if [[ ! -z $POST_DOWNLOAD_COMMANDS ]]; then
 		log_command $POST_DOWNLOAD_COMMANDS
-	fi
-#	# skip packages that are already in whl format
-	if [[ $ARCHNAME == *.whl ]]; then
-		# Patch the content of the wheel file.
-		log_command "$PATCH_WHEEL_COMMANDS"
-		# add a computecanada local_version
-		$SCRIPT_DIR/manipulate_wheels.py --insert_local_version --wheels $ARCHNAME --inplace && rm $ARCHNAME
-		WHEEL_NAME=$(ls *.whl)
-		cp -v $WHEEL_NAME $TMP_WHEELHOUSE
-	else
-		echo "Extracting archive $ARCHNAME..."
-		unzip $ARCHNAME -d $PVDIR &>/dev/null || tar xfv $ARCHNAME -C $PVDIR &>/dev/null
-		echo "Extraction done."
-		log_command pushd $PVDIR
-		log_command pushd $PACKAGE_FOLDER_NAME* || log_command pushd *
 	fi
 	echo "=============================="
 }
@@ -315,10 +300,10 @@ function build()
 		sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
 	fi
 	echo "Building the wheel...."
-	if [[ -f "setup.py" ]]; then
-		$PYTHON_CMD setup.py bdist_wheel $BDIST_WHEEL_ARGS &> build.log
-	elif [[ -f "pyproject.toml" ]]; then
-		log_command pip wheel . &> build.log
+	if [[ -f "pyproject.toml" ]]; then
+		log_command pip wheel --no-deps . &> build.log
+	elif [[ -f "setup.py" ]]; then
+		log_command $PYTHON_CMD setup.py bdist_wheel $BDIST_WHEEL_ARGS &> build.log
 	fi
 	if [[ $? -ne 0 ]]; then
 		echo "An error occured."
@@ -326,8 +311,14 @@ function build()
 	else
 		echo "Success."
 	fi
-	log_command pushd dist || cat build.log
+	if [[ -d dist ]]; then
+		log_command cp dist/*.whl . 
+	fi
+
 	WHEEL_NAME=$(ls *.whl)
+	if [[ -z $WHEEL_NAME ]]; then
+		cat build.log
+	fi
 	# add a computecanada local_version
 	if [[ -z "$UPDATE_REQUIREMENTS" ]]; then
 		log_command $SCRIPT_DIR/manipulate_wheels.py --insert_local_version --inplace --wheels $WHEEL_NAME && rm $WHEEL_NAME
@@ -346,12 +337,7 @@ function build()
 		fi
 		log_command $setrpaths_cmd
 	fi
-	cp -v $WHEEL_NAME $TMP_WHEELHOUSE
-	log_command popd
-	log_command popd
-	log_command popd
-
-	rm $ARCHNAME
+	log_command cp -v $WHEEL_NAME $TMP_WHEELHOUSE
 	echo "Building done"
 	echo "=============================="
 }
@@ -396,17 +382,16 @@ function adjust_numpy_requirements_based_on_link_info()
 	fi
 	# only linux_x86_64 wheels will contain .so'
 	if [[ $WHEEL_NAME =~ .*linux_x86_64.* ]]; then
-		cwd=$(pwd)
 		tmpdir=/tmp/wheel_builder_$BASHPID_$RANDOM
 		mkdir $tmpdir && pushd $tmpdir
-		log_command unzip $cwd/../$WHEEL_NAME
+		log_command unzip $TMP_WHEELHOUSE/$WHEEL_NAME
 		num_links=$(grep -l "module compiled against API version .* but this version of numpy is .*" $(find . -name '*.so') | wc -l)
 		popd
 		rm -rf $tmpdir
 		if [[ $num_links -gt 0 ]]; then
 			numpy_build_version=$(pip show numpy | grep Version | awk '{print $2}' | sed -e "s/\([0-9]\.[0-9]*\)\..*/\1/g")
 			echo "Found $num_links shared objects that mention a specific version of API of numpy. Pinning the minimum required version of numpy to $numpy_build_version"
-			log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $cwd/../$WHEEL_NAME --set_min_numpy $numpy_build_version
+			log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $TMP_WHEELHOUSE/$WHEEL_NAME --set_min_numpy $numpy_build_version
 		fi
 	fi
 }
@@ -450,10 +435,29 @@ for pv in $PYTHON_VERSIONS; do
 
 	download
 
-	if [[ $ARCHNAME != *.whl ]]; then
+#	# skip packages that are already in whl format
+	if [[ $ARCHNAME == *.whl ]]; then
+		# Patch the content of the wheel file.
+		log_command "$PATCH_WHEEL_COMMANDS"
+		# add a computecanada local_version
+		$SCRIPT_DIR/manipulate_wheels.py --insert_local_version --wheels $ARCHNAME --inplace && rm $ARCHNAME
+		WHEEL_NAME=$(ls *.whl)
+		cp -v $WHEEL_NAME $TMP_WHEELHOUSE
+	else
+		echo "Extracting archive $ARCHNAME..."
+		unzip $ARCHNAME -d $PVDIR &>/dev/null || tar xfv $ARCHNAME -C $PVDIR &>/dev/null
+		echo "Extraction done."
+		log_command pushd $PVDIR
+		log_command pushd $PACKAGE_FOLDER_NAME* || log_command pushd *
+		
 		patch_function
 
 		build
+
+		log_command popd
+		log_command popd
+
+		rm $ARCHNAME
 	fi
 
 	adjust_numpy_requirements_based_on_link_info
@@ -461,7 +465,7 @@ for pv in $PYTHON_VERSIONS; do
 	test_whl
 
 	if [[ $WHEEL_NAME =~ .*-py3-.* || $WHEEL_NAME =~ .*py2.py3.* ]]; then
-		echo "Wheel is compatible with all further versions of python. Breaking"
+		echo "Wheel $WHEEL_NAME is compatible with all further versions of python. Breaking"
 		break
 	fi
 done
