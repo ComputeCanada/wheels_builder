@@ -387,7 +387,12 @@ function adjust_numpy_requirements_based_on_link_info()
 		tmpdir=/tmp/wheel_builder_$BASHPID_$RANDOM
 		mkdir $tmpdir && pushd $tmpdir
 		log_command unzip $TMP_WHEELHOUSE/$WHEEL_NAME
-		num_links=$(grep -l "module compiled against API version .* but this version of numpy is .*" $(find . -name '*.so') | wc -l)
+		num_so=$(find . -name '*.so' | wc -l)
+		if [[ $num_so -gt 0 ]]; then
+			num_links=$(grep -l "module compiled against API version .* but this version of numpy is .*" $(find . -name '*.so') | wc -l)
+		else
+			num_links=0
+		fi
 		popd
 		rm -rf $tmpdir
 		if [[ $num_links -gt 0 ]]; then
