@@ -313,10 +313,10 @@ function build()
 		sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
 	fi
 	echo "Building the wheel...."
-	if [[ -f "setup.py" ]]; then
-		$PYTHON_CMD setup.py bdist_wheel $BDIST_WHEEL_ARGS &> build.log
-	elif [[ -f "pyproject.toml" ]]; then
-		log_command pip wheel . &> build.log
+	if [[ -f "pyproject.toml" ]]; then
+		log_command pip wheel --no-deps . &> build.log
+	elif [[ -f "setup.py" ]]; then
+		log_command $PYTHON_CMD setup.py bdist_wheel $BDIST_WHEEL_ARGS &> build.log
 	fi
 	if [[ $? -ne 0 ]]; then
 		echo "An error occured."
@@ -324,7 +324,10 @@ function build()
 	else
 		echo "Success."
 	fi
-	log_command pushd dist || cat build.log
+	# dist directory does not exist if it was built with pyproject.toml
+	if [[ -d dist ]]; then
+		log_command pushd dist || cat build.log
+	fi
 	WHEEL_NAME=$(ls *.whl)
 	# add a computecanada local_version
 	if [[ -z "$UPDATE_REQUIREMENTS" ]]; then
@@ -345,7 +348,9 @@ function build()
 		log_command $setrpaths_cmd
 	fi
 	cp -v $WHEEL_NAME $TMP_WHEELHOUSE
-	log_command popd
+	if [[ -d dist ]]; then
+		log_command popd
+	fi
 	log_command popd
 	log_command popd
 
