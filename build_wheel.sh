@@ -311,6 +311,7 @@ function build()
 	else
 		echo "Success."
 	fi
+
 	if [[ -d dist ]]; then
 		log_command cp dist/*.whl . 
 	fi
@@ -337,6 +338,7 @@ function build()
 		fi
 		log_command $setrpaths_cmd
 	fi
+
 	log_command cp -v $WHEEL_NAME $TMP_WHEELHOUSE
 	echo "Building done"
 	echo "=============================="
