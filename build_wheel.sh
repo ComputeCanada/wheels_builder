@@ -227,7 +227,7 @@ function setup()
 
 	log_command python -m venv build_$PVDIR || virtualenv build_$PVDIR || pyvenv build_$PVDIR
 	source build_$PVDIR/bin/activate
-	log_command pip install --no-index --upgrade pip setuptools wheel
+	log_command pip install --no-index --upgrade pip setuptools setuptools_scm[toml] wheel
 	if [[ -n "$PYTHON_DEPS_DEFAULT" ]]; then
 		wrapped_pip_install $PYTHON_DEPS_DEFAULT
 	fi
