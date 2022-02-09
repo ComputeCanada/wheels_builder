@@ -403,7 +403,9 @@ function adjust_numpy_requirements_based_on_link_info()
 				echo "$PACKAGE" >> $SCRIPT_DIR/packages_w_numpy_api.txt
 				echo -e "\033[33;1mPlease commit the file 'packages_w_numpy_api.txt'.\033[0m"
 			fi
+			log_command $SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME
 			log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $TMP_WHEELHOUSE/$WHEEL_NAME --set_min_numpy $numpy_build_version
+			log_command $SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME
 		fi
 	fi
 }
