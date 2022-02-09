@@ -398,6 +398,11 @@ function adjust_numpy_requirements_based_on_link_info()
 		if [[ $num_links -gt 0 ]]; then
 			numpy_build_version=$(pip show numpy | grep Version | awk '{print $2}' | sed -e "s/\([0-9]\.[0-9]*\)\..*/\1/g")
 			echo "Found $num_links shared objects that mention a specific version of API of numpy. Pinning the minimum required version of numpy to $numpy_build_version"
+			if [[ $(grep -ic $PACKAGE $SCRIPT_DIR/packages_w_numpy_api.txt) -eq 0 ]]; then
+				echo "Recording '$PACKAGE' in 'packages_w_numpy_api.txt'."
+				echo "$PACKAGE" >> $SCRIPT_DIR/packages_w_numpy_api.txt
+				echo -e "\033[33;1mPlease commit the file 'packages_w_numpy_api.txt'.\033[0m"
+			fi
 			log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $TMP_WHEELHOUSE/$WHEEL_NAME --set_min_numpy $numpy_build_version
 		fi
 	fi
