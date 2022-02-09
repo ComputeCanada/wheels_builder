@@ -143,6 +143,7 @@ Variable                    | Description
 `MODULE_BUILD_DEPS`         | Loads these modules for building the wheel.
 `MODULE_RUNTIME_DEPS`       | Loads these modules for building and testing the wheel.
 `MODULE_DEPS`               | **REMOVED** This variable is no longer used.
+`NUMPY_DEFAULT_VERSION`     | Compile wheels against an older version of numpy to avoid making them incompatible with slightly older versions. Will switch to `oldest-supported-numpy` metapackage in the future.  
 `PACKAGE_DOWNLOAD_CMD`      | Custom download command, e.g. `git clone ...`. (default: `pip download --no-cache --no-binary \$PACKAGE_DOWNLOAD_ARGUMENT --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT`)
 `PACKAGE_DOWNLOAD_ARGUMENT` | Additional argument to pass to `pip download`.
 `PACKAGE_DOWNLOAD_NAME`     | In case downloaded name is different from `$PACKAGE`, e.g. `v${VERSION}.tar.gz` (default: `$PACKAGE`)
@@ -156,7 +157,7 @@ Variable                    | Description
 `PRE_BUILD_COMMANDS`        | Specify shell commands to be executed before downloading the package.
 `POST_BUILD_COMMANDS`       | Specify shell commands to be executed after building the package.
 `PYTHON_DEPS`               | Installs these Python-dependencies into the virtualenv in addition to `PYTHON_DEPS_DEFAULT`.
-`PYTHON_DEPS_DEFAULT`       | Is set to "numpy scipy cython" because these packages are needed by so many packages.
+`PYTHON_DEPS_DEFAULT`       | Is set to "numpy~=$NUMPY_DEFAULT_VERSION scipy cython" because these packages are needed by so many packages.
 `PYTHON_IMPORT_NAME`        | In case `import $NAME` is different from the package name, e.g. `PACKAGE=pyzmq` vs. `import zmq`. (default: `$PACKAGE`) 
 `PYTHON_TESTS`              | String with Python command(s) to test the package. Executed after `import $PYTHON_IMPORT_NAME`.
 `RPATH_ADD_ORIGIN`          | This will run `setrpaths.sh --path ${WHEEL_NAME} --add_origin`.
@@ -168,7 +169,7 @@ Variable                    | Description
 #### Usage
 ```bash
 $ ./manipulate_wheels.py -h
-usage: manipulate_wheels [-h] -w WHEELS [WHEELS ...] [-i] [-u UPDATE_REQ [UPDATE_REQ ...]] [--inplace] [--force] [-p] [-v]
+usage: manipulate_wheels [-h] -w WHEELS [WHEELS ...] [-i] [-u UPDATE_REQ [UPDATE_REQ ...]] [--set_min_numpy SET_MIN_NUMPY] [--inplace] [--force] [-p] [-v]
 
 Manipulate wheel files
 
@@ -180,6 +181,8 @@ optional arguments:
                         Adds the +computecanada local version (default: False)
   -u UPDATE_REQ [UPDATE_REQ ...], --update_req UPDATE_REQ [UPDATE_REQ ...]
                         Updates requirements of the wheel. (default: None)
+  --set_min_numpy SET_MIN_NUMPY
+                        Sets the minimum required numpy version. (default: None)
   --inplace             Work in the same directory as the existing wheel instead of a temporary location (default: False)
   --force               If combined with --inplace, overwrites existing wheel if the resulting wheel has the same name (default: False)
   -p, --print_req       Prints the current requirements (default: False)
