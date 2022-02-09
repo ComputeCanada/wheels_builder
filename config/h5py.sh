@@ -9,4 +9,5 @@ else
 fi
 PYTHON_DEPS="nose numpy six Cython unittest2"
 PYTHON_TESTS="h5py.run_tests()"
+PRE_SETUP_COMMANDS="unset EBPYTHONPREFIXES"
 

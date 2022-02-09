@@ -223,6 +223,9 @@ function setup()
 	if [[ -n "$MODULE_BUILD_DEPS" ]]; then
 		log_command module load $MODULE_BUILD_DEPS
 	fi
+	if [[ ! -z "$PRE_SETUP_COMMANDS" ]]; then
+		log_command $PRE_SETUP_COMMANDS
+	fi
 	log_command module list
 
 	log_command python -m venv build_$PVDIR || virtualenv build_$PVDIR || pyvenv build_$PVDIR
