@@ -1,3 +1,3 @@
-PYTHON_IMPORT_NAME="nacl"
+PYTHON_IMPORT_NAME="nacl.secret"
 PRE_BUILD_COMMANDS='export SODIUM_INSTALL=system;'
 
