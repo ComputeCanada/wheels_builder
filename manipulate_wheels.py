@@ -110,7 +110,9 @@ def main():
                             wf, file_or_path=TMP_DIR, version=wheel_ver)
                     new_req = []
                     for curr_req in wf.metadata.requires_dists:
-                        if re.search(r'^numpy\W', curr_req):
+                        if re.search(r'^numpy(\W|$)', curr_req):
+                            if args.verbose:
+                                print('Found numpy dependency.')
                             # find exiting version requirements (split on '(' and ')')
                             parse_req = re.search(r"^([^(]+\()([^)]+)(\).*)", curr_req)
                             if parse_req:
