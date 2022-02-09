@@ -1,4 +1,4 @@
 MODULE_BUILD_DEPS="imkl/2020.1.217"
-PYTHON_DEPS="nose numpy pytest scipy"
+PYTHON_DEPS="nose numpy~=$NUMPY_DEFAULT_VERSION pytest scipy"
 
 

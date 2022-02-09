@@ -1,2 +1,2 @@
-PYTHON_DEPS="numpy h5py"
+PYTHON_DEPS="numpy~=$NUMPY_DEFAULT_VERSION h5py"
 

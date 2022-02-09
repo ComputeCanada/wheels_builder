@@ -1,0 +1,9 @@
+h5py
+matplotlib
+MDAnalysis
+mdtraj
+numexpr
+pandas
+scipy
+tables
+tensorflow

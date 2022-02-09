@@ -1,2 +1,2 @@
-PYTHON_DEPS="numpy scipy six"
+PYTHON_DEPS="numpy~=$NUMPY_DEFAULT_VERSION scipy six"
 

@@ -1,4 +1,4 @@
-PYTHON_DEPS="numpy biopython biom_format matplotlib scipy"
+PYTHON_DEPS="numpy~=$NUMPY_DEFAULT_VERSION biopython biom_format matplotlib scipy"
 MODULE_BUILD_DEPS="gcc/7.3.0 bowtie2/2.3.5.1 scipy-stack/2019b glpk/4.65"
 PACKAGE_DOWNLOAD_ARGUMENT="https://files.pythonhosted.org/packages/3c/44/8c1297f88361cf16e1d160921d96c12b40de1d4f4a636b60b19a857e6d08/MetaPhlAn-{VERSION}.tar.gz"
 PACKAGE_DOWNLOAD_NAME="MetaPhlAn-{VERSION}.tar.gz"
