@@ -377,7 +377,7 @@ function test_whl()
 	if [[ -n "$TEST_COMMAND" ]]; then
 		$TEST_COMMAND
 	elif [[ -n "$PYTHON_IMPORT_NAME" ]]; then
-		for import_name in "$PYTHON_IMPORT_NAME"; do
+		for import_name in $PYTHON_IMPORT_NAME; do
 			test_import "$import_name" "$PYTHON_TESTS";
 		done
 	fi
