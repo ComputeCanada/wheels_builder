@@ -1,1 +1,2 @@
-argon2_cffi.sh
+PYTHON_IMPORT_NAME="argon2"
+
