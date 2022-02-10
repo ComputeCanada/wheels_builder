@@ -156,6 +156,7 @@ Variable                    | Description
 `POST_DOWNLOAD_COMMANDS`    | Specify shell commands to be executed after downloading the package.
 `PRE_BUILD_COMMANDS`        | Specify shell commands to be executed before downloading the package.
 `POST_BUILD_COMMANDS`       | Specify shell commands to be executed after building the package.
+`PRE_SETUP_COMMANDS`        | Specify shell commands to be executed before setting up build environment.
 `PYTHON_DEPS`               | Installs these Python-dependencies into the virtualenv in addition to `PYTHON_DEPS_DEFAULT`.
 `PYTHON_DEPS_DEFAULT`       | Is set to "numpy~=$NUMPY_DEFAULT_VERSION scipy cython" because these packages are needed by so many packages.
 `PYTHON_IMPORT_NAME`        | In case `import $NAME` is different from the package name, e.g. `PACKAGE=pyzmq` vs. `import zmq`. (default: `$PACKAGE`) 
