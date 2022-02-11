@@ -100,6 +100,12 @@ elif [[ -e "$CONFIGDIR/${PACKAGE}.sh" ]]; then
 	source $CONFIGDIR/${PACKAGE}.sh
 fi
 
+# define some ANSI sequences for colorful output.
+COL_RED="\033[31;1m" # red
+COL_GRN="\033[32;1m" # green
+COL_YEL="\033[33;1m" # yellow
+COL_RST="\033[0m" # reset
+
 function single_test_import {
 	CONST_NAME="$1"
 	NAME="$2"
@@ -114,7 +120,7 @@ function single_test_import {
 			$PYTHON_CMD -c "import $NAME; $TESTS" 2>/dev/null
 			RET=$?
 		fi
-		test $RET -eq 0  && echo "Success!" || echo "Failed"
+		test $RET -eq 0  && echo -e "${COL_GRN}Success!${COL_RST}" || echo "Failed"
 		return $RET
 	else
 		return 1
@@ -265,7 +271,7 @@ function download()
 	fi
 	echo "Downloaded '$ARCHNAME'"
 	if [[ -z "$ARCHNAME" ]]; then
-		echo "Error while downloading package. Aborting..."
+		echo -e "${COL_RED}Error while downloading package. Aborting...${COL_RST}"
 		echo "See : $PWD/download.log"
 		exit 1
 	fi
@@ -309,10 +315,10 @@ function build()
 		log_command $PYTHON_CMD setup.py bdist_wheel $BDIST_WHEEL_ARGS &> build.log
 	fi
 	if [[ $? -ne 0 ]]; then
-		echo "An error occured."
+		echo -e "${COL_RED}An error occured.${COL_RST}"
 		echo "Build log is in $(pwd)/build.log"
 	else
-		echo "Success."
+		echo -e "${COL_GRN}Success.${COL_RST}"
 	fi
 
 	if [[ -d dist ]]; then
@@ -371,7 +377,7 @@ function test_whl()
 	deactivate
 	chmod o+r ../$WHEEL_NAME
 	if [[ $SUCCESS -ne 0 ]]; then
-		echo "Error happened"
+		echo -e "${COL_RED}Error happened${COL_RST}"
 		cd ..
 		exit $SUCCESS
 	fi
@@ -404,7 +410,7 @@ function adjust_numpy_requirements_based_on_link_info()
 			if [[ $(grep -ic $PACKAGE $SCRIPT_DIR/packages_w_numpy_api.txt) -eq 0 ]]; then
 				echo "Recording '$PACKAGE' in 'packages_w_numpy_api.txt'."
 				echo "$PACKAGE" >> $SCRIPT_DIR/packages_w_numpy_api.txt
-				echo -e "\033[33;1mPlease commit the file 'packages_w_numpy_api.txt'.\033[0m"
+				echo -e "${COL_YEL}Please commit the file 'packages_w_numpy_api.txt'.${COL_RST}"
 			fi
 			log_command $SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME
 			log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $TMP_WHEELHOUSE/$WHEEL_NAME --set_min_numpy $numpy_build_version
