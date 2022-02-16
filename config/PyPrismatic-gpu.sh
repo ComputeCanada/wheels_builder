@@ -5,3 +5,4 @@ PACKAGE_SUFFIX="-gpu"
 BDIST_WHEEL_ARGS="--enable-gpu"
 PYTHON_IMPORT_NAME="pyprismatic.core"
 PYTHON_DEPS='h5py'
+PATCHES="PyPrismatic-fix_multiple_arch.patch"
