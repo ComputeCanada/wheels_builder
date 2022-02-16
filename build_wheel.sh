@@ -306,7 +306,7 @@ function build()
 	log_command $PRE_BUILD_COMMANDS_DEFAULT
 	# change the name of the wheel to add a suffix
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
-		sed -i -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
+		sed -i -e "s/name=\"$PACKAGE\"/name=\"$PACKAGE$PACKAGE_SUFFIX\"/g" -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
 	fi
 	echo "Building the wheel...."
 	if [[ -f "pyproject.toml" ]]; then
