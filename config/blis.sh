@@ -1,5 +1,8 @@
 PYTHON_DEPS="numpy~=$NUMPY_DEFAULT_VERSION cython pytest hypothesis wheel"
-#PRE_BUILD_COMMANDS="export BLIS_ARCH='generic'"
-PRE_BUILD_COMMANDS="export BLIS_ARCH='haswell'"
-#PRE_BUILD_COMMANDS="export BLIS_ARCH='skx'"
-
+if [[ "$RSNT_ARCH" == "sse3" ]]; then
+	PRE_BUILD_COMMANDS="export BLIS_ARCH='generic'"
+elif [[ "$RSNT_ARCH" == "avx2" ]]; then
+	PRE_BUILD_COMMANDS="export BLIS_ARCH='haswell'"
+elif [[ "$RSNT_ARCH" == "avx512" ]]; then
+	PRE_BUILD_COMMANDS="export BLIS_ARCH='skx'"
+fi
