@@ -7,3 +7,4 @@ pandas
 scipy
 tables
 tensorflow
+pymaster
