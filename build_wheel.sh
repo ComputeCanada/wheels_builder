@@ -285,6 +285,29 @@ function download()
 	echo "=============================="
 }
 
+function verify_and_patch_arch_flags()
+{
+	echo "=============================="
+	echo "Testing source code for CPU architecture instructions in $PWD"
+	files_native=$(grep -rl -- "-march=native" .)
+	files_xHost=$(grep -rl -- "-xHost" .)
+	if [[ -n "$files_native" ]]; then
+		declare -A cpu_targets
+		gcc_targets=(
+			["avx"]="corei7-avx"
+			["avx2"]="core-avx2"
+			["avx512"]="skylake-avx512"
+			["sse3"]="nocona"
+		)
+		target=${gcc_targets[$RSNT_ARCH]}
+		echo "-march=native found in files $files_native, replacing with -march=$target to build for $RSNT_ARCH"
+		sed -i -e "s/-march=native/-march=$target/" $files_native
+	fi
+	if [[ -n "$files_xHost" ]]; then
+		echo "NOTE: -xHost found in files $files_xHost, expecting to be built with Intel compiler ?"
+	fi
+	echo "=============================="
+}
 function patch_function()
 {
 	PATCHESDIR=$SCRIPT_DIR/patches
@@ -308,6 +331,9 @@ function build()
 		log_command $PRE_BUILD_COMMANDS
 	fi
 	log_command $PRE_BUILD_COMMANDS_DEFAULT
+	
+	verify_and_patch_arch_flags
+
 	# change the name of the wheel to add a suffix
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
 		sed -i -e "s/name=\"$PACKAGE\"/name=\"$PACKAGE$PACKAGE_SUFFIX\"/g" -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
