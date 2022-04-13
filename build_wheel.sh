@@ -96,7 +96,7 @@ fi
 CONFIGDIR=$SCRIPT_DIR/config
 if [[ -e "$CONFIGDIR/${PACKAGE}-${VERSION}.sh" ]]; then
 	source $CONFIGDIR/${PACKAGE}-${VERSION}.sh
-	echo "INFO: Sourced configuration $CONFIGDIR/${PACKAGE}.sh"
+	echo "INFO: Sourced configuration $CONFIGDIR/${PACKAGE}-${VERSION}.sh"
 elif [[ -e "$CONFIGDIR/${PACKAGE}.sh" ]]; then
 	source $CONFIGDIR/${PACKAGE}.sh
 	echo "INFO: Sourced configuration $CONFIGDIR/${PACKAGE}.sh"
