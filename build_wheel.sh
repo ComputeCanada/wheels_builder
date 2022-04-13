@@ -292,7 +292,7 @@ function verify_and_patch_arch_flags()
 	files_native=$(grep -rl -- "-march=native" .)
 	files_xHost=$(grep -rl -- "-xHost" .)
 	if [[ -n "$files_native" ]]; then
-		declare -A cpu_targets
+		declare -A gcc_targets
 		gcc_targets=(
 			["avx"]="corei7-avx"
 			["avx2"]="core-avx2"
