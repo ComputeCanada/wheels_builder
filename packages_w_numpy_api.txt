@@ -8,3 +8,6 @@ scipy
 tables
 tensorflow
 pymaster
+scikit_image
+PyWavelets
+netCDF4
