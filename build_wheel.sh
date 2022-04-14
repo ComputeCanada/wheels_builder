@@ -302,6 +302,7 @@ function verify_and_patch_arch_flags()
 		target=${gcc_targets[$RSNT_ARCH]}
 		echo "-march=native found in files $files_native, replacing with -march=$target to build for $RSNT_ARCH"
 		sed -i -e "s/-march=native/-march=$target/" $files_native
+		ARCH_PRESENCE=$RSNT_ARCH
 	fi
 	if [[ -n "$files_xHost" ]]; then
 		echo "NOTE: -xHost found in files $files_xHost, expecting to be built with Intel compiler ?"
@@ -527,6 +528,12 @@ log_command popd
 if [[ $ARG_KEEP_BUILD_DIR -ne 1 ]]; then
 	rm -rf $DIR
 fi
+
+if [[ ! -z "$ARCH_PRESENCE" ]]; then
+	echo -e "${COL_YEL}WARNING: ${PACKAGE} was built for ${ARCH_PRESENCE}.${COL_RST}"
+	echo "The wheel can be copied with : $SCRIPT_DIR/cp_wheels.sh --remove --arch $ARCH_PRESENCE"
+fi
+
 if [[ $ARG_AUTOCOPY -ne 1 ]]; then
 	echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/[generic,avx2,avx,sse3] and synchronize CVMFS"
 else
