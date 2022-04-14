@@ -285,6 +285,30 @@ function download()
 	echo "=============================="
 }
 
+function verify_and_patch_arch_flags()
+{
+	echo "=============================="
+	echo "Testing source code for CPU architecture instructions in $PWD"
+	files_native=$(grep -rl -- "-march=native" .)
+	files_xHost=$(grep -rl -- "-xHost" .)
+	if [[ -n "$files_native" ]]; then
+		declare -A gcc_targets
+		gcc_targets=(
+			["avx"]="corei7-avx"
+			["avx2"]="core-avx2"
+			["avx512"]="skylake-avx512"
+			["sse3"]="nocona"
+		)
+		target=${gcc_targets[$RSNT_ARCH]}
+		echo "-march=native found in files $files_native, replacing with -march=$target to build for $RSNT_ARCH"
+		sed -i -e "s/-march=native/-march=$target/" $files_native
+		ARCH_PRESENCE=$RSNT_ARCH
+	fi
+	if [[ -n "$files_xHost" ]]; then
+		echo "NOTE: -xHost found in files $files_xHost, expecting to be built with Intel compiler ?"
+	fi
+	echo "=============================="
+}
 function patch_function()
 {
 	PATCHESDIR=$SCRIPT_DIR/patches
@@ -308,6 +332,9 @@ function build()
 		log_command $PRE_BUILD_COMMANDS
 	fi
 	log_command $PRE_BUILD_COMMANDS_DEFAULT
+	
+	verify_and_patch_arch_flags
+
 	# change the name of the wheel to add a suffix
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
 		sed -i -e "s/name=\"$PACKAGE\"/name=\"$PACKAGE$PACKAGE_SUFFIX\"/g" -e "s/name='$PACKAGE'/name='$PACKAGE$PACKAGE_SUFFIX'/g" $(find . -name "setup.py")
@@ -501,6 +528,12 @@ log_command popd
 if [[ $ARG_KEEP_BUILD_DIR -ne 1 ]]; then
 	rm -rf $DIR
 fi
+
+if [[ ! -z "$ARCH_PRESENCE" ]]; then
+	echo -e "${COL_YEL}WARNING: ${PACKAGE} was built for ${ARCH_PRESENCE}.${COL_RST}"
+	echo "The wheel can be copied with : $SCRIPT_DIR/cp_wheels.sh --remove --arch $ARCH_PRESENCE"
+fi
+
 if [[ $ARG_AUTOCOPY -ne 1 ]]; then
 	echo "If you are satisfied with the built wheel, you can copy them to /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/[generic,avx2,avx,sse3] and synchronize CVMFS"
 else
