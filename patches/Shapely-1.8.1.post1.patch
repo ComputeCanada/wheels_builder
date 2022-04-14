@@ -1,0 +1,46 @@
+diff -ur shapely-1.8.1.post1-orig/shapely/geos.py shapely-1.8.1.post1/shapely/geos.py
+--- shapely-1.8.1.post1-orig/shapely/geos.py	2022-04-13 23:38:10.612582770 -0600
++++ shapely-1.8.1.post1/shapely/geos.py	2022-04-13 23:40:11.885698936 -0600
+@@ -62,41 +62,7 @@
+ 
+ 
+ if sys.platform.startswith('linux'):
+-    # Test to see if we have a wheel repaired by auditwheel which contains its
+-    # own libgeos_c. Note: auditwheel 3.1 changed the location of libs.
+-    geos_whl_so = glob.glob(
+-        os.path.abspath(os.path.join(os.path.dirname(__file__), ".libs/libgeos*.so*"))
+-    ) or glob.glob(
+-        os.path.abspath(
+-            os.path.join(
+-                os.path.dirname(__file__), "..", "Shapely.libs", "libgeos*.so*"
+-            )
+-        )
+-    )
+-
+-    if len(geos_whl_so) > 0:
+-        # We have observed problems with CDLL of libgeos_c not automatically
+-        # loading the sibling c++ library since the change made by auditwheel
+-        # 3.1, so we explicitly load them both.
+-        geos_whl_so = sorted(geos_whl_so)
+-        CDLL(geos_whl_so[0])
+-        _lgeos = CDLL(geos_whl_so[-1])
+-        LOG.debug("Found GEOS DLL: %r, using it.", _lgeos)
+-
+-    elif hasattr(sys, 'frozen'):
+-        geos_pyinstaller_so = glob.glob(os.path.join(sys.prefix, 'libgeos_c-*.so.*'))
+-        if len(geos_pyinstaller_so) >= 1:
+-            _lgeos = CDLL(geos_pyinstaller_so[0])
+-            LOG.debug("Found GEOS DLL: %r, using it.", _lgeos)
+-    elif exists_conda_env():
+-        # conda package.
+-        _lgeos = CDLL(os.path.join(sys.prefix, 'lib', 'libgeos_c.so'))
+-    else:
+-        alt_paths = [
+-            'libgeos_c.so.1',
+-            'libgeos_c.so',
+-        ]
+-        _lgeos = load_dll('geos_c', fallbacks=alt_paths)
++    _lgeos = CDLL(os.path.join(os.getenv("EBROOTGEOS"), "lib", "libgeos_c.so"))
+ 
+     # ctypes.CDLL(None) internally calls dlopen(NULL), and as the dlopen
+     # manpage says, "If filename is NULL, then the returned handle is for the
