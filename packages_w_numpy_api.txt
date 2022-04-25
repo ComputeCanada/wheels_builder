@@ -11,3 +11,4 @@ pymaster
 scikit_image
 PyWavelets
 netCDF4
+pygrib
