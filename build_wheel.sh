@@ -75,7 +75,7 @@ TMP_WHEELHOUSE=$(pwd)
 PATCHES=""
 # Make sure $PACKAGE_DOWNLOAD_ARGUMENT is not expanded right away
 # Do not collect binaries and don't install dependencies
-PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary \$PACKAGE --no-use-pep517 --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
+PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary \$PACKAGE --no-use-pep517 --no-build-isolation --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py'
 
 NUMPY_DEFAULT_VERSION=1.21.2
