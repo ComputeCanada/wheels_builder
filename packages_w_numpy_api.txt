@@ -12,3 +12,4 @@ scikit_image
 PyWavelets
 netCDF4
 pygrib
+qutip
