@@ -13,3 +13,4 @@ PyWavelets
 netCDF4
 pygrib
 qutip
+fastcluster
