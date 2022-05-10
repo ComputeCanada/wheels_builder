@@ -15,3 +15,6 @@ pygrib
 qutip
 fastcluster
 msmbuilder
+statsmodels
+pmesh
+pfft-python
