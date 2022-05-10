@@ -14,3 +14,4 @@ netCDF4
 pygrib
 qutip
 fastcluster
+msmbuilder
