@@ -14,3 +14,6 @@ netCDF4
 pygrib
 qutip
 fastcluster
+statsmodels
+pmesh
+pfft-python
