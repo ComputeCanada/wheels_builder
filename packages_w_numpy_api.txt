@@ -18,3 +18,4 @@ msmbuilder
 statsmodels
 pmesh
 pfft-python
+numba
