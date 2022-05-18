@@ -1,2 +1,0 @@
-PYTHON_DEPS="numpy~=$NUMPY_DEFAULT_VERSION enum34 llvmlite"
-MODULE_RUNTIME_DEPS="llvm/11"
