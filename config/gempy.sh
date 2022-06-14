@@ -1,2 +1,0 @@
-MODULE_RUNTIME_DEPS="vtk/9.0.1"
-PATCHES="gempy-2.2.11.patch"
