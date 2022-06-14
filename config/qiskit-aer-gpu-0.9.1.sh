@@ -5,7 +5,7 @@ PACKAGE_SUFFIX="-gpu"
 PRE_BUILD_COMMANDS="export QISKIT_AER_PACKAGE_NAME=qiskit-aer-gpu"
 PACKAGE_DOWNLOAD_ARGUMENT="$PACKAGE==$VERSION"
 MODULE_RUNTIME_DEPS="
-    symengine
+    symengine/0.8.1
     cuda/11.4
     flexiblas/3.0.4
     openmpi/4.0.3
