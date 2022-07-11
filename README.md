@@ -46,8 +46,12 @@ This script will:
 - Build the wheel.
 - To test: install the wheel into the build-virtualenv and try to import it.
 
-By default it tries to build wheels for all Python 3.x versions (i.e. installed 
-python/3.x modules) except 3.5 (so 3.6 and above).
+By default, it tries to build wheels for Python 3.8, 3.9, and 3.10.
+
+If no `arch` module is loaded, it will load `arch/sse3`, our current smallest
+common denominator. To build AVX2-optimised wheels, do `module load arch/avx2`
+before calling `build_wheel.sh`. This has no effect on generic packages, i.e.
+those that do not contain C extensions and do not link external libraries.
 
 `build_wheel.sh` assumes that the package name is also the first part of the 
 downloaded archive, the directory name of the extracted archive and the name
@@ -90,12 +94,21 @@ Copies all wheels in the current directory to the predicted location in the whee
 after adjusting the permissions. 
 
 ```
-Usage: cp_wheels.sh [--wheel <wheel file>] [--remove] [--dry-run]
+Usage: cp_wheels.sh [--wheel <wheel file>] [--arch generic|<rsnt_arch>]
+                    [--remove] [--dry-run]
 
-   --wheel <wheel file>   Process only this wheel (otherwise all in the $CWD)
-   --remove               Delete the wheel after copying.
-   --dry-run              Just print the commands, but don't execute anything.
+   --wheel <wheel file>       Process only this wheel (otherwise all in the $CWD)
+   --arch generic|<rsnt_arch> Copy to a generic or arch-specific directory.
+   --remove                   Delete the wheel after copying.
+   --dry-run                  Just print the commands, but don't execute anything.
 ```
+
+If `cp_wheels.sh` detects an arch-specific wheel, it will refuse to copy it
+unless the `--arch` flag is used. Choice of arch should match what was used
+when building the wheel (see `build_wheel.sh`). `cp_wheels.sh` considers a
+wheel to be arch-specific if it links external libraries not in the Gentoo or
+Nix compatibility layer, or if any existing wheels for the same package are in
+arch-specific directories in our wheelhouse.
 
 -------------------------------------------------------------------------------
 ### `parbuild_wheel.sh`
