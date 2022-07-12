@@ -51,7 +51,7 @@ By default, it tries to build wheels for Python 3.8, 3.9, and 3.10.
 If no `arch` module is loaded, it will load `arch/sse3`, our current smallest
 common denominator. To build AVX2-optimised wheels, do `module load arch/avx2`
 before calling `build_wheel.sh`. This has no effect on generic packages, i.e.
-those that do not contain C extensions and do not link external libraries.
+those that do not contain compiled libraries and do not link external ones.
 
 `build_wheel.sh` assumes that the package name is also the first part of the 
 downloaded archive, the directory name of the extracted archive and the name
