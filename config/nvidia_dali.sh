@@ -2,7 +2,7 @@ MODULE_BUILD_DEPS="gcc/9.3.0 cuda/11.0 opencv/4.4.0 protobuf/3.12 boost/1.72.0"
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/NVIDIA/DALI"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PACKAGE_DOWNLOAD_METHOD="Git"
-PACKAGE_DOWNLOAD_CMD="git clone --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v$VERSION $PACKAGE_FOLDER_NAME"
+PACKAGE_DOWNLOAD_CMD="git clone --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 # A special version and configuration of FFMPEG is required.
 PRE_BUILD_COMMANDS=$(cat <<-END

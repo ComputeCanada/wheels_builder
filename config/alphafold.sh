@@ -5,7 +5,7 @@ PACKAGE_DOWNLOAD_METHOD="Git"
 PATCHES="alphafold.patch" # Bundles scripts and run_alphafold.py
 # Use repo instead of release archive so we can prepare the wheel.
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/deepmind/alphafold.git"
-PACKAGE_DOWNLOAD_CMD="git clone --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch $VERSION $PACKAGE_FOLDER_NAME"
+PACKAGE_DOWNLOAD_CMD="git clone --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch ${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf $PACKAGE_DOWNLOAD_NAME $PACKAGE_FOLDER_NAME"
 # As Alphafold does not know how to distribute a software, we will use soft requirements from
 # setup.py. https://github.com/deepmind/alphafold/issues/511
