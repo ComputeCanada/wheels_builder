@@ -1,3 +1,3 @@
-MODULE_RUNTIME_DEPS="rust/1.53.0"
-MODULE_BUILD_DEPS="rust/1.53.0"
-PYTHON_DEPS='toml'
+MODULE_RUNTIME_DEPS="rust"
+MODULE_BUILD_DEPS="rust"
+PYTHON_DEPS='tomli setuptools_rust'
