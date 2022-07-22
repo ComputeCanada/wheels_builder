@@ -9,3 +9,4 @@ PRE_BUILD_COMMANDS="python setup.py build_ext --define='
 	ENABLE_AVX=ON;
 	ENABLE_AVX2=ON'
 "
+UPDATE_REQUIREMENTS="pennylane==$VERSION"
