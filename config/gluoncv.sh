@@ -1,0 +1,2 @@
+MODULE_RUNTIME_DEPS="opencv/4.6"
+PYTHON_DEPS="mxnet"
