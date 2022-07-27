@@ -10,10 +10,10 @@ function ls_pythons()
 
 function print_usage
 {
-	echo "Usage: $0 --package <package name> [--version <version>] [--python <comma separated list of python versions>] [--find_links https://index.url]"
+	echo "Usage: $0 --package <package name> [--version <version>] [--python <comma separated list of python versions>] [--find_links https://index.url | --url https://direct.url.to.wheel.whl ]"
 }
 
-TEMP=$(getopt -o h --longoptions help,package:,version:,python:,add_path:,find_links:,add_origin --name $0 -- "$@")
+TEMP=$(getopt -o h --longoptions help,package:,version:,python:,add_path:,find_links:,url:,add_origin --name $0 -- "$@")
 if [ $? != 0 ] ; then print_usage; exit 1 ; fi
 eval set -- "$TEMP"
 START_DIR=$(pwd)
@@ -22,6 +22,7 @@ ARG_VERSION=""
 ARG_ADD_PATH=""
 ARG_ADD_ORIGIN=0
 ARG_FIND_LINKS=""
+ARG_URL=""
 while true; do
 	case "$1" in
 		--package)
@@ -36,6 +37,8 @@ while true; do
 			ARG_ADD_ORIGIN=1; shift 1;;
 		--find_links)
 			ARG_FIND_LINKS=$2; shift 2;;
+		--url)
+			ARG_URL=$2; shift 2;;
 		-h|--help)
 			print_usage; exit 0 ;;
 		--)
@@ -44,7 +47,7 @@ while true; do
 	esac
 done
 
-if [[ -z "$ARG_PACKAGE" ]]; then
+if [[ -z "$ARG_PACKAGE" && -z "$ARG_URL" ]]; then
 	print_usage
 	exit 1
 fi
@@ -69,13 +72,18 @@ fi
 TEMP_DIR=tmp.$$
 mkdir $TEMP_DIR
 cd $TEMP_DIR
-for pv in $(echo ${ARG_PYTHON_VERSIONS-$(ls_pythons)} | tr ',' ' '); do
-	module load python/$pv
-	python -m venv env-$pv && source env-$pv/bin/activate
-	pip install -U pip
-	PYTHONPATH= pip download --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
-	deactivate
-done
+
+if [[ ! -z "$ARG_URL" ]]; then
+	wget $ARG_URL
+else
+	for pv in $(echo ${ARG_PYTHON_VERSIONS-$(ls_pythons)} | tr ',' ' '); do
+		module load python/$pv
+		python -m venv env-$pv && source env-$pv/bin/activate
+		pip install -U pip
+		PYTHONPATH= pip download --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
+		deactivate
+	done
+fi
 
 setrpaths_cmd="setrpaths.sh --path \$ARCHNAME"
 if [[ ! -z "$ARG_ADD_PATH" ]]; then
