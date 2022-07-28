@@ -183,7 +183,7 @@ Variable                    | Description
 #### Usage
 ```bash
 $ ./manipulate_wheels.py -h
-usage: manipulate_wheels [-h] -w WHEELS [WHEELS ...] [-i] [-u UPDATE_REQ [UPDATE_REQ ...]] [--set_min_numpy SET_MIN_NUMPY] [--inplace] [--force] [-p] [-v]
+usage: manipulate_wheels [-h] -w WHEELS [WHEELS ...] [-i] [-u UPDATE_REQ [UPDATE_REQ ...]] [--set_min_numpy SET_MIN_NUMPY] [--inplace] [--force] [-p] [-v] [-t TAG]
 
 Manipulate wheel files
 
@@ -201,6 +201,8 @@ optional arguments:
   --force               If combined with --inplace, overwrites existing wheel if the resulting wheel has the same name (default: False)
   -p, --print_req       Prints the current requirements (default: False)
   -v, --verbose         Displays information about what it is doing (default: False)
+  -t TAG, --add_tag TAG
+                        Specifies a tag to add to wheels (default: None)
 ```
 
 #### Examples
