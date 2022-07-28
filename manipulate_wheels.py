@@ -40,6 +40,7 @@ def create_argparser():
     parser.add_argument("--force", action='store_true', help="If combined with --inplace, overwrites existing wheel if the resulting wheel has the same name")
     parser.add_argument("-p", "--print_req", action='store_true', help="Prints the current requirements")
     parser.add_argument("-v", "--verbose", action='store_true', help="Displays information about what it is doing")
+    parser.add_argument("-t", "--add_tag", action="store", default=None, help="Specifies a tag to add to wheels", dest="tag")
 
     return parser
 
@@ -52,7 +53,7 @@ def main():
     if not os.path.exists(TMP_DIR):
         os.makedirs(TMP_DIR)
 
-    if not args.insert_local_version and not args.update_req and not args.set_min_numpy and not args.print_req:
+    if not args.insert_local_version and not args.update_req and not args.set_min_numpy and not args.print_req and not args.tag:
         print("No action requested. Quitting")
         return
 
@@ -71,23 +72,39 @@ def main():
                     continue
 
                 wf2 = None
-                wheel_ver = str(wf.version)
+                current_version = str(wf.version)
+                new_version = current_version
+                if args.tag:
+                    if args.tag in new_version:
+                        if args.verbose:
+                            print("wheel %s already has the %s tag. Skipping" % (w, args.tag))
+                    else:
+                        if "+" in new_version:
+                            # ensure the tag is the first item after the +
+                            version_parts = new_version.split("+")
+                            version_parts[1] = "%s.%s" % (args.tag, version_parts[1])
+                            new_version = "+".join(version_parts)
+                        else:
+                            new_version += "+%s" % args.tag
+
                 if args.insert_local_version:
-                    if LOCAL_VERSION in wheel_ver:
+                    if LOCAL_VERSION in current_version:
                         if args.verbose:
                             print("wheel %s already has the %s local version. Skipping" % (w, LOCAL_VERSION))
                     else:
-                        if "+" in wheel_ver:
-                            wheel_ver += ".%s" % LOCAL_VERSION
+                        if "+" in new_version:
+                            new_version += ".%s" % LOCAL_VERSION
                         else:
-                            wheel_ver += "+%s" % LOCAL_VERSION
-                        if args.verbose:
-                            print("Updating version of wheel %s to %s" % (w, wheel_ver))
-                wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=wheel_ver)
+                            new_version += "+%s" % LOCAL_VERSION
+
+                if new_version != current_version:
+                    if args.verbose:
+                        print("Updating version of wheel %s to %s" % (w, new_version))
+                    wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=new_version)
 
                 if args.update_req:
                     if not wf2:
-                        wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=wheel_ver)
+                        wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=new_version)
                     for req in args.update_req:
                         # If an update does rename a requirement, split from and to, else ignore
                         from_req, to_req = req.split(RENAME_SEP) if RENAME_SEP in req else (req, req)
@@ -107,7 +124,7 @@ def main():
                 if args.set_min_numpy:
                     if not wf2:
                         wf2 = WheelFile.from_wheelfile(
-                            wf, file_or_path=TMP_DIR, version=wheel_ver)
+                            wf, file_or_path=TMP_DIR, version=new_version)
                     new_req = []
                     for curr_req in wf.metadata.requires_dists:
                         if re.search(r'^numpy(\W|$)', curr_req):
