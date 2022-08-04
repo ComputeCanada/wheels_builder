@@ -1,0 +1,5 @@
+PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/CDAT/cdms/archive/refs/tags/v${VERSION}.tar.gz"
+PACKAGE_DOWNLOAD_CMD="wget -q $PACKAGE_DOWNLOAD_ARGUMENT && echo Saved v${VERSION}.tar.gz"
+PYTHON_DEPS="requests numpy~=$NUMPY_DEFAULT_VERSIONcdat_info lazy_object_proxy cdtime future distarray"
+MODULE_RUNTIME_DEPS="gcc openmpi netcdf libcdms libcf ipykernel"
+PATCHES="cdms-${VERSION}.patch"
