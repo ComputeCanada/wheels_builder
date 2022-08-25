@@ -449,6 +449,34 @@ function adjust_numpy_requirements_based_on_link_info()
 		fi
 	fi
 }
+function adjust_torch_requirements_based_on_link_info()
+{
+	# don't modify torch wheels themselves
+	if [[ $WHEEL_NAME =~ torch-.* ]]; then
+		return
+	fi
+	# only linux_x86_64 wheels will contain .so'
+	if [[ $WHEEL_NAME =~ .*linux_x86_64.* ]]; then
+		tmpdir=/tmp/wheel_builder_$BASHPID_$RANDOM
+		echo "Testing if wheel depends on torch..."
+		$SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME | grep "^torch" >/dev/null
+		res=$?
+		if [[ $res -eq 0 ]]; then
+			echo "Dependency on torch found. Pinning version of torch"
+			torch_build_version=$(pip show torch | grep Version | awk '{print $2}' | sed -e "s/\([^+]*\)+*.*/\1/g")
+			torch_build_version_without_dots=${torch_build_version//./}
+			log_command $SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME
+			tag="torch$torch_build_version_without_dots"
+			log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $TMP_WHEELHOUSE/$WHEEL_NAME --update_req "\"torch (==$torch_build_version)\"" --add_tag $tag 
+			new_wheel=${WHEEL_NAME//+computecanada/+$tag.computecanada}
+			rm $TMP_WHEELHOUSE/$WHEEL_NAME
+			WHEEL_NAME=$new_wheel
+			log_command $SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME
+		else
+			echo "No dependency on torch found."
+		fi
+	fi
+}
 
 echo "Building wheel for $PACKAGE"
 DIR=tmp.$$
@@ -515,6 +543,7 @@ for pv in $PYTHON_VERSIONS; do
 	fi
 
 	adjust_numpy_requirements_based_on_link_info
+	adjust_torch_requirements_based_on_link_info
 	
 	test_whl
 
