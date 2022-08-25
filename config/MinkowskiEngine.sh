@@ -1,4 +1,3 @@
-TORCH_VERSION=1.12.0
 MODULE_BUILD_DEPS="cuda/11.4 flexiblas"
 # Use this commit as it contains multiple fix from 0.5.4
 PACKAGE_DOWNLOAD_ARGUMENT="git+https://github.com/NVIDIA/MinkowskiEngine@f9778ad325feb34fc325c235b883421f4cb8fa17"
@@ -7,7 +6,6 @@ PATCHES="MinkowskiEngine_flexiblas.patch MinkowskiEngine_py310_torch1120.patch"
 PRE_BUILD_COMMANDS='
 	export TORCH_CUDA_ARCH_LIST="6.0;7.0;7.5;8.0;8.6";
 	export MAX_JOBS=4;
-	sed -i -e 's#\"$VERSION\"#\"$VERSION+torch${TORCH_VERSION//./}\"#' MinkowskiEngine/__init__.py;
 '
-PYTHON_DEPS="torch==$TORCH_VERSION pybind11"
-UPDATE_REQUIREMENTS="'torch (==$TORCH_VERSION)'"
+PYTHON_DEPS="torch pybind11"
+UPDATE_REQUIREMENTS="'torch'"
