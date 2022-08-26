@@ -183,6 +183,7 @@ Variable                    | Description
 #### Usage
 ```bash
 $ ./manipulate_wheels.py -h
+
 usage: manipulate_wheels [-h] -w WHEELS [WHEELS ...] [-i] [-u UPDATE_REQ [UPDATE_REQ ...]] [-a ADD_REQ [ADD_REQ ...]] [--set_min_numpy SET_MIN_NUMPY] [--inplace] [--force] [-p] [-v] [-t TAG]
 
 Manipulate wheel files

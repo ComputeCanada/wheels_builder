@@ -1,0 +1,2 @@
+PYTHON_DEPS=scikit-build
+PYTHON_IMPORT_NAME=cv2

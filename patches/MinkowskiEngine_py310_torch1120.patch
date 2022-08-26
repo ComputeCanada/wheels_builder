@@ -1,0 +1,78 @@
+diff --git a/MinkowskiEngine/MinkowskiCommon.py b/MinkowskiEngine/MinkowskiCommon.py
+index 47021e0..75dc8ac 100644
+--- a/MinkowskiEngine/MinkowskiCommon.py
++++ b/MinkowskiEngine/MinkowskiCommon.py
+@@ -22,7 +22,7 @@
+ # Please cite "4D Spatio-Temporal ConvNets: Minkowski Convolutional Neural
+ # Networks", CVPR'19 (https://arxiv.org/abs/1904.08755) if you use any part
+ # of the code.
+-from collections import Sequence
++from collections.abc import Sequence
+ import numpy as np
+ from typing import Union
+ 
+diff --git a/MinkowskiEngine/MinkowskiCoordinateManager.py b/MinkowskiEngine/MinkowskiCoordinateManager.py
+index 853fbfe..a350b76 100644
+--- a/MinkowskiEngine/MinkowskiCoordinateManager.py
++++ b/MinkowskiEngine/MinkowskiCoordinateManager.py
+@@ -24,7 +24,7 @@
+ # of the code.
+ import os
+ import numpy as np
+-from collections import Sequence
++from collections.abc import Sequence
+ from typing import Union, List, Tuple
+ import warnings
+ 
+diff --git a/MinkowskiEngine/MinkowskiKernelGenerator.py b/MinkowskiEngine/MinkowskiKernelGenerator.py
+index 409c813..e0db6fd 100644
+--- a/MinkowskiEngine/MinkowskiKernelGenerator.py
++++ b/MinkowskiEngine/MinkowskiKernelGenerator.py
+@@ -23,7 +23,8 @@
+ # Networks", CVPR'19 (https://arxiv.org/abs/1904.08755) if you use any part
+ # of the code.
+ import math
+-from collections import Sequence, namedtuple
++from collections import namedtuple
++from collections.abc import Sequence
+ from functools import reduce
+ import numpy as np
+ from typing import Union
+diff --git a/MinkowskiEngine/MinkowskiTensorField.py b/MinkowskiEngine/MinkowskiTensorField.py
+index 5b8c1f6..6120904 100644
+--- a/MinkowskiEngine/MinkowskiTensorField.py
++++ b/MinkowskiEngine/MinkowskiTensorField.py
+@@ -23,7 +23,7 @@
+ # of the code.
+ import os
+ import numpy as np
+-from collections import Sequence
++from collections.abc import Sequence
+ from typing import Union, List, Tuple
+ 
+ import torch
+diff --git a/MinkowskiEngine/utils/quantization.py b/MinkowskiEngine/utils/quantization.py
+index 9e6a44c..e1e8967 100644
+--- a/MinkowskiEngine/utils/quantization.py
++++ b/MinkowskiEngine/utils/quantization.py
+@@ -23,7 +23,7 @@
+ # of the code.
+ import torch
+ import numpy as np
+-from collections import Sequence
++from collections.abc import Sequence
+ import MinkowskiEngineBackend._C as MEB
+ from typing import Union, Tuple
+ from MinkowskiCommon import convert_to_int_list
+diff --git a/src/spmm.cu b/src/spmm.cu
+index 00879aa..7bf1659 100644
+--- a/src/spmm.cu
++++ b/src/spmm.cu
+@@ -29,6 +29,7 @@
+ 
+ #include <cusparse.h>
+ 
++#include <ATen/core/Tensor.h>
+ #include <ATen/cuda/CUDAContext.h>
+ #include <ATen/cuda/CUDAUtils.h>
+ #include <c10/cuda/CUDACachingAllocator.h>
