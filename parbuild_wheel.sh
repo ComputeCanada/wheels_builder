@@ -46,8 +46,8 @@ logfile="$$.log"
 cmdsfile="$$.cmds"
 
 if [[ ! -z "$ARG_REQUIREMENTS" ]]; then
-	cmd1="bash build_wheel.sh --package {1} --version {2} --python {3} &> build-{1}-{2}-py{3}.log :::: - ::: ${pythons}"
-	cmd2="bash build_wheel.sh --package {1} --python {2} &> build-{1}-py{2}.log :::: - ::: ${pythons}"
+	cmd1="bash build_wheel.sh --package {1} --version {2} --python {3} --recursive 0 --verbose 3 &> build-{1}-{2}-py{3}.log :::: - ::: ${pythons}"
+	cmd2="bash build_wheel.sh --package {1} --python {2} --recursive 0 --verbose 3 &> build-{1}-py{2}.log :::: - ::: ${pythons}"
 
 	# Keep only requirements == lines
 	awk '/^\w+==(\w|\.)+$/ {print $1}' $ARG_REQUIREMENTS | sed 's/;$//' | parallel --colsep '==' --dry-run $cmd1 | tee -a $cmdsfile
@@ -59,9 +59,9 @@ else
 	versions=${ARG_VERSION//,/ }
 
 	if [[ -n "$versions" ]]; then
-		cmd="bash build_wheel.sh --package {1} --version {2} --python {3} &> build-{1}-{2}-py{3}.log ::: ${wheel} ::: ${versions} ::: ${pythons}"
+		cmd="bash build_wheel.sh --package {1} --version {2} --python {3} --recursive 0 --verbose 3 &> build-{1}-{2}-py{3}.log ::: ${wheel} ::: ${versions} ::: ${pythons}"
 	else
-		cmd="bash build_wheel.sh --package {1} --python {2} &> build-{1}-py{2}.log ::: ${wheel} ::: ${pythons}"
+		cmd="bash build_wheel.sh --package {1} --python {2} --recursive 0 --verbose 3 &> build-{1}-py{2}.log ::: ${wheel} ::: ${pythons}"
 	fi
 
 	# Yes, two times the command, display what will be run and then run it.

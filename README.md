@@ -183,7 +183,8 @@ Variable                    | Description
 #### Usage
 ```bash
 $ ./manipulate_wheels.py -h
-usage: manipulate_wheels [-h] -w WHEELS [WHEELS ...] [-i] [-u UPDATE_REQ [UPDATE_REQ ...]] [--set_min_numpy SET_MIN_NUMPY] [--inplace] [--force] [-p] [-v] [-t TAG]
+
+usage: manipulate_wheels [-h] -w WHEELS [WHEELS ...] [-i] [-u UPDATE_REQ [UPDATE_REQ ...]] [-a ADD_REQ [ADD_REQ ...]] [--set_min_numpy SET_MIN_NUMPY] [--inplace] [--force] [-p] [-v] [-t TAG]
 
 Manipulate wheel files
 
@@ -195,6 +196,8 @@ optional arguments:
                         Adds the +computecanada local version (default: False)
   -u UPDATE_REQ [UPDATE_REQ ...], --update_req UPDATE_REQ [UPDATE_REQ ...]
                         Updates requirements of the wheel. (default: None)
+  -a ADD_REQ [ADD_REQ ...], --add_req ADD_REQ [ADD_REQ ...]
+                        Add requirements to the wheel. (default: None)
   --set_min_numpy SET_MIN_NUMPY
                         Sets the minimum required numpy version. (default: None)
   --inplace             Work in the same directory as the existing wheel instead of a temporary location (default: False)

@@ -20,3 +20,5 @@ pmesh
 pfft-python
 numba
 pyhdf
+pybullet-svl
+pybullet_svl

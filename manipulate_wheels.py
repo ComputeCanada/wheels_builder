@@ -35,6 +35,7 @@ def create_argparser():
     parser.add_argument("-w", "--wheels", nargs="+", required=True, default=None, help="Specifies which wheels to patch")
     parser.add_argument("-i", "--insert_local_version", action='store_true', help="Adds the +computecanada local version")
     parser.add_argument("-u", "--update_req", nargs="+", default=None, help="Updates requirements of the wheel.")
+    parser.add_argument("-a", "--add_req", nargs="+", default=None, help="Add requirements to the wheel.")
     parser.add_argument("--set_min_numpy", default=None, help="Sets the minimum required numpy version.")
     parser.add_argument("--inplace", action='store_true', help="Work in the same directory as the existing wheel instead of a temporary location")
     parser.add_argument("--force", action='store_true', help="If combined with --inplace, overwrites existing wheel if the resulting wheel has the same name")
@@ -53,7 +54,8 @@ def main():
     if not os.path.exists(TMP_DIR):
         os.makedirs(TMP_DIR)
 
-    if not args.insert_local_version and not args.update_req and not args.set_min_numpy and not args.print_req and not args.tag:
+    actions = [args.insert_local_version, args.update_req, args.set_min_numpy, args.print_req, args.add_req, args.tag]
+    if not any(actions):
         print("No action requested. Quitting")
         return
 
@@ -119,6 +121,24 @@ def main():
                                 new_req += [to_req]
                             else:
                                 new_req += [curr_req]
+                        wf2.metadata.requires_dists = new_req
+
+                if args.add_req:
+                    if not wf2:
+                        wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=new_version)
+                    for req in args.add_req:
+                        req_name = re.split(REQ_SEP, req)[0]
+                        new_req = []
+                        # first, ensure that the requirement does not already exist in this wheel
+                        for curr_req in wf2.metadata.requires_dists:
+                            curr_req_name = re.split(REQ_SEP, curr_req)[0]
+                            if curr_req_name == req_name:
+                                print(f"{w}: requirement {req_name} already present. Please use --update_req if you want to update it")
+                                return
+                            else:
+                                new_req += [curr_req]
+                        # then add the new requirement
+                        new_req += [req]
                         wf2.metadata.requires_dists = new_req
 
                 if args.set_min_numpy:
