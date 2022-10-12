@@ -12,7 +12,7 @@ POST_DOWNLOAD_COMMANDS="tar -zcf $PACKAGE_DOWNLOAD_NAME $PACKAGE_FOLDER_NAME"
 PRE_BUILD_COMMANDS=$(cat <<-END
 	sed -i -e 's/version=.*/version="$VERSION",/' setup.py;
 	sed -i -e 's/tensorflow-cpu/tensorflow/' requirements.txt setup.py;
-	sed -i -e 's/pandas==.*/pandas/' requirements.txt setup.py;
+	sed -i -e 's/pandas==.*/pandas/' -e 's/numpy==.*/numpy~=1.21.0/' requirements.txt setup.py;
 	sed -i -e 's/aria2c/wget/g' -e 's/--dir=/-P /g' -e 's/--preserve-permissions//g' scripts/*.sh;
 	wget https://git.scicore.unibas.ch/schwede/openstructure/-/raw/7102c63615b64735c4941278d92b554ec94415f8/modules/mol/alg/src/stereo_chemical_props.txt -P alphafold/common/;
 END
