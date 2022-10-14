@@ -1,0 +1,1 @@
+PYTHON_DEPS='pybind11'
