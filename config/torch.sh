@@ -47,9 +47,3 @@ PRE_BUILD_COMMANDS='
 	export USE_BLAS=ON;
 	export USE_LAPACK=ON;
 '
-# export BUILD_CAFFE2=ON;
-
-# export TH_BINARY_BUILD=ON;
-# export USE_DISTRIBUTED=ON;
-# export USE_GLOO=ON;
-# export USE_GLOO_WITH_OPENSSL=ON;
