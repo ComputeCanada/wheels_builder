@@ -1,0 +1,3 @@
+MODULE_RUNTIME_DEPS="arrow"
+UPDATE_REQUIREMENTS="'numpy' 'scipy'"
+PYTHON_IMPORT_NAME='bonito'
