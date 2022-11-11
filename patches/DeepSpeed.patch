@@ -26,31 +26,3 @@ diff -ru DeepSpeed-orig/deepspeed/ops/op_builder/builder.py DeepSpeed/deepspeed/
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE,
                                        shell=True)
-diff -ru DeepSpeed-orig/op_builder/async_io.py DeepSpeed/op_builder/async_io.py
---- DeepSpeed-orig/op_builder/async_io.py	2021-06-28 20:58:12.800255815 +0000
-+++ DeepSpeed/op_builder/async_io.py	2021-06-28 21:00:46.811296181 +0000
-@@ -53,7 +53,7 @@
-         return ['-laio']
- 
-     def is_compatible(self):
--        aio_libraries = ['libaio-dev']
-+        aio_libraries = ['libaio']
-         aio_compatible = self.libraries_installed(aio_libraries)
-         if not aio_compatible:
-             self.warning(
-diff -ru DeepSpeed-orig/op_builder/builder.py DeepSpeed/op_builder/builder.py
---- DeepSpeed-orig/op_builder/builder.py	2021-06-28 20:58:12.800255815 +0000
-+++ DeepSpeed/op_builder/builder.py	2021-06-28 21:04:49.731849916 +0000
-@@ -151,9 +151,10 @@
- 
-     def libraries_installed(self, libraries):
-         valid = False
--        check_cmd = 'dpkg -l'
-+        #check_cmd = 'dpkg -l'
-+        root=os.environ['EBROOTGENTOO']
-         for lib in libraries:
--            result = subprocess.Popen(f'dpkg -l {lib}',
-+            result = subprocess.Popen(f'find {root}/ *{lib}*',
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE,
-                                       shell=True)
