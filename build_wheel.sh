@@ -449,31 +449,41 @@ function adjust_numpy_requirements_based_on_link_info()
 		fi
 	fi
 }
+
 function adjust_torch_requirements_based_on_link_info()
 {
 	# don't modify torch wheels themselves
 	if [[ $WHEEL_NAME =~ ^torch-.* ]]; then
 		return
 	fi
+
 	# only linux_x86_64 wheels will contain .so'
 	if [[ $WHEEL_NAME =~ .*linux_x86_64.* ]]; then
-		tmpdir=/tmp/wheel_builder_$BASHPID_$RANDOM
-		echo "Testing if wheel depends on torch..."
-		$SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME | grep "^torch" >/dev/null
-		res=$?
+		echo "Testing if wheel links on libtorch..."
+		local tmpdir=$(mktemp -d)
+		log_command unzip -q $TMP_WHEELHOUSE/$WHEEL_NAME -d $tmpdir
+		find $tmpdir -type f -executable -exec ldd {} \+ | fgrep 'libtorch.so'
+		local res=$?
+
 		if [[ $res -eq 0 ]]; then
-			echo "Dependency on torch found. Pinning version of torch"
+			echo "Link dependency on libtorch found. Pinning version of torch"
 			torch_build_version=$(pip show torch | grep Version | awk '{print $2}' | sed -e "s/\([^+]*\)+*.*/\1/g")
-			torch_build_version_without_dots=${torch_build_version//./}
 			log_command $SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME
-			tag="torch$torch_build_version_without_dots"
-			log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $TMP_WHEELHOUSE/$WHEEL_NAME --update_req "\"torch (==$torch_build_version)\"" --add_tag $tag 
-			new_wheel=${WHEEL_NAME//+computecanada/+$tag.computecanada}
-			rm $TMP_WHEELHOUSE/$WHEEL_NAME
-			WHEEL_NAME=$new_wheel
+			log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $TMP_WHEELHOUSE/$WHEEL_NAME --update_req "\"torch (==$torch_build_version)\""
 			log_command $SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME
+
+			# Does it need to be tagged, would it override an existing wheel of the same version?
+			if [[ $(find /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/ -name $WHEEL_NAME | wc -l) -gt 0 ]]; then
+				echo "Found existing wheel that would have been overriden. Tagging the wheel."
+				local tag="torch${torch_build_version//./}"
+				log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $TMP_WHEELHOUSE/$WHEEL_NAME --add_tag $tag
+
+				local new_wheel=${WHEEL_NAME//+computecanada/+$tag.computecanada}
+				rm $TMP_WHEELHOUSE/$WHEEL_NAME
+				WHEEL_NAME=$new_wheel
+			fi
 		else
-			echo "No dependency on torch found."
+			echo "No link dependency on libtorch found."
 		fi
 	fi
 }
