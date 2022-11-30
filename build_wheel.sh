@@ -419,7 +419,7 @@ function test_whl()
 function adjust_numpy_requirements_based_on_link_info()
 {
 	# don't modify numpy wheels themselves
-	if [[ $WHEEL_NAME =~ numpy-.* ]]; then
+	if [[ $WHEEL_NAME =~ ^numpy-.* ]]; then
 		return
 	fi
 	# only linux_x86_64 wheels will contain .so'
@@ -452,7 +452,7 @@ function adjust_numpy_requirements_based_on_link_info()
 function adjust_torch_requirements_based_on_link_info()
 {
 	# don't modify torch wheels themselves
-	if [[ $WHEEL_NAME =~ torch-.* ]]; then
+	if [[ $WHEEL_NAME =~ ^torch-.* ]]; then
 		return
 	fi
 	# only linux_x86_64 wheels will contain .so'
