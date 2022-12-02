@@ -468,8 +468,10 @@ function adjust_torch_requirements_based_on_link_info()
 		if [[ $res -eq 0 ]]; then
 			echo "Link dependency on libtorch found. Pinning version of torch"
 			torch_build_version=$(pip show torch | grep Version | awk '{print $2}' | sed -e "s/\([^+]*\)+*.*/\1/g")
+			torch_build_version=${torch_build_version::-2} # X.Y.Z -> X.Y
 			log_command $SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME
-			log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $TMP_WHEELHOUSE/$WHEEL_NAME --update_req "\"torch (==$torch_build_version)\""
+			# Pin compatible version: ~=1.12 -> upmost micro version we currently have.
+			log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $TMP_WHEELHOUSE/$WHEEL_NAME --update_req "\"torch (~=${torch_build_version})\""
 			log_command $SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME
 
 			# Does it need to be tagged, would it override an existing wheel of the same version?
