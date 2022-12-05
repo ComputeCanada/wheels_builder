@@ -1,4 +1,4 @@
-PYTHON_DEPS="torch torchvision"
+PYTHON_DEPS="torch${TORCH_VERSION:+==$TORCH_VERSION} torchvision"
 PYTHON_DEPS_DEFAULT=""
 MODULE_RUNTIME_DEPS="gcc/9.3.0 cuda/11.4 opencv"
 PRE_BUILD_COMMANDS="
