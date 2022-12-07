@@ -1,5 +1,5 @@
-MODULE_BUILD_DEPS="arrow cmake boost flatbuffers"
-MODULE_RUNTIME_DEPS="arrow"
+MODULE_BUILD_DEPS="arrow/8 cmake boost flatbuffers thrift"
+MODULE_RUNTIME_DEPS="arrow/8"
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/nanoporetech/pod5-file-format.git"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PACKAGE_DOWNLOAD_METHOD="Git"
