@@ -7,3 +7,5 @@ PRE_BUILD_COMMANDS='
 	export CUB_HOME=$CUDA_ROOT/include/cub;
 	sed -i -e "s/install_requires=/install_requires=[\"torch\"]\+/" setup.py
 '
+RPATH_TO_ADD="'\$ORIGIN/../torch/lib'"
+TEST_COMMAND="python -c 'import pytorch3d; from pytorch3d import _C'"
