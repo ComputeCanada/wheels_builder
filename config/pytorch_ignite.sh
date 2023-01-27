@@ -1,0 +1,2 @@
+PYTHON_IMPORT_NAME='ignite'
+MODULE_RUNTIME_DEPS='arch/avx2'
