@@ -1,0 +1,2 @@
+PYTHON_DEPS="maturin"
+MODULE_BUILD_DEPS='rust'
