@@ -518,7 +518,7 @@ else
 	else
 		module load arch/${ARCH_TO_LOAD:-avx2}
 	fi
-	module load gentoo/2020 gcc/9.3.0 oldest-supported-numpy
+	module load gentoo/2020 gcc/9.3.0 oldest-supported-numpy python-build-bundle
 fi
 for pv in $PYTHON_VERSIONS; do
 	if [[ $pv =~ python/2 ]]; then
