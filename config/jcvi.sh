@@ -1,2 +1,2 @@
-PYTHON_DEPS="biopython numpy~=$NUMPY_DEFAULT_VERSION deap networkx matplotlib cython"
+PYTHON_DEPS="biopython  deap networkx matplotlib cython"
 

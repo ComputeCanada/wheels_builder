@@ -1,2 +1,2 @@
-PYTHON_DEPS="Cython numpy~=$NUMPY_DEFAULT_VERSION scipy matplotlib"
+PYTHON_DEPS="Cython  scipy matplotlib"
 

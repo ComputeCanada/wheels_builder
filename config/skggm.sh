@@ -1,2 +1,2 @@
 MODULE_RUNTIME_DEPS='gcc/9.3.0'
-PYTHON_DEPS_DEFAULT="numpy~=$NUMPY_DEFAULT_VERSION scipy cython sklearn"
+PYTHON_DEPS_DEFAULT=" scipy cython sklearn"

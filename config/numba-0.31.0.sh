@@ -1,2 +1,2 @@
-PYTHON_DEPS="numpy~=$NUMPY_DEFAULT_VERSION enum34 llvmlite==0.16.0"
+PYTHON_DEPS=" enum34 llvmlite==0.16.0"
 

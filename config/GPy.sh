@@ -1,2 +1,2 @@
-PYTHON_DEPS="numpy~=$NUMPY_DEFAULT_VERSION matplotlib"
+PYTHON_DEPS=" matplotlib"
 
