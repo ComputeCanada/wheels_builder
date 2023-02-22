@@ -32,7 +32,7 @@ Usage: build_wheel.sh --package <python package name>
     --recursive       Recursively build wheels for dependencies.
     --package         Name of the Python package to build.
     --version         Version of the Python package to build. (default:  latest)
-    --python          Build wheels for these Python versions. (default: "3.6,3.7,3.8")
+    --python          Build wheels for these Python versions. (default: "3.8,3.9,3.10,3.11")
     --keep-build-dir  Don't delete build-dirs after successful build.
     --autocopy        Run `./cp_wheels.sh --remove` after successful build.
     --verbose         Set level for verbosity. (0,1,2,3; default: 0)
@@ -46,7 +46,7 @@ This script will:
 - Build the wheel.
 - To test: install the wheel into the build-virtualenv and try to import it.
 
-By default, it tries to build wheels for Python 3.8, 3.9, and 3.10.
+By default, it tries to build wheels for Python 3.8, 3.9, 3.10, and 3.11.
 
 If no `arch` module is loaded, it will load `arch/sse3`, our current smallest
 common denominator. To build AVX2-optimised wheels, do `module load arch/avx2`
