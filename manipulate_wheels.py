@@ -150,12 +150,11 @@ def main():
                         if re.search(r'^numpy(\W|$)', curr_req):
                             if args.verbose:
                                 print('Found numpy dependency.')
-                            # find exiting version requirements (split on '(' and ')')
-                            parse_req = re.search(r"^([^(]+\()([^)]+)(\).*)", curr_req)
-                            if parse_req:
-                                req_tokens = list(parse_req.groups())
+                            curr_version_req = curr_req.replace("numpy","").strip()
+                            req_tokens = ["numpy",""]
+                            if curr_version_req:
                                 # split version spec-set into separate specs
-                                req_versions = req_tokens[1].split(',')
+                                req_versions = curr_version_req.split(',')
                                 for i, version_spec in enumerate(req_versions):
                                     if '>' in version_spec:
                                         # case: old minimum version is lower than our minimal version
