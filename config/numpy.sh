@@ -14,4 +14,5 @@ echo "libraries = flexiblas" >> site.cfg;'
 MODULE_BUILD_DEPS="arch/sse3 flexiblas/3.0.4"
 PYTHON_DEPS="nose pytest cython hypothesis py==1.10.0 importlib_metadata==4.8.1 typing_extensions setuptools<64"
 PYTHON_DEPS_DEFAULT=""
+MODULE_BUILD_DEPS_DEFAULT=""
 PYTHON_TESTS="numpy.__config__.show(); numpy.test()"

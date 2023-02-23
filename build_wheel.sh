@@ -79,6 +79,7 @@ PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary \$PACKAGE --no-use-
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py'
 
 PYTHON_DEPS_DEFAULT="scipy"
+MODULE_BUILD_DEPS_DEFAULT="oldest-supported-numpy/.2022a python-build-bundle pytest/7.0.1 cython/.0.29.33"
 
 PYTHON27_ONLY="cogent OBITools gdata qcli emperor RSeQC preprocess Amara pysqlite IPTest ipaddress functools32 blmath bamsurgeon"
 if [[ $PYTHON27_ONLY =~ " $PACKAGE " ]]; then
@@ -517,7 +518,7 @@ else
 	else
 		module load arch/${ARCH_TO_LOAD:-avx2}
 	fi
-	module load gentoo/2020 gcc/9.3.0 python-build-bundle
+	log_command module load gentoo/2020 gcc/9.3.0 $MODULE_BUILD_DEPS_DEFAULT
 fi
 for pv in $PYTHON_VERSIONS; do
 	if [[ $pv =~ python/2 ]]; then
@@ -529,7 +530,6 @@ for pv in $PYTHON_VERSIONS; do
 
 	echo "Loading module $pv"
 	log_command module load $pv
-	log_command module load python-build-bundle pytest/7.0.1 cython/.0.29.33 oldest-supported-numpy/.2022a
 
 	setup
 

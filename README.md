@@ -154,6 +154,7 @@ Variable                    | Description
   `PYTHON_VERSIONS`         | Comma separated list of Python versions, for which the wheel is to be built. Defaults to the value of `--python` (if set) or currently all installed python/3.x modules except 3.5.
 `BDIST_WHEEL_ARGS`          | Extra arguments to pass to `python setup.py bdist_wheel $BDIST_WHEEL_ARGS`.
 `MODULE_BUILD_DEPS`         | Loads these modules for building the wheel.
+`MODULE_BUILD_DEPS_DEFAULT` | Is set to oldest-supported-numpy/.2022a python-build-bundle pytest/7.0.1 cython/.0.29.33 
 `MODULE_RUNTIME_DEPS`       | Loads these modules for building and testing the wheel.
 `MODULE_DEPS`               | **REMOVED** This variable is no longer used.
 `NUMPY_DEFAULT_VERSION`     | Compile wheels against an older version of numpy to avoid making them incompatible with slightly older versions. Will switch to `oldest-supported-numpy` metapackage in the future.  
@@ -171,7 +172,7 @@ Variable                    | Description
 `POST_BUILD_COMMANDS`       | Specify shell commands to be executed after building the package.
 `PRE_SETUP_COMMANDS`        | Specify shell commands to be executed before setting up build environment.
 `PYTHON_DEPS`               | Installs these Python-dependencies into the virtualenv in addition to `PYTHON_DEPS_DEFAULT`.
-`PYTHON_DEPS_DEFAULT`       | Is set to "numpy~=$NUMPY_DEFAULT_VERSION scipy cython" because these packages are needed by so many packages.
+`PYTHON_DEPS_DEFAULT`       | Is not set.
 `PYTHON_IMPORT_NAME`        | In case `import $NAME` is different from the package name, e.g. `PACKAGE=pyzmq` vs. `import zmq`. (default: `$PACKAGE`) 
 `PYTHON_TESTS`              | String with Python command(s) to test the package. Executed after `import $PYTHON_IMPORT_NAME`.
 `RPATH_ADD_ORIGIN`          | This will run `setrpaths.sh --path ${WHEEL_NAME} --add_origin`.
