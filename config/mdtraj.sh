@@ -1,2 +1,2 @@
-PYTHON_DEPS="cython  scipy pandas"
+PYTHON_DEPS="scipy pandas"
 

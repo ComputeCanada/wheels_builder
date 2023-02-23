@@ -1,2 +1,2 @@
-PYTHON_DEPS="Cython  scipy matplotlib"
+PYTHON_DEPS="scipy matplotlib"
 

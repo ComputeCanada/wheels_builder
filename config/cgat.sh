@@ -1,2 +1,2 @@
-PYTHON_DEPS=" cython pysam setuptools pyparsing pyaml alignlib-lite matplotlib biopython"
+PYTHON_DEPS="  pysam setuptools pyparsing pyaml alignlib-lite matplotlib biopython"
 

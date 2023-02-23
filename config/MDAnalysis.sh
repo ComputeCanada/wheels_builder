@@ -1,4 +1,4 @@
-PYTHON_DEPS="gsd Cython joblib  mock GridDataFormats scipy matplotlib networkx biopython mmtf-python six duecredit"
+PYTHON_DEPS="gsd joblib  mock GridDataFormats scipy matplotlib networkx biopython mmtf-python six duecredit"
 # keyword "provides" makes problems with wheelfile package [1]
 # and is also ignored by pip [2], so we just comment it out.
 # [1] https://github.com/MrMino/wheelfile/issues/13

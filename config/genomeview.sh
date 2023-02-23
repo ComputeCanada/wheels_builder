@@ -1,1 +1,1 @@
-PYTHON_DEPS=" scipy cython pysam"
+PYTHON_DEPS=" scipy  pysam"
