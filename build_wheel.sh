@@ -200,14 +200,19 @@ function wrapped_pip_install {
 			log_command pushd $STARTING_DIRECTORY
 			echo $w
 			if [[ $w =~ .*none-any.* ]]; then
-				echo "Wheel is none-any, using unmanylinuxize.sh"
-				log_command bash ./unmanylinuxize.sh --package $wheel_name --version $wheel_version
+				IS_NONE_ANY="yes"
 			else
+				IS_NONE_ANY="no"
+			fi
+			if [[ -e "$CONFIGDIR/${wheel_name}-${wheel_version}.sh" || -e "$CONFIGDIR/${wheel_name}.sh" || "${IS_NONE_ANY}" == "no"  ]]; then
 				if [[ ! -z "$ARG_PYTHON_VERSIONS" ]]; then
 					log_command bash $THIS_SCRIPT --package=$wheel_name --version $wheel_version --recursive=0 --python=$ARG_PYTHON_VERSIONS --verbose=$ARG_VERBOSE_LEVEL
 				else
 					log_command bash $THIS_SCRIPT --package=$wheel_name --version $wheel_version --recursive=0 --verbose=$ARG_VERBOSE_LEVEL
 				fi
+			else
+				echo "Wheel is none-any, using unmanylinuxize.sh"
+				log_command bash ./unmanylinuxize.sh --package $wheel_name --version $wheel_version
 			fi
 			log_command popd
 			echo "========================================================="
