@@ -78,7 +78,7 @@ PATCHES=""
 PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary \$PACKAGE --no-use-pep517 --no-build-isolation --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py'
 
-PYTHON_DEPS_DEFAULT="oldest-supported-numpy scipy cython pybind11"
+PYTHON_DEPS_DEFAULT="scipy"
 
 PYTHON27_ONLY="cogent OBITools gdata qcli emperor RSeQC preprocess Amara pysqlite IPTest ipaddress functools32 blmath bamsurgeon"
 if [[ $PYTHON27_ONLY =~ " $PACKAGE " ]]; then
@@ -529,7 +529,7 @@ for pv in $PYTHON_VERSIONS; do
 
 	echo "Loading module $pv"
 	log_command module load $pv
-	log_command module load python-build-bundle pytest/7.0.1 cython/.0.29.33
+	log_command module load python-build-bundle pytest/7.0.1 cython/.0.29.33 oldest-supported-numpy/.2022a
 
 	setup
 
