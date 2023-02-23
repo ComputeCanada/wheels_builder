@@ -531,7 +531,7 @@ for pv in $PYTHON_VERSIONS; do
 
 	echo "Loading module $pv"
 	log_command module load $pv
-	log_command module load python-build-bundle pytest/7.0.1 cython/.0.29.33
+	log_command module load oldest-supported-numpy/.2022a python-build-bundle pytest/7.0.1 cython/.0.29.33
 
 	setup
 

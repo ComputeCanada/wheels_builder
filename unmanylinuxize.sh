@@ -80,8 +80,12 @@ else
 		module load python/$pv
 		python -m venv env-$pv && source env-$pv/bin/activate
 		pip install -U pip
-		PYTHONPATH= pip download --no-deps $PACKAGE_DOWNLOAD_ARGUMENT
+		WHEEL_NAME=$(PYTHONPATH= pip download --no-deps $PACKAGE_DOWNLOAD_ARGUMENT  |& tee download.log | grep "Saved " | awk '{print $2}')
 		deactivate
+		if [[ $WHEEL_NAME =~ .*-py3-.* || $WHEEL_NAME =~ .*py2.py3.* ]]; then
+			echo "Wheel $WHEEL_NAME is compatible with all further versions of python. Breaking"
+			break
+		fi
 	done
 fi
 
