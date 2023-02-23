@@ -1,1 +1,1 @@
-PYTHON_DEPS="numpy~=$NUMPY_DEFAULT_VERSION scipy cython pysam"
+PYTHON_DEPS=" scipy cython pysam"

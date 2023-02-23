@@ -78,9 +78,7 @@ PATCHES=""
 PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary \$PACKAGE --no-use-pep517 --no-build-isolation --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py'
 
-NUMPY_DEFAULT_VERSION=1.21.2
-
-PYTHON_DEPS_DEFAULT="numpy~=$NUMPY_DEFAULT_VERSION scipy"
+PYTHON_DEPS_DEFAULT="oldest-supported-numpy scipy cython pybind11"
 
 PYTHON27_ONLY="cogent OBITools gdata qcli emperor RSeQC preprocess Amara pysqlite IPTest ipaddress functools32 blmath bamsurgeon"
 if [[ $PYTHON27_ONLY =~ " $PACKAGE " ]]; then
@@ -519,7 +517,7 @@ else
 	else
 		module load arch/${ARCH_TO_LOAD:-avx2}
 	fi
-	module load gentoo/2020 gcc/9.3.0
+	module load gentoo/2020 gcc/9.3.0 python-build-bundle
 fi
 for pv in $PYTHON_VERSIONS; do
 	if [[ $pv =~ python/2 ]]; then

@@ -8,7 +8,7 @@ POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NA
 
 MODULE_BUILD_DEPS="arch/sse3 flexiblas/3.0.4 cmake"
 PYTHON_DEPS_DEFAULT=""
-PYTHON_DEPS="numpy~=$NUMPY_DEFAULT_VERSION pytest pybind11 cython pythran meson-python"
+PYTHON_DEPS=" pytest pybind11 cython pythran meson-python"
 
 # Test test_x0_equals_Mb fail on avx512 capable processor:
 # https://github.com/scipy/scipy/issues/17075#issuecomment-1255594078
