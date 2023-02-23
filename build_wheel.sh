@@ -195,12 +195,19 @@ function wrapped_pip_install {
 		for w in $DOWNLOADED_DEPS; do
 			echo "========================================================="
 			wheel_name=$(basename $w | grep -Po '^[\w-_]+-' | sed 's/.$//')
+			wheel_version=$(basename $w | cut -d'-' -f2 | cut -d'+' -f1)
 			echo Building $wheel_name
 			log_command pushd $STARTING_DIRECTORY
-			if [[ ! -z "$ARG_PYTHON_VERSIONS" ]]; then
-				bash $THIS_SCRIPT --package=$wheel_name --recursive=0 --python=$ARG_PYTHON_VERSIONS --verbose=$ARG_VERBOSE_LEVEL
+			echo $w
+			if [[ $w =~ .*none-any.* ]]; then
+				echo "Wheel is none-any, using unmanylinuxize.sh"
+				log_command bash ./unmanylinuxize.sh --package $wheel_name --version $wheel_version
 			else
-				bash $THIS_SCRIPT --package=$wheel_name --recursive=0 --verbose=$ARG_VERBOSE_LEVEL
+				if [[ ! -z "$ARG_PYTHON_VERSIONS" ]]; then
+					log_command bash $THIS_SCRIPT --package=$wheel_name --version $wheel_version --recursive=0 --python=$ARG_PYTHON_VERSIONS --verbose=$ARG_VERBOSE_LEVEL
+				else
+					log_command bash $THIS_SCRIPT --package=$wheel_name --version $wheel_version --recursive=0 --verbose=$ARG_VERBOSE_LEVEL
+				fi
 			fi
 			log_command popd
 			echo "========================================================="
