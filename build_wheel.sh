@@ -80,7 +80,7 @@ PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g"
 
 NUMPY_DEFAULT_VERSION=1.21.2
 
-PYTHON_DEPS_DEFAULT="numpy~=$NUMPY_DEFAULT_VERSION scipy cython pybind11"
+PYTHON_DEPS_DEFAULT="numpy~=$NUMPY_DEFAULT_VERSION scipy"
 
 PYTHON27_ONLY="cogent OBITools gdata qcli emperor RSeQC preprocess Amara pysqlite IPTest ipaddress functools32 blmath bamsurgeon"
 if [[ $PYTHON27_ONLY =~ " $PACKAGE " ]]; then
@@ -242,7 +242,6 @@ function setup()
 
 	log_command python -m venv build_$PVDIR || virtualenv build_$PVDIR || pyvenv build_$PVDIR
 	source build_$PVDIR/bin/activate
-	log_command pip install --no-index --upgrade pip setuptools setuptools_scm[toml] wheel
 	if [[ -n "$PYTHON_DEPS_DEFAULT" ]]; then
 		wrapped_pip_install $PYTHON_DEPS_DEFAULT
 	fi
@@ -532,6 +531,7 @@ for pv in $PYTHON_VERSIONS; do
 
 	echo "Loading module $pv"
 	log_command module load $pv
+	log_command module load python-build-bundle pytest/7.0.1 cython/.0.29.33
 
 	setup
 
