@@ -1,2 +1,2 @@
-PYTHON_DEPS="Cython Sphinx ipython virtualenv"
+PYTHON_DEPS="Sphinx ipython virtualenv"
 

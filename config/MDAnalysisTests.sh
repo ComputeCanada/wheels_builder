@@ -1,2 +1,2 @@
-PYTHON_DEPS="MDAnalysis hypothesis pytest joblib pbr"
+PYTHON_DEPS="MDAnalysis hypothesis joblib pbr"
 

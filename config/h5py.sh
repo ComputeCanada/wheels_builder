@@ -7,7 +7,7 @@ if [[ -z $EBROOTGENTOO ]]; then
 else
 	MODULE_BUILD_DEPS="gcc/9.3.0 hdf5"
 fi
-PYTHON_DEPS="nose numpy~=$NUMPY_DEFAULT_VERSION six Cython unittest2"
+PYTHON_DEPS="nose  six unittest2"
 PYTHON_TESTS="h5py.run_tests()"
 PRE_SETUP_COMMANDS="unset EBPYTHONPREFIXES"
 

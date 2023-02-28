@@ -1,2 +1,2 @@
-PYTHON_DEPS="numpy~=$NUMPY_DEFAULT_VERSION python-lzo six"
+PYTHON_DEPS=" python-lzo six"
 

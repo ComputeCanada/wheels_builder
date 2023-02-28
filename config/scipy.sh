@@ -6,9 +6,12 @@ PACKAGE_DOWNLOAD_METHOD="Git"
 PACKAGE_DOWNLOAD_CMD="git clone --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 
-MODULE_BUILD_DEPS="arch/sse3 flexiblas/3.0.4 cmake"
+MODULE_BUILD_DEPS="flexiblas/3.0.4 cmake"
 PYTHON_DEPS_DEFAULT=""
-PYTHON_DEPS="numpy~=$NUMPY_DEFAULT_VERSION pytest pybind11 cython pythran meson-python"
+PYTHON_DEPS=" pythran meson-python "
+if [[ ${VERSION} =~ 1.10.* ]]; then
+	PYTHON_DEPS="$PYTHON_DEPS numpy==1.19.5;python_version<'3.10' "
+fi
 
 # Test test_x0_equals_Mb fail on avx512 capable processor:
 # https://github.com/scipy/scipy/issues/17075#issuecomment-1255594078
