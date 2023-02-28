@@ -1,5 +1,5 @@
 MODULE_BUILD_DEPS="cuda/11.4 opencv"
-PYTHON_DEPS="torch"
+PYTHON_DEPS="torch${TORCH_VERSION:+==$TORCH_VERSION}"
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/facebookresearch/pytorch3d/archive/refs/tags/v${VERSION:?version required}.tar.gz"
 PRE_BUILD_COMMANDS='
 	export FORCE_CUDA=1;
