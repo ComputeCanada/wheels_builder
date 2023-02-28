@@ -172,7 +172,7 @@ Variable                    | Description
 `POST_BUILD_COMMANDS`       | Specify shell commands to be executed after building the package.
 `PRE_SETUP_COMMANDS`        | Specify shell commands to be executed before setting up build environment.
 `PYTHON_DEPS`               | Installs these Python-dependencies into the virtualenv in addition to `PYTHON_DEPS_DEFAULT`.
-`PYTHON_DEPS_DEFAULT`       | Is not set.
+`PYTHON_DEPS_DEFAULT`       | Is set to `scipy`.
 `PYTHON_IMPORT_NAME`        | In case `import $NAME` is different from the package name, e.g. `PACKAGE=pyzmq` vs. `import zmq`. (default: `$PACKAGE`) 
 `PYTHON_TESTS`              | String with Python command(s) to test the package. Executed after `import $PYTHON_IMPORT_NAME`.
 `RPATH_ADD_ORIGIN`          | This will run `setrpaths.sh --path ${WHEEL_NAME} --add_origin`.
