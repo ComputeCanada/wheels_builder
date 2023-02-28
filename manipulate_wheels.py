@@ -150,7 +150,7 @@ def main():
                         if re.search(r'^numpy(\W|$)', curr_req):
                             if args.verbose:
                                 print('Found numpy dependency.')
-                            curr_version_req = curr_req.replace("numpy","").strip()
+                            curr_version_req = curr_req.replace("numpy","").replace("(","").replace(")","").strip()
                             req_tokens = ["numpy",""]
                             if curr_version_req:
                                 # split version spec-set into separate specs
