@@ -288,7 +288,7 @@ function download()
 		PACKAGE_DOWNLOAD_CMD=${PACKAGE_DOWNLOAD_CMD//--no-binary \$PACKAGE/}
 		PACKAGE_DOWNLOAD_CMD=${PACKAGE_DOWNLOAD_CMD//--no-use-pep517/}
 		ARCHNAME=$(PIP_CONFIG_FILE= eval $PACKAGE_DOWNLOAD_CMD |& tee download.log | grep "Saved " | awk '{print $2}')
-		if [[ $ARCHNAME =~ .*-py3-none-any.* ]]; then
+		if [[ $ARCHNAME =~ .*-py3-none-any.* ]]; then
 			echo $ARCHNAME is py3-none-any, no build needed
 		else
 			unset $ARCHNAME
