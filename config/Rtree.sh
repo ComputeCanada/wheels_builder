@@ -1,2 +1,2 @@
 MODULE_RUNTIME_DEPS="gcc libspatialindex"
-PATCHES="$PWD/patches/Rtree.patch"
+PATCHES="Rtree-1.0.1-find-spatialindex.patch"
