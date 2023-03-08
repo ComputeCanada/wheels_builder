@@ -1,1 +1,1 @@
-PYTHON_DEPS="poetry"
+PYTHON_IMPORT_NAME="snsynth"
