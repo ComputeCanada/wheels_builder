@@ -1,3 +1,3 @@
 PYTHON_DEPS="maturin"
-MODULE_BUILD_DEPS="rust/1.65.0"
+MODULE_BUILD_DEPS="rust"
 PYTHON_IMPORT_NAME="pacsynth"
