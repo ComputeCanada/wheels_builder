@@ -1,0 +1,11 @@
+diff -ru Rtree-1.0.1-orig/rtree/finder.py Rtree-1.0.1/rtree/finder.py
+--- Rtree-1.0.1-orig/rtree/finder.py	2023-03-06 15:47:47.781255875 +0000
++++ Rtree-1.0.1/rtree/finder.py	2023-03-06 15:49:02.880876187 +0000
+@@ -17,6 +17,7 @@
+ # libspatialindex shared library *might* be hanging out
+ _candidates = [
+     os.environ.get("SPATIALINDEX_C_LIBRARY", None),
++    os.path.join(os.environ["EBROOTLIBSPATIALINDEX"], "lib"),
+     os.path.join(_cwd, "lib"),
+     _cwd,
+     "",
