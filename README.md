@@ -44,6 +44,7 @@ This script will:
 - Create a build-virtualenv based on the (first) Python version and install dependencies.
 - Download the package from PyPI (by default), either the version specified or else the latest.
 - Build the wheel.
+- Add the +computecanada to the wheel name.
 - To test: install the wheel into the build-virtualenv and try to import it.
 
 By default, it tries to build wheels for Python 3.8, 3.9, 3.10, and 3.11.
