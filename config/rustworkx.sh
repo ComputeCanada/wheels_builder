@@ -1,1 +1,1 @@
-MODULE_BUILD_DEPS="python-build-bundle rust"
+MODULE_BUILD_DEPS="rust"
