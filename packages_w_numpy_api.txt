@@ -23,3 +23,5 @@ pyhdf
 pybullet-svl
 pybullet_svl
 vaex-core
+gpaw
+pytng

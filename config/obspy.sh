@@ -1,8 +1,11 @@
-if [[ "$VERSION" == "1.2.2" ]]; then
+if [[ "$VERSION" == "1.2.2" && -n $EBROOTGENTOO ]]; then
     # Need to make sure that we only use packages that are compatible with numpy 1.19.x
     # The best (only) way I could find, was loading this module, as it already contains
     # many of the dependencies that were all built against numpy 1.19.2.
     MODULE_RUNTIME_DEPS="scipy-stack/2020b"
+elif [[ "$VERSION" == "1.2.2" && -n $EBROOTNIXPKGS ]]; then
+    PYTHON="3.7"
+    PYTHON_DEPS="numpy~=1.19.2 future matplotlib lxml setuptools sqlalchemy decorator requests"
 fi
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PACKAGE_DOWNLOAD_METHOD="Git"
