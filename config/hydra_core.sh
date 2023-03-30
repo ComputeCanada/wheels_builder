@@ -1,1 +1,3 @@
+MODULE_BUILD_DEPS='java'
 PYTHON_IMPORT_DEPS="build_helpers"
+PYTHON_IMPORT_NAME='hydra'
