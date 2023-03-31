@@ -67,4 +67,5 @@ else
 	# Yes, two times the command, display what will be run and then run it.
 	parallel --dry-run          $cmd
 	parallel --joblog $logfile  $cmd
+	echo $logfile && cat $logfile
 fi
