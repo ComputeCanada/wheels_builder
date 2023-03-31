@@ -4,7 +4,7 @@ THIS_SCRIPT=$0
 SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$THIS_SCRIPT")")
 
 if [[ -z "$PYTHON_VERSIONS" ]]; then
-	PYTHON_VERSIONS=$(module --terse spider python | grep -v "/2\.\|/3.[567]" | grep -Po "\d\.\d+" | sort -u | sed 's#^#python/#')
+	PYTHON_VERSIONS=$(module --terse spider python | grep -v "/2\.\|/3.[5678]" | grep -Po "\d\.\d+" | sort -Vu | sed 's#^#python/#')
 fi
 
 function print_usage {
