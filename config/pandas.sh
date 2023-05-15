@@ -1,2 +1,4 @@
-PYTHON_DEPS=" python-dateutil pytz  numexpr bottleneck scipy tables matplotlib nose moto"
+# Pandas does not support the oldest-supported-numpy version
+PYTHON_DEPS='versioneer numpy==1.21;python_version=="3.9"'
+PRE_BUILD_COMMANDS="python setup.py clean --all"
 
