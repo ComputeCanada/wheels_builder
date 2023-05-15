@@ -283,6 +283,18 @@ function download()
 			ARCHNAME=$(PIP_CONFIG_FILE= eval $PACKAGE_DOWNLOAD_CMD |& tee download.log | grep "Saved " | awk '{print $2}')
 		fi
 	fi
+	if [[ -z "$ARCHNAME" ]]; then
+		echo "Trying to download without --no-binary to see if it is a py3-none-any wheel."
+		PACKAGE_DOWNLOAD_CMD=${PACKAGE_DOWNLOAD_CMD//--no-binary \$PACKAGE/}
+		PACKAGE_DOWNLOAD_CMD=${PACKAGE_DOWNLOAD_CMD//--no-use-pep517/}
+		ARCHNAME=$(PIP_CONFIG_FILE= eval $PACKAGE_DOWNLOAD_CMD |& tee download.log | grep "Saved " | awk '{print $2}')
+		if [[ $ARCHNAME =~ .*-py3-none-any.* ]]; then
+			echo $ARCHNAME is py3-none-any, no build needed
+		else
+			unset $ARCHNAME
+		fi
+
+	fi
 	echo "Downloaded '$ARCHNAME'"
 	if [[ -z "$ARCHNAME" ]]; then
 		echo -e "${COL_RED}Error while downloading package. Aborting...${COL_RST}"
