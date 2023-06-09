@@ -1,5 +1,5 @@
-MODULE_BUILD_DEPS="gcc/9.3.0 openmpi/4.0.3 hdf5-mpi/1.10.6 netcdf-mpi/4.7.4 mpi4py/3.1.3"
-MODULE_RUNTIME_DEPS="gcc/9.3.0 openmpi/4.0.3 mpi4py/3.1.3"
+MODULE_BUILD_DEPS="openmpi hdf5-mpi netcdf-mpi mpi4py"
+MODULE_RUNTIME_DEPS="openmpi mpi4py"
 PRE_DOWNLOAD_COMMANDS='export HDF5_DIR=$EBROOTHDF5; export NETCDF4_DIR=$EBROOTNETCDF'
 RPATH_TO_ADD='$EBROOTOPENMPI/lib'
-
+PYTHON_DEPS='pip==23.0'
