@@ -1,5 +1,5 @@
-MODULE_BUILD_DEPS="gcc/9 cuda/11.4 cudnn cmake protobuf/3.21.3"
-PYTHON_DEPS="torch${TORCH_VERSION:+==$TORCH_VERSION} numpy>=1.21.2 protobuf==4.21.3"
+MODULE_BUILD_DEPS="gcc/9 cuda/11.7 cudnn cmake protobuf/3.21.3"
+PYTHON_DEPS="torch${TORCH_VERSION:+==$TORCH_VERSION}"
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/pytorch/audio"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PACKAGE_DOWNLOAD_METHOD="Git"

@@ -1,5 +1,6 @@
-PYTHON_DEPS="numpy>=1.21.2 ninja pyyaml"
-MODULE_BUILD_DEPS="gcc/9.3.0 cuda/11.4 openmpi magma nccl cudnn ffmpeg cmake flexiblas/3.0.4 eigen protobuf/3.19.4 opencv"
+PYTHON_DEPS="ninja pyyaml"
+# 11.7 and up is required for flash attention
+MODULE_BUILD_DEPS="gcc/9.3.0 cuda/11.7 openmpi magma nccl cudnn ffmpeg cmake flexiblas/3.0.4 eigen protobuf opencv fftw"
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/pytorch/pytorch.git"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PACKAGE_DOWNLOAD_METHOD="Git"
@@ -46,4 +47,9 @@ PRE_BUILD_COMMANDS='
 	export BLAS=FlexiBLAS;
 	export USE_BLAS=ON;
 	export USE_LAPACK=ON;
+
+	export BUILD_FUNCTORCH=ON;
+	export BUILD_NVFUSER=ON;
+	export USE_FLASH_ATTENTION=ON;
+    #export USE_TENSORRT=ON;
 '

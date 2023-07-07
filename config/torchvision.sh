@@ -1,5 +1,5 @@
-PYTHON_DEPS="numpy>=1.21.2 six pillow-simd torch${TORCH_VERSION:+==$TORCH_VERSION}"
-MODULE_BUILD_DEPS="gcc/9.3.0 cuda/11.4 cmake"
+PYTHON_DEPS="pillow-simd torch${TORCH_VERSION:+==$TORCH_VERSION}"
+MODULE_BUILD_DEPS="gcc/9.3.0 cuda/11.7 cmake"
 PACKAGE_DOWNLOAD_ARGUMENT="git+https://github.com/pytorch/vision.git@v${VERSION:?version required}"
 PRE_BUILD_COMMANDS="
 	export BUILD_VERSION=$VERSION;
