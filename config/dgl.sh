@@ -4,8 +4,8 @@ PACKAGE="dgl"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PYTHON_IMPORT_NAME=$PACKAGE
 PACKAGE_FOLDER_NAME=$PACKAGE
-MODULE_BUILD_DEPS="cmake cuda/11.4 nccl cudnn protobuf"
-PYTHON_DEPS="numpy>=1.21.2 scipy networkx torch${TORCH_VERSION:+==$TORCH_VERSION}"
+MODULE_BUILD_DEPS="cmake cuda/11.7 nccl cudnn protobuf"
+PYTHON_DEPS="networkx torch${TORCH_VERSION:+==$TORCH_VERSION}"
 PACKAGE_DOWNLOAD_METHOD="Git"
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/dmlc/dgl"
 PACKAGE_DOWNLOAD_CMD="git clone --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch ${VERSION:?version required} $PACKAGE_FOLDER_NAME"
