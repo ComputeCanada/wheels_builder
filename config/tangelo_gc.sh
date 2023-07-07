@@ -1,0 +1,2 @@
+PYTHON_DEPS='h5py'
+PYTHON_IMPORT_NAME='tangelo'
