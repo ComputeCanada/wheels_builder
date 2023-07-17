@@ -36,6 +36,7 @@ def create_argparser():
     parser.add_argument("-i", "--insert_local_version", action='store_true', help="Adds the +computecanada local version")
     parser.add_argument("-u", "--update_req", nargs="+", default=None, help="Updates requirements of the wheel.")
     parser.add_argument("-a", "--add_req", nargs="+", default=None, help="Add requirements to the wheel.")
+    parser.add_argument("-r", "--remove_req", nargs="+", default=None, help="Remove requirements from the wheel.")
     parser.add_argument("--set_min_numpy", default=None, help="Sets the minimum required numpy version.")
     parser.add_argument("--inplace", action='store_true', help="Work in the same directory as the existing wheel instead of a temporary location")
     parser.add_argument("--force", action='store_true', help="If combined with --inplace, overwrites existing wheel if the resulting wheel has the same name")
@@ -54,7 +55,7 @@ def main():
     if not os.path.exists(TMP_DIR):
         os.makedirs(TMP_DIR)
 
-    actions = [args.insert_local_version, args.update_req, args.set_min_numpy, args.print_req, args.add_req, args.tag]
+    actions = [args.insert_local_version, args.update_req, args.set_min_numpy, args.print_req, args.add_req, args.remove_req, args.tag]
     if not any(actions):
         print("No action requested. Quitting")
         return
@@ -140,6 +141,32 @@ def main():
                         # then add the new requirement
                         new_req += [req]
                         wf2.metadata.requires_dists = new_req
+
+                if args.remove_req:
+                    if not wf2:
+                        wf2 = WheelFile.from_wheelfile(wf, file_or_path=TMP_DIR, version=new_version)
+                    req_to_remove_found = False
+                    for req_to_remove in args.remove_req:
+                        req_to_remove_name = re.split(REQ_SEP, req_to_remove)[0]
+                        new_req = []
+                        # first, ensure that the requirement does exist in this wheel
+                        for curr_req in wf2.metadata.requires_dists:
+                            curr_req_name = re.split(REQ_SEP, curr_req)[0]
+                            # exact match, with version specifier
+                            if curr_req == req_to_remove:
+                                print(f"{w}: requirement {req_to_remove} found. Removing it")
+                                req_to_remove_found = True
+                            # no version was specified, match on name only
+                            elif req_to_remove_name == req_to_remove and curr_req_name == req_to_remove_name:
+                                print(f"{w}: requirement {req_to_remove_name} found. Removing it")
+                                req_to_remove_found = True
+                            else:
+                                new_req += [curr_req]
+                        # then update the requirement list
+                        wf2.metadata.requires_dists = new_req
+
+                    if not req_to_remove_found:
+                        print(f"{w}: requirement {req_to_remove} was to be removed, but was not found.")
 
                 if args.set_min_numpy:
                     if not wf2:
