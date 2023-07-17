@@ -146,8 +146,10 @@ def main():
                         wf2 = WheelFile.from_wheelfile(
                             wf, file_or_path=TMP_DIR, version=new_version)
                     new_req = []
+                    numpy_req_found = False
                     for curr_req in wf.metadata.requires_dists:
                         if re.search(r'^numpy(\W|$)', curr_req):
+                            numpy_req_found = True
                             if args.verbose:
                                 print('Found numpy dependency.')
                             curr_version_req = curr_req.replace("numpy","").replace("(","").replace(")","").strip()
@@ -182,6 +184,11 @@ def main():
                             # sys.exit(1) #TODO remove
                         else:
                             new_req.append(curr_req)
+
+                    if not numpy_req_found:
+                        to_req = 'numpy (>=' + args.set_min_numpy + ')'
+                        print(f"{w}: numpy requirement not found, adding {to_req}")
+                        new_req.append(to_req)
 
                     wf2.metadata.requires_dists = new_req
 
