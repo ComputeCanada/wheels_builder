@@ -1,2 +1,3 @@
-PYTHON_DEPS="numpy>=1.19 scipy>=1.5 networkx>=2.5 pillow>=9.0.1 imageio>=2.4.1 tifffile>=2019.7.26 PyWavelets>=1.1.1 packaging>=20.0 pythran"
+PYTHON_DEPS="pythran meson meson-python>=0.13"
 MODULE_BUILD_DEPS="arch/avx2"
+PYTHON_IMPORT_NAME='skimage'
