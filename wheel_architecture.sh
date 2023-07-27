@@ -5,7 +5,7 @@ fullname=$(readlink -f $filename)
 
 tmp=$(mktemp --directory)
 cd $tmp
-WORKS_ON_GENTOO=1
+WORKS_ON_GENTOO2020=1
 WORKS_ON_NIX=1
 
 unzip -q $fullname
@@ -24,11 +24,11 @@ function version_lte {
 }
 
 NIX_GLIBC="/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lib/libc.so.6"
-GENTOO_GLIBC="/cvmfs/soft.computecanada.ca/gentoo/2020/lib64/libc.so.6"
+GENTOO2020_GLIBC="/cvmfs/soft.computecanada.ca/gentoo/2020/lib64/libc.so.6"
 NIX_LDD="/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/ldd"
-GENTOO_LDD="/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/ldd"
+GENTOO2020_LDD="/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/ldd"
 NIX_GLIBC_VERSION=$(strings "$NIX_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
-GENTOO_GLIBC_VERSION=$(strings "$GENTOO_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
+GENTOO2020_GLIBC_VERSION=$(strings "$GENTOO2020_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 
 OIFS="$IFS"
 IFS=$'\n'
@@ -54,7 +54,7 @@ for fname in $(find . -type f); do
 	rpath=$(echo $rpath | sed -e "s;[^:]*/Core/python[^:]*;;g")
 	
 	if [[ $rpath =~ 'nix' || $rpath =~ 'easybuild/software/2017' ]]; then
-		WORKS_ON_GENTOO=0
+		WORKS_ON_GENTOO2020=0
 		echo "$fname" is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
 	elif [[ $rpath =~ 'gentoo' || $rpath =~ 'easybuild/software/2020' || $rpath =~ 'easybuild/software/2019' ]]; then
 		WORKS_ON_NIX=0
@@ -64,27 +64,27 @@ for fname in $(find . -type f); do
 		WORKS_ON_NIX=0
 		echo "$fname" requires a glibc more recent than that provided by Nix: $min_required_glibc ">" $NIX_GLIBC_VERSION >&2
 	fi
-	if [[ "$(version_lte $min_required_glibc $GENTOO_GLIBC_VERSION)" == "no" ]]; then
-		WORKS_ON_GENTOO=0
-		echo "$fname" requires a glibc more recent than that provided by Gentoo: $min_required_glibc ">" $GENTOO_GLIBC_VERSION >&2
+	if [[ "$(version_lte $min_required_glibc $GENTOO2020_GLIBC_VERSION)" == "no" ]]; then
+		WORKS_ON_GENTOO2020=0
+		echo "$fname" requires a glibc more recent than that provided by Gentoo 2020: $min_required_glibc ">" $GENTOO2020_GLIBC_VERSION >&2
 	fi
 
 	$NIX_LDD "$fname" | grep "not found" >&2
 	NIX_HAVE_LIBS=$?
-	$GENTOO_LDD "$fname" | grep "not found" >&2
-	GENTOO_HAVE_LIBS=$?
+	$GENTOO2020_LDD "$fname" | grep "not found" >&2
+	GENTOO2020_HAVE_LIBS=$?
 	if [[ $NIX_HAVE_LIBS -eq 0 ]]; then
 		WORKS_ON_NIX=0
 		echo "$fname" is missing some libraries in Nix >&2
 	fi
-	if [[ $GENTOO_HAVE_LIBS -eq 0 ]]; then
-		WORKS_ON_GENTOO=0
+	if [[ $GENTOO2020_HAVE_LIBS -eq 0 ]]; then
+		WORKS_ON_GENTOO2020=0
 		echo "$fname" is missing some libraries in Gentoo >&2
 	fi
-	if [[ $WORKS_ON_GENTOO -eq 1 && $WORKS_ON_NIX -eq 1 ]]; then
+	if [[ $WORKS_ON_GENTOO2020 -eq 1 && $WORKS_ON_NIX -eq 1 ]]; then
 		COMPATIBILITY_LAYER="generic"
-	elif [[ $WORKS_ON_GENTOO -eq 1 ]]; then
-		COMPATIBILITY_LAYER="gentoo"
+	elif [[ $WORKS_ON_GENTOO2020 -eq 1 ]]; then
+		COMPATIBILITY_LAYER="gentoo2020"
 	elif [[ $WORKS_ON_NIX -eq 1 ]]; then
 		COMPATIBILITY_LAYER="nix"
 	else
