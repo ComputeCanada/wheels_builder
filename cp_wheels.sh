@@ -84,7 +84,7 @@ function cp_wheel {
 			cp $1 $WHEELHOUSE_ROOT/generic
 			RESULT=$?
 		fi
-	elif [[ "$COMPAT" == "gentoo" || "$COMPAT" == "nix" ]]; then
+	elif [[ "$COMPAT" == "gentoo" || "$COMPAT" == "nix" || "$COMPAT" == "gentoo2020" || "$COMPAT" == "gentoo2023" ]]; then
 		echo cp $1 $WHEELHOUSE_ROOT/$COMPAT/$ARCHITECTURE
 		if [[ "$ARG_DRY_RUN" == "" ]]; then
 			cp $1 $WHEELHOUSE_ROOT/$COMPAT/$ARCHITECTURE
