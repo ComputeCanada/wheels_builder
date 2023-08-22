@@ -34,6 +34,8 @@ NIX_GLIBC_VERSION=$(strings "$NIX_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort
 GENTOO2020_GLIBC_VERSION=$(strings "$GENTOO2020_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 GENTOO2023_GLIBC_VERSION=$(strings "$GENTOO2023_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 
+self_contained_shared_objects=$(find . -name '*.so*' -print0 | xargs -0 -n1 -- basename | tr '\n' '|' | sed -e "s/|$//g")
+
 OIFS="$IFS"
 IFS=$'\n'
 for fname in $(find . -type f); do
@@ -82,11 +84,11 @@ for fname in $(find . -type f); do
 		WORKS_ON_GENTOO2023=0
 		echo "$fname" requires a glibc more recent than that provided by Gentoo 2023: $min_required_glibc ">" $GENTOO2020_GLIBC_VERSION >&2
 	fi
-	$NIX_LDD "$fname" | grep "not found" >&2
+	$NIX_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
 	NIX_HAVE_LIBS=$?
-	$GENTOO2020_LDD "$fname" | grep "not found" >&2
+	$GENTOO2020_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
 	GENTOO2020_HAVE_LIBS=$?
-	$GENTOO2023_LDD "$fname" | grep "not found" >&2
+	$GENTOO2023_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
 	GENTOO2023_HAVE_LIBS=$?
 	if [[ $NIX_HAVE_LIBS -eq 0 ]]; then
 		WORKS_ON_NIX=0
