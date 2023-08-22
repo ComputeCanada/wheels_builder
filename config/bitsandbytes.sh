@@ -11,7 +11,7 @@ PRE_BUILD_COMMANDS='
 	CUDA_VERSION=CPU make cpuonly GPP=$(which g++) -j 4;
 	module load cuda/11.4 && make cuda11x cuda11x_nomatmul -j 4 CUDA_VERSION=114 GPP=$(which g++) COMPUTE_CAPABILITY="-gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70" CC_KEPLER=;
 	module load cuda/11.7 && make cuda11x cuda11x_nomatmul -j 4 CUDA_VERSION=117 GPP=$(which g++) COMPUTE_CAPABILITY="-gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70" CC_KEPLER=;
-	module load cuda/11.8 && make cuda11x cuda11x_nomatmul -j 4 CUDA_VERSION=117 GPP=$(which g++) COMPUTE_CAPABILITY="-gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70" CC_KEPLER=;
+	module load cuda/11.8 && make cuda11x cuda11x_nomatmul -j 4 CUDA_VERSION=118 GPP=$(which g++) COMPUTE_CAPABILITY="-gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70" CC_KEPLER=;
 	sed -i "/setup(/a install_requires=[\"torch\", \"numpy\", \"scipy\"]," setup.py;
 '
 MODULE_RUNTIME_DEPS='cuda/11.4'
