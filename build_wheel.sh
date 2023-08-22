@@ -487,7 +487,7 @@ function adjust_torch_requirements_based_on_link_info()
 		find $tmpdir -type f -executable -exec ldd {} \+ | fgrep 'libtorch.so'
 		local res=$?
 
-		if [[ $res -eq 0 ]]; then
+		if [[ $res -eq 0 || ! -z "$TORCH_VERSION" ]]; then
 			echo "Link dependency on libtorch found. Pinning version of torch"
 			torch_build_version=$(pip show torch | grep Version | awk '{print $2}' | sed -e "s/\([^+]*\)+*.*/\1/g")
 			torch_build_version=${torch_build_version::-2} # X.Y.Z -> X.Y
