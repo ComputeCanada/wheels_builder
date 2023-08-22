@@ -25,3 +25,4 @@ pybullet_svl
 vaex-core
 gpaw
 pytng
+fitsio
