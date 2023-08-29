@@ -34,7 +34,7 @@ NIX_GLIBC_VERSION=$(strings "$NIX_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort
 GENTOO2020_GLIBC_VERSION=$(strings "$GENTOO2020_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 GENTOO2023_GLIBC_VERSION=$(strings "$GENTOO2023_GLIBC" | grep "^GLIBC_" | cut -d'_' -f2 | sort -V | grep "^[0-9]" | tail -1)
 
-self_contained_shared_objects=$(find . -name '*.so*' -print0 | xargs -0 -n1 -- basename | tr '\n' '|' | sed -e "s/|$//g")
+self_contained_shared_objects=$(find . -name '*.so*' -print0 | xargs -0 -n1 -- basename 2>/dev/null | tr '\n' '|' | sed -e "s/|$//g")
 
 OIFS="$IFS"
 IFS=$'\n'
