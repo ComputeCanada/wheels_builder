@@ -9,7 +9,7 @@ WORKS_ON_GENTOO2020=1
 WORKS_ON_GENTOO2023=1
 WORKS_ON_NIX=1
 
-unzip -q $fullname
+unzip -qn $fullname
 REX_DYNAMIC="^ELF 64-bit LSB.*dynamically linked.*"
 REX_SO="^ELF 64-bit LSB shared object.*x86-64.*"
 REX_OS_INTERPRETER=".*interpreter /lib64/ld-linux-x86-64.so.2.*"
