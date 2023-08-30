@@ -448,7 +448,7 @@ function adjust_numpy_requirements_based_on_link_info()
 	if [[ $WHEEL_NAME =~ .*linux_x86_64.* ]]; then
 		tmpdir=/tmp/wheel_builder_$BASHPID_$RANDOM
 		mkdir $tmpdir && pushd $tmpdir
-		log_command unzip -q $TMP_WHEELHOUSE/$WHEEL_NAME
+		log_command unzip -qn $TMP_WHEELHOUSE/$WHEEL_NAME
 		num_so=$(find . -name '*.so' | wc -l)
 		if [[ $num_so -gt 0 ]]; then
 			num_links=$(grep -l "module compiled against API version .* but this version of numpy is .*" $(find . -name '*.so') | wc -l)
@@ -483,7 +483,7 @@ function adjust_torch_requirements_based_on_link_info()
 	if [[ $WHEEL_NAME =~ .*linux_x86_64.* ]]; then
 		echo "Testing if wheel links on libtorch..."
 		local tmpdir=$(mktemp -d)
-		log_command unzip -q $TMP_WHEELHOUSE/$WHEEL_NAME -d $tmpdir
+		log_command unzip -qn $TMP_WHEELHOUSE/$WHEEL_NAME -d $tmpdir
 		find $tmpdir -type f -executable -exec ldd {} \+ | fgrep 'libtorch.so'
 		local res=$?
 
