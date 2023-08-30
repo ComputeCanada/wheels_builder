@@ -14,5 +14,12 @@ echo "libraries = flexiblas" >> site.cfg;'
 MODULE_BUILD_DEPS="arch/sse3 flexiblas/3.0.4"
 PYTHON_DEPS="nose hypothesis"
 PYTHON_DEPS_DEFAULT=""
-MODULE_BUILD_DEPS_DEFAULT="cython/.0.29.36 pytest python-build-bundle"
+# old versions don't build with most recent python-build-bundle (recent setuptools)
+if [[ ${VERSION} =~ 1.1* ]]; then
+	MODULE_BUILD_DEPS_DEFAULT="cython/.0.29.36 pytest python-build-bundle/2023a"
+elif [[ ${VERSION} =~ 1.2[0123]* ]]; then
+	MODULE_BUILD_DEPS_DEFAULT="cython/.0.29.36 pytest python-build-bundle/2023a"
+else
+	MODULE_BUILD_DEPS_DEFAULT="cython/.0.29.36 pytest python-build-bundle"
+fi
 PYTHON_TESTS="numpy.__config__.show(); numpy.test()"
