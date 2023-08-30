@@ -1,1 +1,1 @@
-PYTHON_DEPS='pybind11'
+PYTHON_DEPS='pybind11 meson-python'
