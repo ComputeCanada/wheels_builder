@@ -1,0 +1,11 @@
+diff -ru ipython-8.15.0.orig/IPython/core/application.py ipython-8.15.0/IPython/core/application.py
+--- ipython-8.15.0.orig/IPython/core/application.py	2023-09-01 16:13:01.968428018 +0000
++++ ipython-8.15.0/IPython/core/application.py	2023-09-01 16:13:34.239707993 +0000
+@@ -40,6 +40,7 @@
+         SYSTEM_CONFIG_DIRS = []
+ else:
+     SYSTEM_CONFIG_DIRS = [
++        "/cvmfs/soft.computecanada.ca/config/ipython",
+         "/usr/local/etc/ipython",
+         "/etc/ipython",
+     ]
