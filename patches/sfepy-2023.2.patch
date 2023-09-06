@@ -1,0 +1,20 @@
+Add extra spaces when joining CFLAGS CONFIGURE_CPPFLAGS and CONFIGURE_CFLAGS
+
+Otherwise we end up with errors when flags are not properly separated like:
+> cc: error: unrecognized command line option ‘-fPIC-I/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/libffi/3.3/include-O2’
+
+@Date:   2023-09-06
+@Author: Oliver Stueker <oliver.stueker@ace-net.ca>
+
+--- sfepy-2023.2.orig/sfepy/config.py	2023-05-25 03:00:55.000000000 -0230
++++ sfepy-2023.2/sfepy/config.py	2023-09-06 11:55:20.549971915 -0230
+@@ -39,8 +39,7 @@
+ 
+     cflags, configure_cppflags, configure_cflags = sysconfig.get_config_vars(
+         'CFLAGS', 'CONFIGURE_CPPFLAGS', 'CONFIGURE_CFLAGS')
+-
+-    return (cflags + configure_cppflags + configure_cflags).split()
++    return (cflags + ' ' + configure_cppflags + ' ' + configure_cflags).split()
+ 
+ 
+ class Config(object):

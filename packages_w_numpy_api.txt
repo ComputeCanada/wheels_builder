@@ -26,3 +26,4 @@ vaex-core
 gpaw
 pytng
 fitsio
+sfepy
