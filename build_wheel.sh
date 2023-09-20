@@ -109,6 +109,16 @@ COL_GRN="\033[32;1m" # green
 COL_YEL="\033[33;1m" # yellow
 COL_RST="\033[0m" # reset
 
+IGNORE_PACKAGES="cmake"
+for ignored in $IGNORE_PACKAGES;
+do
+	# Compare case-insensitively package name
+	if [[ "${PACKAGE,,}" == "$ignored" ]]; then
+		echo -e "${COL_YEL}Package ${PACKAGE} is voluntarily skipped. Not building it.${COL_RST}"
+		exit 1
+	fi
+done
+
 function single_test_import {
 	CONST_NAME="$1"
 	NAME="$2"
