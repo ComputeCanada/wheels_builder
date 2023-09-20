@@ -1,0 +1,23 @@
+diff --git a/fairseq2n/python/src/fairseq2n/__init__.py b/fairseq2n/python/src/fairseq2n/__init__.py
+index 7752c64..193743f 100644
+--- a/fairseq2n/python/src/fairseq2n/__init__.py
++++ b/fairseq2n/python/src/fairseq2n/__init__.py
+@@ -12,6 +12,7 @@ from ctypes.util import find_library
+ from os import environ
+ from pathlib import Path
+ from typing import List, Optional, Tuple
++import torch
+ 
+ __version__ = "0.1.1"
+ 
+@@ -107,7 +108,9 @@ def _load_shared_library(lib_name: str) -> Optional[CDLL]:
+ 
+ # We load shared libraries that we depend on using our own extended lookup logic
+ # since they might be located in non-default locations.
+-_load_shared_libraries()
++
++# Charles : No need as libraries are rpathed, plus this does not even work properly.
++#_load_shared_libraries()
+ 
+ 
+ def get_lib() -> Path:
