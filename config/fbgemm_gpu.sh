@@ -1,6 +1,6 @@
 #FBGEMM GPU is the python gpu kernels while FBGEMM is a CPU library
-MODULE_BUILD_DEPS='cmake protobuf cuda/11.4 cudnn'
-PYTHON_DEPS="scikit-build ninja jinja2 torch${TORCH_VERSION:+==$TORCH_VERSION}"
+MODULE_BUILD_DEPS='cmake protobuf cuda/11.7 cudnn'
+PYTHON_DEPS="scikit-build ninja jinja2 torch${TORCH_VERSION:+==$TORCH_VERSION} tabulate setuptools-git-versioning"
 PRE_BUILD_COMMANDS='
 	export CUDNN_LIBRARY=$EBROOTCUDNN/lib;
 	export CUDNN_INCLUDE_DIR=$EBROOTCUDNN/include;
