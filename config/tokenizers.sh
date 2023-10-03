@@ -1,2 +1,3 @@
-PYTHON_DEPS="setuptools_rust"
+PYTHON_DEPS="setuptools_rust maturin"
 MODULE_BUILD_DEPS="rust"
+PRE_BUILD_COMMANDS='export CARGO_BUILD_JOBS=5;'
