@@ -334,14 +334,16 @@ function verify_and_patch_arch_flags()
 			["avx512"]="skylake-avx512"
 			["sse3"]="nocona"
 		)
+		target=${gcc_targets[$RSNT_ARCH]}
+		ARCH_PRESENCE=$RSNT_ARCH
 		if [[ "$YEAR" == "2023" ]]; then
 			gcc_targets["avx2"]="x86-64-v3"
 			gcc_targets["avx512"]="x86-64-v4"
+			target=${gcc_targets[$RSNT_ARCH]}
+			ARCH_PRESENCE=$target
 		fi
-		target=${gcc_targets[$RSNT_ARCH]}
 		echo "-march=native found in files $files_native, replacing with -march=$target to build for $RSNT_ARCH"
 		sed -i -e "s/-march=native/-march=$target/" $files_native
-		ARCH_PRESENCE=$RSNT_ARCH
 	fi
 	if [[ -n "$files_xHost" ]]; then
 		echo "NOTE: -xHost found in files $files_xHost, expecting to be built with Intel compiler ?"
