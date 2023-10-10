@@ -11,10 +11,12 @@ echo "[lapack]" >> site.cfg;
 echo "libraries = flexiblas" >> site.cfg;
 echo "[blas]" >> site.cfg;
 echo "libraries = flexiblas" >> site.cfg;'
-MODULE_BUILD_DEPS="flexiblas"
-if [[ $EBVERSIONGENTOO != 2023 ]]; then
-	MODULE_BUILD_DEPS="arch/sse3 $MODULE_BUILD_DEPS"
+if [[ $EBVERSIONGENTOO -ge 2023 ]]; then
+	GENERIC_ARCH=avx2
+else
+	GENERIC_ARCH=sse3
 fi
+MODULE_BUILD_DEPS="arch/$GENERIC_ARCH flexiblas"
 PYTHON_DEPS="nose hypothesis"
 PYTHON_DEPS_DEFAULT=""
 MODULE_BUILD_DEPS_DEFAULT="cython/.0.29.36 pytest python-build-bundle"
