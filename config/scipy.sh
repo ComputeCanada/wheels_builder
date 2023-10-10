@@ -6,7 +6,7 @@ PACKAGE_DOWNLOAD_METHOD="Git"
 PACKAGE_DOWNLOAD_CMD="git clone --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 
-MODULE_BUILD_DEPS="flexiblas/3.0.4 cmake"
+MODULE_BUILD_DEPS="flexiblas/$FLEXIBLAS_VERSION cmake"
 PYTHON_DEPS_DEFAULT=""
 PYTHON_DEPS=" pythran meson-python "
 if [[ ${VERSION} =~ 1.10.* ]]; then
