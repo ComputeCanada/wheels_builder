@@ -9,5 +9,5 @@ else
 		python setup.py build_ext --inplace --enable-raqm;
 	'
 fi
-MODULE_BUILD_DEPS="raqm/0.9.0"
+MODULE_BUILD_DEPS="raqm/$RAQM_VERSION"
 TEST_COMMAND="python -c 'import PIL; from PIL import features; assert features.check(\"freetype2\"); assert features.check(\"raqm\")'"
