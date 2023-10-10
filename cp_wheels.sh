@@ -72,7 +72,7 @@ function cp_wheel {
 		# layer but can still be arch-specific if they make use of SIMD
 		# instructions. In that case, we put them in gentoo since new
 		# wheels might be incompatible with the older glibc in Nix.
-		COMPAT=gentoo
+		COMPAT=gentoo$EBVERSIONGENTOO
 	fi
 	echo chmod ug+rw,o+r $1
 	if [[ "$ARG_DRY_RUN" == "" ]]; then
