@@ -49,7 +49,7 @@ function cp_wheel {
 	if [[ "$ARG_ARCH" != "" ]]; then
 		ARCHITECTURE="$ARG_ARCH"
 	fi
-	if [[ ! "$ARCHITECTURE" =~ ^(generic|sse3|avx|avx2|avx512)$ ]]; then
+	if [[ ! "$ARCHITECTURE" =~ ^(generic|sse3|avx|avx2|avx512|x86-64-v3|x86-64-v4)$ ]]; then
 		echo "Error, unknown architecture: $ARCHITECTURE"
 		exit
 	fi

@@ -3,8 +3,21 @@
 THIS_SCRIPT=$0
 SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$THIS_SCRIPT")")
 
+YEAR="${EBVERSIONGENTOO:-2017}"
+EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[5678]"
+OLDEST_SUPPORTED_NUMPY_VERSION=.2022a
+if [[ "$YEAR" == "2017" ]]; then
+	GCC_VERSION=7.3.0
+elif [[ "$YEAR" == "2020" ]]; then
+	GCC_VERSION=9.3.0
+else
+	GCC_VERSION=12.3
+	OLDEST_SUPPORTED_NUMPY_VERSION=.2023b
+	EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[56789]"
+fi
+
 if [[ -z "$PYTHON_VERSIONS" ]]; then
-	PYTHON_VERSIONS=$(module --terse spider python | grep -v "/2\.\|/3.[5678]" | grep -Po "\d\.\d+" | sort -Vu | sed 's#^#python/#')
+	PYTHON_VERSIONS=$(module --terse spider python | grep -v "$EXCLUDE_PYTHON_VERSIONS" | grep -Po "\d\.\d+" | sort -Vu | sed 's#^#python/#')
 fi
 
 function print_usage {
@@ -79,7 +92,7 @@ PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary \$PACKAGE --no-use-
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py'
 
 PYTHON_DEPS_DEFAULT=""
-MODULE_BUILD_DEPS_DEFAULT="oldest-supported-numpy/.2022a python-build-bundle pytest/7.4.0 cython/.0.29.36"
+MODULE_BUILD_DEPS_DEFAULT="oldest-supported-numpy/$OLDEST_SUPPORTED_NUMPY_VERSION python-build-bundle pytest/7.4.0 cython/.0.29.36"
 
 PYTHON27_ONLY="cogent OBITools gdata qcli emperor RSeQC preprocess Amara pysqlite IPTest ipaddress functools32 blmath bamsurgeon"
 if [[ $PYTHON27_ONLY =~ " $PACKAGE " ]]; then
@@ -193,7 +206,7 @@ function wrapped_pip_install {
 		echo "The following dependencies were downloaded. Building them: $DOWNLOADED_DEPS"
 		for w in $DOWNLOADED_DEPS; do
 			echo "========================================================="
-			wheel_name=$(basename $w | grep -Po '^[\w-_]+-' | sed 's/.$//')
+			wheel_name=$(basename $w | grep -Po '^[\w_-]+-' | sed 's/.$//')
 			wheel_version=$(basename $w | cut -d'-' -f2 | cut -d'+' -f1)
 			echo Building $wheel_name
 			log_command pushd $STARTING_DIRECTORY
@@ -321,6 +334,10 @@ function verify_and_patch_arch_flags()
 			["avx512"]="skylake-avx512"
 			["sse3"]="nocona"
 		)
+		if [[ "$YEAR" == "2023" ]]; then
+			gcc_targets["avx2"]="x86-64-v3"
+			gcc_targets["avx512"]="x86-64-v4"
+		fi
 		target=${gcc_targets[$RSNT_ARCH]}
 		echo "-march=native found in files $files_native, replacing with -march=$target to build for $RSNT_ARCH"
 		sed -i -e "s/-march=native/-march=$target/" $files_native
@@ -526,7 +543,7 @@ mkdir $DIR
 log_command pushd $DIR
 if [[ -z "$EBROOTGENTOO" ]]; then
 	module --force purge
-	module load nixpkgs gcc/7.3.0
+	module load nixpkgs gcc/$GCC_VERSION
 else
 	ARCH_TO_LOAD="$EBVERSIONARCH"
 	# Figure out cheaply if the wheel needs an arch module to build
@@ -537,12 +554,12 @@ else
 	done
 	module --force purge
 	# if there are module dependencies, we really should build with our primary architecture rather than the compatibility one
-	if [[ -z "$MODULE_BUILD_DEPS" && -z "$MODULE_RUNTIME_DEPS" ]]; then
+	if [[ -z "$MODULE_BUILD_DEPS" && -z "$MODULE_RUNTIME_DEPS" && "$YEAR" == "2020" ]]; then
 		module load arch/${ARCH_TO_LOAD:-sse3}
 	else
 		module load arch/${ARCH_TO_LOAD:-avx2}
 	fi
-	log_command module load gentoo/2020 gcc/9.3.0 $MODULE_BUILD_DEPS_DEFAULT
+	log_command module load gentoo/$YEAR gcc/$GCC_VERSION $MODULE_BUILD_DEPS_DEFAULT
 fi
 for pv in $PYTHON_VERSIONS; do
 	if [[ $pv =~ python/2 ]]; then

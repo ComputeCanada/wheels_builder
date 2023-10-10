@@ -128,6 +128,12 @@ for fname in $(find . -type f); do
 	elif [[ $rpath =~ '/avx512/' ]]; then
 		ARCHITECTURE="avx512"
 		echo "$fname" is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
+	elif [[ $rpath =~ '/x86-64-v3/' ]]; then
+		ARCHITECTURE="x86-64-v3"
+		echo "$fname" is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
+	elif [[ $rpath =~ '/x86-64-v4/' ]]; then
+		ARCHITECTURE="x86-64-v4"
+		echo "$fname" is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
 	fi
 done
 IFS="$OIFS"

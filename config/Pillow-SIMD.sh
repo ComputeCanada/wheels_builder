@@ -11,5 +11,5 @@ else
 fi
 PYTHON_IMPORT_NAME="PIL"
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/uploadcare/pillow-simd/archive/refs/tags/v${VERSION:?version required}.tar.gz"
-MODULE_BUILD_DEPS="arch/avx2 raqm/0.9.0"
+MODULE_BUILD_DEPS="arch/avx2 raqm"
 TEST_COMMAND="python -c 'import PIL; from PIL import features; assert features.check(\"freetype2\"); assert features.check(\"raqm\")'"

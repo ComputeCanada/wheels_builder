@@ -2,10 +2,14 @@
 
 THIS_SCRIPT=$0
 SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$THIS_SCRIPT")")
+EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[5678]"
+if [[ "${EBVERSIONGENTOO:-2017}" == "2023" ]]; then
+	EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[56789]"
+fi
 
 function ls_pythons()
 {
-	ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/20*/Core/python/3* /cvmfs/soft.computecanada.ca/easybuild/software/2020/avx*/Core/python/3* | grep -v "3.[5678]" | grep -Po "\d\.\d+" | sort -Vu | tr '\n' ','
+	module --terse spider python | grep -v "$EXCLUDE_PYTHON_VERSIONS" | grep -Po "\d\.\d+" | sort -Vu | tr '\n' ','
 }
 
 function print_usage
@@ -77,7 +81,10 @@ if [[ ! -z "$ARG_URL" ]]; then
 	wget $ARG_URL
 else
 	for pv in $(echo ${ARG_PYTHON_VERSIONS-$(ls_pythons)} | tr ',' ' '); do
-		module load python/$pv pip/.23.0.1
+		module load python/$pv
+		if [[ "{$EBVERSIONGENTOO:-2017}" != "2023" ]]; then
+			module load pip/.23.0.1
+		fi
 		WHEEL_NAME=$(PYTHONPATH= pip download --no-deps $PACKAGE_DOWNLOAD_ARGUMENT  |& tee download.log | grep "Saved " | awk '{print $2}')
 		if [[ $WHEEL_NAME =~ .*-py3-.* || $WHEEL_NAME =~ .*py2.py3.* ]]; then
 			echo "Wheel $WHEEL_NAME is compatible with all further versions of python. Breaking"
