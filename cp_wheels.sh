@@ -73,9 +73,11 @@ function cp_wheel {
 		# instructions. In that case, we put them in gentoo since new
 		# wheels might be incompatible with the older glibc in Nix.
 		COMPAT=gentoo
-		if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
-			COMPAT=gentoo$EBVERSIONGENTOO
-		fi
+	fi
+	if [[ "$EBVERSIONGENTOO" == "2023" && "$COMPAT" == "gentoo" && "$ARCHITECTURE" != "generic" ]]; then
+		# Similar reasoning as above for wheels classified as either
+		# "generic" or "gentoo" for the 2023 stack
+		COMPAT=gentoo$EBVERSIONGENTOO
 	fi
 	echo chmod ug+rw,o+r $1
 	if [[ "$ARG_DRY_RUN" == "" ]]; then
