@@ -9,6 +9,13 @@ WORKS_ON_GENTOO2020=1
 WORKS_ON_GENTOO2023=1
 WORKS_ON_NIX=1
 
+# On Nix we don't have Py 3.9 and newer so those wheels can be generic and don't need
+# to be checked for Nix compatibility
+NEWER_PYTHON_REGEXP='computecanada-cp3[91]'
+if [[ $fullname =~ $NEWER_PYTHON_REGEXP ]]; then
+	WORKS_ON_NIX=0
+fi
+
 unzip -qn $fullname
 REX_DYNAMIC="^ELF 64-bit LSB.*dynamically linked.*"
 REX_SO="^ELF 64-bit LSB shared object.*x86-64.*"
@@ -59,7 +66,7 @@ for fname in $(find . -type f); do
 	# remove rpath from python itself from consideration
 	rpath=$(echo $rpath | sed -e "s;[^:]*/Core/python[^:]*;;g")
 	
-	if [[ $rpath =~ 'nix' || $rpath =~ 'easybuild/software/2017' ]]; then
+	if [[ $WORKS_ON_NIX -eq 1 && $rpath =~ 'nix' || $rpath =~ 'easybuild/software/2017' ]]; then
 		WORKS_ON_GENTOO2020=0
 		WORKS_ON_GENTOO2023=0
 		echo "$fname" is nix, rpath=$rpath  >&2
@@ -72,7 +79,7 @@ for fname in $(find . -type f); do
 		WORKS_ON_GENTOO2020=0
 		echo "$fname" is gentoo2023, rpath=$rpath  >&2
 	fi
-	if [[ "$(version_lte $min_required_glibc $NIX_GLIBC_VERSION)" == "no" ]]; then
+	if [[ $WORKS_ON_NIX -eq 1 && "$(version_lte $min_required_glibc $NIX_GLIBC_VERSION)" == "no" ]]; then
 		WORKS_ON_NIX=0
 		echo "$fname" requires a glibc more recent than that provided by Nix: $min_required_glibc ">" $NIX_GLIBC_VERSION >&2
 	fi
@@ -84,13 +91,15 @@ for fname in $(find . -type f); do
 		WORKS_ON_GENTOO2023=0
 		echo "$fname" requires a glibc more recent than that provided by Gentoo 2023: $min_required_glibc ">" $GENTOO2020_GLIBC_VERSION >&2
 	fi
-	$NIX_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
-	NIX_HAVE_LIBS=$?
+	if [[ $WORKS_ON_NIX -eq 1 ]]; then
+		$NIX_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
+		NIX_HAVE_LIBS=$?
+	fi
 	$GENTOO2020_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
 	GENTOO2020_HAVE_LIBS=$?
 	$GENTOO2023_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
 	GENTOO2023_HAVE_LIBS=$?
-	if [[ $NIX_HAVE_LIBS -eq 0 ]]; then
+	if [[ $WORKS_ON_NIX -eq 1 && $NIX_HAVE_LIBS -eq 0 ]]; then
 		WORKS_ON_NIX=0
 		echo "$fname" is missing some libraries in Nix >&2
 	fi
@@ -102,10 +111,12 @@ for fname in $(find . -type f); do
 		WORKS_ON_GENTOO2023=0
 		echo "$fname" is missing some libraries in Gentoo 2023 >&2
 	fi
-	if [[ $WORKS_ON_GENTOO2020 -eq 1 && $WORKS_ON_NIX -eq 1 && $WORKS_ON_GENTOO2023 -eq 1 ]]; then
-		COMPATIBILITY_LAYER="generic"
-	elif [[ $WORKS_ON_GENTOO2020 -eq 1 && $WORKS_ON_GENTOO2023 -eq 1 ]]; then
-		COMPATIBILITY_LAYER="gentoo"
+	if [[ $WORKS_ON_GENTOO2020 -eq 1 && $WORKS_ON_GENTOO2023 -eq 1 ]]; then
+		if [[ $WORKS_ON_NIX -eq 1 || $filename =~ $NEWER_PYTHON_REGEXP ]]; then
+			COMPATIBILITY_LAYER="generic"
+		else
+			COMPATIBILITY_LAYER="gentoo"
+		fi
 	elif [[ $WORKS_ON_GENTOO2023 -eq 1 ]]; then
 		COMPATIBILITY_LAYER="gentoo2023"
 	elif [[ $WORKS_ON_GENTOO2020 -eq 1 ]]; then
