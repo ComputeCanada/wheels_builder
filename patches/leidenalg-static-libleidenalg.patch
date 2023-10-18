@@ -1,0 +1,30 @@
+diff --git a/scripts/build_libleidenalg.sh b/scripts/build_libleidenalg.sh
+index f8220d4..f334db2 100755
+--- a/scripts/build_libleidenalg.sh
++++ b/scripts/build_libleidenalg.sh
+@@ -39,8 +39,7 @@ echo ""
+ echo "Configure libleidenalg build"
+ cmake ${ROOT_DIR}/build-deps/src/libleidenalg \
+     -DCMAKE_INSTALL_PREFIX=${ROOT_DIR}/build-deps/install/ \
+-    -DBUILD_SHARED_LIBS=ON \
+-    -Digraph_ROOT=${ROOT_DIR}/build-deps/install/lib/cmake/igraph/ \
++    -DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+     ${EXTRA_CMAKE_ARGS}
+ 
+ echo ""
+diff --git a/setup.py b/setup.py
+index 0d24804..bcb2cd8 100644
+--- a/setup.py
++++ b/setup.py
+@@ -55,9 +55,9 @@ setup(
+                   sources = glob.glob(os.path.join('src', 'leidenalg', '*.cpp')),
+                   py_limited_api=should_build_abi3_wheel,
+                   define_macros=macros,
+-                  libraries = ['libleidenalg', 'igraph'],
++                  libraries = ['igraph'],
+                   include_dirs=['include', 'build-deps/install/include'],
+-                  library_dirs=['build-deps/install/lib']
++                  extra_objects=['build-deps/install/lib64/liblibleidenalg.a']
+         )
+     ],
+     cmdclass=cmdclass
