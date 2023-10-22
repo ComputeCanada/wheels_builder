@@ -3,9 +3,16 @@
 # Build multiple versions of a wheel in parallel.
 # To terminate, ctrl+c or `killall -TERM parallel`
 
+
+YEAR="${EBVERSIONGENTOO:-2017}"
+EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[5678]"
+if [[ "$YEAR" == "2023" ]]; then
+	EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[56789]"
+fi
+
 function ls_pythons()
 {
-	ls -1d /cvmfs/soft.computecanada.ca/easybuild/software/20*/Core/python/3* /cvmfs/soft.computecanada.ca/easybuild/software/2020/avx*/Core/python/3* | grep -v "3.[5678]" | grep -Po "\d\.\d+" | sort -Vu | tr '\n' ','
+	module --terse spider python | grep -v "$EXCLUDE_PYTHON_VERSIONS" | grep -Po "\d\.\d+" | sort -Vu | tr '\n' ' '
 }
 
 function print_usage
@@ -40,7 +47,7 @@ if [[ (-z "$ARG_PACKAGE" && -z "$ARG_REQUIREMENTS") ]]; then
 	exit 1
 fi
 
-pythons=$(echo ${ARG_PYTHON_VERSIONS-$(ls_pythons)} | tr ',' ' ')
+pythons=$(echo ${ARG_PYTHON_VERSIONS-$(ls_pythons)})
 
 logfile="$$.log"
 cmdsfile="$$.cmds"
