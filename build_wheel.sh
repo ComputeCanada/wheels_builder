@@ -29,6 +29,12 @@ function print_usage {
 	echo "         [--verbose=<1,2,3>]"
 }
 
+# Translate a version number into a comparable number, supports up to 4 digits
+# Supports : 4.24, 4.24.0, 4.24.0.0 which all translate to 4024000000
+function translate_version {
+	echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }';
+}
+
 TEMP=$(getopt -o h --longoptions help,keep-build-dir,autocopy,verbose:,recursive:,package:,version:,python: -n $0 -- "$@")
 if [ $? != 0 ] ; then print_usage; exit 1 ; fi
 eval set -- "$TEMP"
