@@ -1,4 +1,8 @@
-MODULE_BUILD_DEPS="cuda/11.4 nccl cmake"
+if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
+	MODULE_BUILD_DEPS="cuda/12.2 nccl cmake"
+else
+	MODULE_BUILD_DEPS="cuda/11.4 nccl cmake"
+fi
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PACKAGE_DOWNLOAD_METHOD="Git"
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/dmlc/xgboost.git"
