@@ -82,7 +82,7 @@ if [[ ! -z "$ARG_URL" ]]; then
 else
 	for pv in $(echo ${ARG_PYTHON_VERSIONS-$(ls_pythons)} | tr ',' ' '); do
 		module load python/$pv
-		if [[ "{$EBVERSIONGENTOO:-2017}" != "2023" ]]; then
+		if [[ "${EBVERSIONGENTOO:-2017}" != "2023" ]]; then
 			module load pip/.23.0.1
 		fi
 		WHEEL_NAME=$(PYTHONPATH= pip download --no-deps $PACKAGE_DOWNLOAD_ARGUMENT  |& tee download.log | grep "Saved " | awk '{print $2}')
