@@ -74,7 +74,7 @@ for fname in $(find . -type f); do
 		WORKS_ON_NIX=0
 		WORKS_ON_GENTOO2023=0
 		echo "$fname" is gentoo2020, rpath=$rpath  >&2
-	elif [[ $rpath =~ 'gentoo/2023' || $rpath =~ 'easybuild/software/2023' ]]; then
+	elif [[ $rpath =~ 'gentoo/2023' || $rpath =~ 'easybuild/software/2023' || "$EBVERSIONGENTOO" == "2023" ]]; then
 		WORKS_ON_NIX=0
 		WORKS_ON_GENTOO2020=0
 		echo "$fname" is gentoo2023, rpath=$rpath  >&2
