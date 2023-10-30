@@ -1,6 +1,10 @@
 # jaxlib is a pain to build
 
-MODULE_RUNTIME_DEPS="cuda/11.7 cudnn/8.6"
+if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
+    MODULE_RUNTIME_DEPS="cuda/12.2 cudnn/8.9"
+else
+    MODULE_RUNTIME_DEPS="cuda/11.8 cudnn/8.6"
+fi
 
 if [[ $THIS_SCRIPT == 'build_wheel.sh' ]]; then
         echo "Thanks Bazel..for nothing! Using the following to add jaxlib wheels:"
