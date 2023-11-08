@@ -1,0 +1,1 @@
+MODULE_RUNTIME_DEPS='cuda/11.4 faiss'
