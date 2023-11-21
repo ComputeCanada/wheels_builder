@@ -1,4 +1,6 @@
-MODULE_BUILD_DEPS="sdl2 cmake"
+if [[ "$EBVERSIONGENTOO" != "2023" ]]; then
+    MODULE_BUILD_DEPS="sdl2 cmake"
+fi
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/mgbellemare/Arcade-Learning-Environment.git"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PACKAGE_DOWNLOAD_METHOD="Git"
