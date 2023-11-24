@@ -6,12 +6,19 @@ else
     MODULE_RUNTIME_DEPS="cuda/11.8 cudnn/8.6"
 fi
 
+RPATHS=(
+    '$EBROOTCUDACORE/lib64'
+    '$EBROOTCUDACORE/extras/CUPTI/lib64'
+    '$EBROOTCUDNN/lib'
+)
+RPATHS=${RPATHS[*]}
+
 if [[ $THIS_SCRIPT == 'build_wheel.sh' ]]; then
         echo "Thanks Bazel..for nothing! Using the following to add jaxlib wheels:"
         echo ""
         echo "module load gcc ${MODULE_RUNTIME_DEPS}"
-        echo "bash unmanylinuxize.sh --package jaxlib --add_path \$CUDA_HOME/lib64:\$EBROOTCUDNN/lib --version ${VERSION:-X.Y.Z} --find_links=https://storage.googleapis.com/jax-releases/jax_releases.html"
+        echo "bash unmanylinuxize.sh --package jaxlib --add_path \${RPATHS// /:} --version ${VERSION:-X.Y.Z} --find_links=https://storage.googleapis.com/jax-releases/jax_releases.html"
         module load gcc $MODULE_RUNTIME_DEPS
-        bash unmanylinuxize.sh --package jaxlib --add_path $CUDA_HOME/lib64:$EBROOTCUDNN/lib --version ${VERSION:?version required} --find_links=https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+        bash unmanylinuxize.sh --package jaxlib --add_path ${RPATHS// /:} --version ${VERSION:?version required} --find_links=https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
         exit 1;
 fi
