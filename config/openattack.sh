@@ -1,0 +1,2 @@
+MODULE_RUNTIME_DEPS='arrow'
+PYTHON_DEPS='tokenizers~=0.14.0'
