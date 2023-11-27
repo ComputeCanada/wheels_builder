@@ -1,9 +1,13 @@
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/apache/incubator-mxnet"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PACKAGE_DOWNLOAD_METHOD="Git"
-PACKAGE_DOWNLOAD_CMD="git clone --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch ${VERSION:?version required} $PACKAGE_FOLDER_NAME"
+PACKAGE_DOWNLOAD_CMD="git clone --depth 1 --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch ${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
-MODULE_BUILD_DEPS="flexiblas cuda/11.4 nccl cudnn opencv/4.5.5 cmake protobuf/3.19.4"
+if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
+	MODULE_BUILD_DEPS="flexiblas cuda/12.2 nccl cudnn opencv cmake protobuf"
+else
+	MODULE_BUILD_DEPS="flexiblas cuda/11.4 nccl cudnn opencv/4.5.5 cmake protobuf/3.19.4"
+fi
 PRE_BUILD_COMMANDS='
 mkdir build && cd build;
 cmake ..
