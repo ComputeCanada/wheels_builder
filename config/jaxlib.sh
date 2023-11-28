@@ -15,7 +15,7 @@ RPATHS=${RPATHS[*]}
 
 PATCH_WHEEL_COMMANDS="
     unzip -q -o \$ARCHNAME jaxlib/__init__.py;
-    sed -i -e '15 a import os; os.environ[\"XLA_FLAGS\"]=\"--xla_gpu_cuda_data_dir=$EBROOTCUDACORE\"' jaxlib/__init__.py;
+    sed -i -e '15 a import os; os.environ[\"XLA_FLAGS\"]=\"--xla_gpu_cuda_data_dir=$EBROOTCUDACORE \" + os.environ.get(\"XLA_FLAGS\",\"\")' jaxlib/__init__.py;
     zip \$ARCHNAME jaxlib/__init__.py;
 "
 
