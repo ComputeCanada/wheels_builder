@@ -13,6 +13,12 @@ RPATHS=(
 )
 RPATHS=${RPATHS[*]}
 
+PATCH_WHEEL_COMMANDS="
+    unzip -q -o \$ARCHNAME jaxlib/__init__.py;
+    sed -i -e '15 a import os; os.environ[\"XLA_FLAGS\"]=\"--xla_gpu_cuda_data_dir=$EBROOTCUDACORE\"' jaxlib/__init__.py;
+    zip \$ARCHNAME jaxlib/__init__.py;
+"
+
 if [[ $THIS_SCRIPT == 'build_wheel.sh' ]]; then
         echo "Thanks Bazel..for nothing! Using the following to add jaxlib wheels:"
         echo ""
