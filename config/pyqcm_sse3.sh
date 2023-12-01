@@ -1,0 +1,20 @@
+MODULE_RUNTIME_DEPS="
+    scipy-stack/2023b
+"
+MODULE_BUILD_DEPS="
+    cmake/3.23.1
+    cuba/4.2.2
+    eigen/3.3.7
+    flexiblas/3.0.4
+    primme/3.2
+"
+PRE_BUILD_COMMANDS="
+    export CMAKE_ARGS=\"
+        -DBLA_VENDOR=FlexiBLAS
+        -DEIGEN_HAMILTONIAN=1
+	-DWITH_PRIMME=1
+	-DPRIMME_DIR=$EBROOTPRIMME
+	-DCUBA_DIR=$EBROOTCUBA
+	-DWITH_GF_OPT_KERNEL=0
+    \"
+"
