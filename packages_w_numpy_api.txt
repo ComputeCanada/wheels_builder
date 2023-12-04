@@ -27,3 +27,4 @@ gpaw
 pytng
 fitsio
 sfepy
+pyqcm
