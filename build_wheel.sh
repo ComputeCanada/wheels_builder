@@ -172,6 +172,7 @@ function test_import {
 		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME}2"       #the other way also happens...
 		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//scikit_/sk}"   #special case for all of the scikit- packages
 		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_/.}"   #replacing _ by . sometimes happens
+		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_/}"   #remove _ sometimes happens
 		# add a version of all in lower cases
 		NAMES_TO_TEST="$NAMES_TO_TEST ${NAMES_TO_TEST,,}"
 		# remove duplicates
