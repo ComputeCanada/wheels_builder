@@ -79,6 +79,16 @@ function cp_wheel {
 		# "generic" or "gentoo" for the 2023 stack
 		COMPAT=gentoo$EBVERSIONGENTOO
 	fi
+	if [[ "$EBVERSIONGENTOO" == "2020" && ! "$ARCHITECTURE" =~ ^(generic|sse3|avx|avx2|avx512)$ ]]; then
+		echo "The choice of --arch $ARCHITECTURE is not valid for this StdEnv."
+		echo "Please specify <rsnt_arch> as generic|sse3|avx|avx2|avx512"
+		exit
+	fi
+	if [[ "$EBVERSIONGENTOO" == "2023" && ! "$ARCHITECTURE" =~ ^(generic|x86-64-v3|x86-64-v4)$ ]]; then
+		echo "The choice of --arch $ARCHITECTURE is not valid for this StdEnv."
+		echo "Please specify <rsnt_arch> as generic|x86-64-v3|x86-64-v4"
+		exit
+	fi
 	echo chmod ug+rw,o+r $1
 	if [[ "$ARG_DRY_RUN" == "" ]]; then
 		chmod ug+rw,o+r $1
