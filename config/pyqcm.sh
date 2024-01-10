@@ -2,10 +2,10 @@ MODULE_RUNTIME_DEPS="
     scipy-stack/2023b
 "
 MODULE_BUILD_DEPS="
-    cmake/3.23.1
+    cmake/3
     cuba/4.2.2
     eigen/3.4.0
-    flexiblas/3.0.4
+    flexiblas/3
     primme/3.2
 "
 PRE_BUILD_COMMANDS="
