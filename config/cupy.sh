@@ -1,7 +1,7 @@
 PYTHON_DEPS="optuna"
 # TODO: check if cusparselt works
 if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
-	MODULE_BUILD_DEPS="cuda/12.2 cudnn nccl cutensor/1.7"
+	MODULE_BUILD_DEPS="cuda/12.2 cudnn nccl cutensor"
 else
     MODULE_BUILD_DEPS="gcc/9.3.0 cuda/11.4 cudnn nccl cutensor"
 fi
