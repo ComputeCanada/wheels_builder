@@ -1,4 +1,9 @@
-MODULE_BUILD_DEPS="cuda/11.4 opencv"
+if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
+	MODULE_BUILD_DEPS="cuda/12.2 opencv/4.8"
+	PATCHES='pytorch3d-fix-float3-cuda12.patch'
+else
+	MODULE_BUILD_DEPS="cuda/11.4 opencv"
+fi
 PYTHON_DEPS="torch${TORCH_VERSION:+==$TORCH_VERSION}"
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/facebookresearch/pytorch3d/archive/refs/tags/v${VERSION:?version required}.tar.gz"
 PRE_BUILD_COMMANDS='
