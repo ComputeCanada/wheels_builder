@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a87d542b5..14cc16646 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -296,7 +296,7 @@ endif()
+ # This does not affect 3rd party libraries.
+ # Tensorflow 2.9+ requires cxx_17, but MSVC 19.29 throws errors with C++17
+ # enabled.
+-if (BUILD_SYCL_MODULE OR BUILD_TENSORFLOW_OPS)
++if (BUILD_SYCL_MODULE OR BUILD_TENSORFLOW_OPS OR BUILD_PYTORCH_OPS)
+     set(CMAKE_CXX_STANDARD 17)
+ else()
+     set(CMAKE_CXX_STANDARD 14)
