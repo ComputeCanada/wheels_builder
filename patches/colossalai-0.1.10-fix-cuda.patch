@@ -1,0 +1,13 @@
+diff --git a/setup.py b/setup.py
+index b58a4d98..92f8f968 100644
+--- a/setup.py
++++ b/setup.py
+@@ -117,7 +117,7 @@ if build_cuda_ext:
+         build_cuda_ext = False
+         
+ if build_cuda_ext:
+-    build_cuda_ext = check_cuda_availability(CUDA_HOME) and check_cuda_torch_binary_vs_bare_metal(CUDA_HOME)
++    build_cuda_ext = check_cuda_torch_binary_vs_bare_metal(CUDA_HOME)
+ 
+ if build_cuda_ext:
+     # Set up macros for forward/backward compatibility hack around
