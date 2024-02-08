@@ -1,0 +1,2 @@
+PYTHON_DEPS='Cython~=3.0.0'
+PYTHON_IMPORT_NAME="dicelib"
