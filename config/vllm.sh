@@ -8,4 +8,5 @@ PRE_BUILD_COMMANDS='
 	export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6";
 	export MAX_JOBS=1;
 	sed -i -e "0,/MAIN_CUDA_VERSION/{s/MAIN_CUDA_VERSION.*/MAIN_CUDA_VERSION=\"$EBVERSIONCUDA\"/}" setup.py;
+	sed -i -e "s/cupy-cuda12x/cupy/" requirements.txt;
 '
