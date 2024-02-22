@@ -1,0 +1,11 @@
+diff -ru Rtree-1.2.0.orig/rtree/finder.py Rtree-1.2.0/rtree/finder.py
+--- Rtree-1.2.0.orig/rtree/finder.py	2024-01-19 07:01:55.000000000 -0330
++++ Rtree-1.2.0/rtree/finder.py	2024-02-22 11:40:46.558802330 -0330
+@@ -20,6 +20,7 @@
+ if "SPATIALINDEX_C_LIBRARY" in os.environ:
+     _candidates.append(Path(os.environ["SPATIALINDEX_C_LIBRARY"]))
+ _candidates += [_cwd / "lib", _cwd, Path("")]
++_candidates.append(Path(os.path.join(os.environ["EBROOTLIBSPATIALINDEX"], "lib")))
+ 
+ 
+ def load() -> ctypes.CDLL:
