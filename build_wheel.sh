@@ -447,6 +447,9 @@ function test_whl()
 	log_command module list
 	echo "Installing wheel"
 	wrapped_pip_install ../$WHEEL_NAME
+	if [[ ! -z "$PRE_TEST_COMMANDS" ]]; then
+		log_command $PRE_TEST_COMMANDS
+	fi
 	if [[ -n "$TEST_COMMAND" ]]; then
 		log_command $TEST_COMMAND
 	elif [[ -n "$PYTHON_IMPORT_NAME" ]]; then
