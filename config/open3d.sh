@@ -22,7 +22,7 @@ PYTHON_DEPS="torch${TORCH_VERSION:+==$TORCH_VERSION} yapf==0.30.0"
 # Build for CPU then GPU, order is important.
 	# export PYTHONPATH=$VIRTUAL_ENV/lib/python3.*/site-packages:$PYTHONPATH;
 PRE_BUILD_COMMANDS="
-	export TORCH_CUDA_ARCH_LIST='6.0;7.0;7.5;8.0;8.6';
+	export TORCH_CUDA_ARCH_LIST='6.0;7.0;7.5;8.0;8.6;9.0';
 
 	sed -i -e "/obsoletes=/d" python/setup.py;
 
