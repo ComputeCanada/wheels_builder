@@ -1,0 +1,2 @@
+UPDATE_REQUIREMENTS="zmq->pyzmq"
+PYTHON_IMPORT_NAME="mii"
