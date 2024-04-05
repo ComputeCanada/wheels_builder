@@ -393,7 +393,7 @@ function build()
 	fi
 	echo "Building the wheel...."
 	if [[ -f "pyproject.toml" ]]; then
-		log_command pip wheel --no-deps --no-build-isolation . &> build.log
+		log_command pip wheel -vvv --no-deps --no-build-isolation . &> build.log
 	elif [[ -f "setup.py" ]]; then
 		log_command $PYTHON_CMD setup.py bdist_wheel $BDIST_WHEEL_ARGS &> build.log
 	fi
