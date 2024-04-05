@@ -177,6 +177,8 @@ function test_import {
 		NAMES_TO_TEST="$NAMES_TO_TEST ${CONST_NAME//_/}"   #remove _ sometimes happens
 		# add a version of all in lower cases
 		NAMES_TO_TEST="$NAMES_TO_TEST ${NAMES_TO_TEST,,}"
+		# add a version of all in upper cases
+		NAMES_TO_TEST="$NAMES_TO_TEST ${NAMES_TO_TEST^^}"
 		# remove duplicates
 		for TEST_NAME in $NAMES_TO_TEST; do
 			if [[ ! $NAMES_TO_TEST2 =~ [[:space:]]$TEST_NAME[[:space:]] ]]; then
