@@ -14,6 +14,14 @@ RPATHS=(
 )
 RPATHS=${RPATHS[*]}
 
+# Force define XLA_FLAGS for XLA JIT compilation. Define cuda path used
+PATCH_WHEEL_COMMANDS="
+    unzip -o \$ARCHNAME tensorflow/__init__.py;
+    patch -N -p0 < $SCRIPT_DIR/patches/tensorflow_xla_flags_cuda.patch;
+    sed -i -e 's;@@CUDA_HOME@@;$EBROOTCUDACORE;' tensorflow/__init__.py;
+    zip \$ARCHNAME tensorflow/__init__.py;
+"
+
 if [[ $THIS_SCRIPT == 'build_wheel.sh' ]]; then
         module load gcc $MODULE_RUNTIME_DEPS
         bash unmanylinuxize.sh --package tensorflow --add_path ${RPATHS// /:} --version ${VERSION:?version required}

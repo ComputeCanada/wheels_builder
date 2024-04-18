@@ -1,0 +1,12 @@
+--- tensorflow/__init__.py.orig	2024-04-18 13:05:10.412278376 -0400
++++ tensorflow/__init__.py	2024-04-18 13:08:38.253580950 -0400
+@@ -45,6 +45,9 @@
+ from tensorflow.python import tf2 as _tf2
+ _tf2.enable()
+ 
++# define xla_cuda_dir to cuda root directory. Prepend other XLA_FLAGS if any
++_os.environ['XLA_FLAGS'] = f"{_os.environ.get('XLA_FLAGS', '')} --xla_gpu_cuda_data_dir=@@CUDA_HOME@@".lstrip()
++
+ from tensorflow._api.v2 import __internal__
+ from tensorflow._api.v2 import __operators__
+ from tensorflow._api.v2 import audio
