@@ -7,6 +7,6 @@ if [[ -z $EBROOTGENTOO ]]; then
 else
 	MODULE_BUILD_DEPS="hdf5"
 fi
-PYTHON_DEPS="nose six unittest2 pytest"
+PYTHON_DEPS="nose six unittest2 pytest pytest-mpi"
 PYTHON_TESTS="h5py.run_tests()"
 
