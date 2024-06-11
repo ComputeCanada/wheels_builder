@@ -7,7 +7,7 @@ MODULE_BUILD_DEPS="arch/$GENERIC_ARCH flexiblas"
 
 # From 1.26, strictly use meson. Keep old instructions in case of, for now
 if [[ $(translate_version $VERSION) -ge $(translate_version '1.26.0')  ]]; then
-	PYTHON_DEPS=" pytest hypothesis -U 'pip>=24' meson-python setuptools"
+	PYTHON_DEPS=" pytest hypothesis -U pip>=24 meson-python setuptools"
 	PIP_WHEEL_ARGS='
 		-Csetup-args=-Dblas=flexiblas
 		-Csetup-args=-Dlapack=flexiblas
@@ -17,6 +17,7 @@ if [[ $(translate_version $VERSION) -ge $(translate_version '1.26.0')  ]]; then
 	'
 	# cython is not picked up in one test, and it fail. Install cython in the virtual env.
 	PRE_TEST_COMMANDS="pip install --ignore-installed 'cython>3.0.0'"
+	MODULE_BUILD_DEPS_DEFAULT="cython/.3.0.10"
 else
 	# One could also set NPY_BLAS_LIBS, NPY_LAPACK_LIBS and NPY_CBLAS_LIBS since numpy 1.21.
 	PRE_BUILD_COMMANDS='module load flexiblas;
