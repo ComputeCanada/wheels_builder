@@ -1,7 +1,7 @@
 # jaxlib is a pain to build
 
 if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
-    MODULE_RUNTIME_DEPS="cuda/12.2 cudnn/8.9"
+    MODULE_RUNTIME_DEPS="cuda/12.2 cudnn/8.9 nccl/2.18"
 else
     MODULE_RUNTIME_DEPS="cuda/11.8 cudnn/8.6"
 fi
@@ -10,6 +10,7 @@ RPATHS=(
     '$EBROOTCUDACORE/lib64'
     '$EBROOTCUDACORE/extras/CUPTI/lib64'
     '$EBROOTCUDNN/lib'
+    '$EBROOTNCCL/lib'
 )
 RPATHS=${RPATHS[*]}
 
