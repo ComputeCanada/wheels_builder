@@ -13,7 +13,7 @@ elif [[ "$YEAR" == "2020" ]]; then
 	CYTHON_VERSION=.0.29.36
 else
 	GCC_VERSION=12.3
-	OLDEST_SUPPORTED_NUMPY_VERSION=.2023b
+	OLDEST_SUPPORTED_NUMPY_VERSION=.2024a
 	EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[56789]"
 	CYTHON_VERSION=.3.0.10
 fi
@@ -101,7 +101,7 @@ PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary \$PACKAGE --no-use-
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py'
 
 PYTHON_DEPS_DEFAULT=""
-MODULE_BUILD_DEPS_DEFAULT="oldest-supported-numpy/$OLDEST_SUPPORTED_NUMPY_VERSION python-build-bundle pytest/7.4.0 cython/$CYTHON_VERSION"
+MODULE_BUILD_DEPS_DEFAULT="oldest-supported-numpy/$OLDEST_SUPPORTED_NUMPY_VERSION python-build-bundle pytest cython/$CYTHON_VERSION"
 
 PYTHON27_ONLY="cogent OBITools gdata qcli emperor RSeQC preprocess Amara pysqlite IPTest ipaddress functools32 blmath bamsurgeon"
 if [[ $PYTHON27_ONLY =~ " $PACKAGE " ]]; then
