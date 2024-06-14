@@ -10,8 +10,8 @@ MODULE_RUNTIME_DEPS='cuda/12'
 PRE_BUILD_COMMANDS='
 	cmake -B _build -S . -DCOMPUTE_BACKEND=cpu;
 	cmake --build _build --parallel 16;
-	cmake -B _build -S . -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY="60;70;75;80;86" -DNO_CUBLASLT=OFF;
+	cmake -B _build -S . -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY="60;70;75;80;86;90" -DNO_CUBLASLT=OFF;
 	cmake --build _build --parallel 16;
-	cmake -B _build -S . -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY="60;70;75;80;86" -DNO_CUBLASLT=ON;
+	cmake -B _build -S . -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY="60;70;75;80;86;90" -DNO_CUBLASLT=ON;
 	cmake --build _build --parallel 16;
 '
