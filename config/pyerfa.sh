@@ -1,1 +1,1 @@
-PYTHON_DEPS="packaging"
+PYTHON_DEPS="packaging numpy~=1.24.0"
