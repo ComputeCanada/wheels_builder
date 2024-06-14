@@ -1,1 +1,1 @@
-MODULE_RUNTIME_DEPS="gcc libspatialindex"
+MODULE_RUNTIME_DEPS="gcc libspatialindex arrow"
