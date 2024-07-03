@@ -1,0 +1,23 @@
+diff --git a/pennylane_lightning/core/src/simulators/lightning_qubit/CMakeLists.txt b/pennylane_lightning/core/src/simulators/lightning_qubit/CMakeLists.txt
+index f07b9492..8da73d02 100644
+--- a/pennylane_lightning/core/src/simulators/lightning_qubit/CMakeLists.txt
++++ b/pennylane_lightning/core/src/simulators/lightning_qubit/CMakeLists.txt
+@@ -29,17 +29,7 @@ target_compile_options(lightning_compile_options INTERFACE "-D_ENABLE_PLQUBIT=1"
+ if(ENABLE_BLAS)
+     message(STATUS "ENABLE_BLAS is ON.")
+ 
+-    find_package(MKL QUIET)
+-
+-    if(MKL_FOUND)
+-        add_definitions("-DENABLE_MKL")
+-        set(BLAS_INCLUDE_DIRS "${MKL_INCLUDE_DIR}")
+-        set(BLAS_LIBRARIES ${MKL_LIBRARY})
+-    else()
+-        find_package(CBLAS REQUIRED)
+-        set(BLAS_INCLUDE_DIRS ${CBLAS_INCLUDE_DIRS})
+-        set(BLAS_LIBRARIES ${CBLAS_LIBRARIES})
+-    endif()
++    find_package(BLAS REQUIRED)
+ 
+     target_link_libraries(lightning_external_libs INTERFACE "${BLAS_LIBRARIES}")
+     target_include_directories(lightning_external_libs INTERFACE "${BLAS_INCLUDE_DIRS}")
