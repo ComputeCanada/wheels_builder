@@ -1,0 +1,2 @@
+PYTHON_DEPS='versioneer'
+MODULE_RUNTIME_DEPS='proj'
