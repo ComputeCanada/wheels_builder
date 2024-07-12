@@ -1,16 +1,19 @@
-MODULE_BUILD_DEPS="arch/avx2 cmake cuda/11.4 cuquantum flexiblas"
-MODULE_RUNTIME_DEPS='cuda/11.4 cuquantum'
-PYTHON_DEPS="pybind11"
-PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/PennyLaneAI/pennylane-lightning-gpu/archive/refs/tags/v${VERSION:?version required}.tar.gz"
+MODULE_BUILD_DEPS="arch/avx2 cmake cuda cuquantum flexiblas"
+MODULE_RUNTIME_DEPS='cuda cuquantum'
+PYTHON_DEPS="pybind11 scipy"
+PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/PennyLaneAI/pennylane-lightning/archive/refs/tags/v${VERSION:?version required}.tar.gz"
 PRE_BUILD_COMMANDS="
-sed -i -E -e '/\s+\"cmake\",/d' -e '/\s+\"ninja\",/d' -e '/\s+\"wheel\",/d' setup.py &&
-sed -i -E -e 's/GIT_TAG\s+latest/GIT_TAG v$VERSION/' CMakeLists.txt &&
-python setup.py build_ext --cuquantum=$EBROOTCUQUANTUM --define='
+	export PL_BACKEND='lightning_gpu';
+	export CUQUANTUM_SDK=\$EBROOTCUQUANTUM/lib;
+	python setup.py build_ext --define='
 	ENABLE_NATIVE=OFF;
 	ENABLE_BLAS=ON;
 	ENABLE_OPENMP=ON;
 	BLA_VENDOR=FlexiBLAS;
 	ENABLE_AVX=ON;
-	ENABLE_AVX2=ON';
+	ENABLE_AVX2=ON;
+	ENABLE_LAPACK=ON'
 "
-UPDATE_REQUIREMENTS="pennylane-lightning==$VERSION pennylane==$VERSION"
+PATCHES='pennylane_lightning-fix_blas.patch'
+PYTHON_IMPORT_NAME='pennylane_lightning'
+# `pennylane_lightning.lightning_gpu` requires a device to import correctly.
