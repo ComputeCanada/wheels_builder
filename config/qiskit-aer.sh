@@ -1,12 +1,13 @@
-# could use cuQuantum but a pain to install
-MODULE_RUNTIME_DEPS="symengine flexiblas openmpi cuda/12 spdlog muparserx"
-PRE_BUILD_COMMANDS='rm -f pyproject.toml'
+MODULE_BUILD_DEPS='flexiblas openmpi spdlog muparserx'
+MODULE_RUNTIME_DEPS="symengine"
+PRE_BUILD_COMMANDS='
+    rm -f pyproject.toml;
+    export QISKIT_AER_PACKAGE_NAME='$PACKAGE';
+'
 BDIST_WHEEL_ARGS='
     -DBLA_VENDOR=FlexiBLAS
     -DDISABLE_CONAN=ON
     -DAER_MPI=ON
-    -DAER_CUDA_ARCH="6.0;7.0;7.5;8.0;8.6;8.6+PTX"
-    -DAER_THRUST_BACKEND=CUDA
-    -DCUDA_NVCC_FLAGS="-D_AVX512BF16VLINTRIN_H_INCLUDED -D_AVX512BF16INTRIN_H_INCLUDED"
+    -DBUILD_TESTS=OFF
 '
-PYTHON_IMPORT_NAME='qiskit.Aer'
+PYTHON_IMPORT_NAME='qiskit_aer'
