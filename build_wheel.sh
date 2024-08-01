@@ -451,7 +451,7 @@ function test_whl()
 	source build_$PVDIR/bin/activate
 	log_command module list
 	echo "Installing wheel"
-	wrapped_pip_install ../$WHEEL_NAME
+	wrapped_pip_install $TMP_WHEELHOUSE/$WHEEL_NAME
 	if [[ ! -z "$PRE_TEST_COMMANDS" ]]; then
 		log_command $PRE_TEST_COMMANDS
 	fi
@@ -462,7 +462,7 @@ function test_whl()
 	fi
 	SUCCESS=$?
 	deactivate
-	chmod o+r ../$WHEEL_NAME
+	chmod o+r $TMP_WHEELHOUSE/$WHEEL_NAME
 	if [[ $SUCCESS -ne 0 ]]; then
 		echo -e "${COL_RED}Error happened${COL_RST}"
 		cd ..
