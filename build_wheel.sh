@@ -555,7 +555,7 @@ function adjust_torch_requirements_based_on_link_info()
 }
 
 echo "Building wheel for $PACKAGE"
-DIR=tmp.$$
+DIR=/shared_tmp/tmp.$$
 mkdir $DIR
 log_command pushd $DIR
 if [[ -z "$EBROOTGENTOO" ]]; then
