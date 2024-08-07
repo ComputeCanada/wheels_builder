@@ -180,8 +180,11 @@ def main():
                             numpy_req_found = True
                             if args.verbose:
                                 print('Found numpy dependency.')
-                            curr_version_req = curr_req.replace("numpy","").replace("(","").replace(")","").strip()
+                            curr_version_req = curr_req.split(';')[0].replace("numpy","").replace("(","").replace(")","").strip()
                             req_tokens = ["numpy",""]
+                            if len(curr_req.split(';')) == 2:
+                                req_tokens += [';' + curr_req.split(';')[1]]
+
                             min_numpy_set = False
                             lt_numpy_set = False
                             req_versions = []
