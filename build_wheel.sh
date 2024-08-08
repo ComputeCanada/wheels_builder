@@ -555,9 +555,9 @@ function adjust_torch_requirements_based_on_link_info()
 }
 
 echo "Building wheel for $PACKAGE"
-DIR=/shared_tmp/tmp.$$
-mkdir $DIR
-log_command pushd $DIR
+WORKDIR=/shared_tmp/build_wheels_tmp.$$
+mkdir $WORKDIR
+log_command pushd $WORKDIR
 if [[ -z "$EBROOTGENTOO" ]]; then
 	module --force purge
 	module load nixpkgs gcc/$GCC_VERSION
@@ -619,9 +619,11 @@ for pv in $PYTHON_VERSIONS; do
 		rm $ARCHNAME
 	fi
 
+	log_command popd
 	adjust_numpy_requirements_based_on_link_info
 	adjust_torch_requirements_based_on_link_info
-	
+	log_command pushd $WORKDIR
+
 	test_whl
 
 	if [[ $WHEEL_NAME =~ .*-py3-.* || $WHEEL_NAME =~ .*py2.py3.* ]]; then
@@ -632,7 +634,7 @@ done
 
 log_command popd
 if [[ $ARG_KEEP_BUILD_DIR -ne 1 ]]; then
-	rm -rf $DIR
+	rm -rf $WORKDIR
 fi
 
 if [[ ! -z "$ARCH_PRESENCE" ]]; then
