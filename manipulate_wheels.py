@@ -180,45 +180,46 @@ def main():
                             numpy_req_found = True
                             if args.verbose:
                                 print('Found numpy dependency.')
-                            curr_version_req = curr_req.split(';')[0].replace("numpy","").replace("(","").replace(")","").strip()
-                            req_tokens = ["numpy",""]
-                            if len(curr_req.split(';')) == 2:
-                                req_tokens += [';' + curr_req.split(';')[1]]
+
+                            dependency, *markers = curr_req.split(';')
+
+                            version_specifiers = dependency.replace("numpy","").replace("(","").replace(")","").strip().split(',')
+                            to_req_tokens = ["numpy",""]
+                            if markers:
+                                to_req_tokens += [';' + ';'.join(markers)]
 
                             min_numpy_set = False
                             lt_numpy_set = False
-                            req_versions = []
-                            if curr_version_req:
-                                # split version spec-set into separate specs
-                                req_versions = curr_version_req.split(',')
-                                for i, version_spec in enumerate(req_versions):
+                            if version_specifiers:
+                                for i, version_spec in enumerate(version_specifiers):
+                                    version_number = re.sub(REQ_SEP, '', version_spec)
                                     if '>' in version_spec:
                                         # case: old minimum version is lower than our minimal version
-                                        if args.set_min_numpy and version.parse(re.sub(REQ_SEP, '', version_spec)) < version.parse(args.set_min_numpy):
-                                            req_versions[i] = '>='+args.set_min_numpy
+                                        if args.set_min_numpy and version.parse(version_number) < version.parse(args.set_min_numpy):
+                                            version_specifiers[i] = '>='+args.set_min_numpy
                                             min_numpy_set = True
                                         # case: existing minimum version is higher than our maximum version
-                                        elif args.set_lt_numpy and version.parse(re.sub(REQ_SEP, '', version_spec)) >= version.parse(args.set_lt_numpy):
+                                        elif args.set_lt_numpy and version.parse(version_number) >= version.parse(args.set_lt_numpy):
                                             print(f"Error: this wheel {w} requires numpy {version_spec}, but requested numpy is <{args.set_lt_numpy}.")
                                             sys.exit(1)
                                     elif '<' in version_spec:
                                         # case: old maximum version is higher than our maximumversion
-                                        if args.set_lt_numpy and version.parse(re.sub(REQ_SEP, '', version_spec)) >= version.parse(args.set_lt_numpy):
-                                            req_versions[i] = '<'+args.set_lt_numpy
+                                        if args.set_lt_numpy and version.parse(version_number) >= version.parse(args.set_lt_numpy):
+                                            version_specifiers[i] = '<'+args.set_lt_numpy
                                             lt_numpy_set = True
                                         # case: existing maximum version is higher than our minimal version
-                                        if args.set_min_numpy and version.parse(re.sub(REQ_SEP, '', version_spec)) <= version.parse(args.set_min_numpy):
+                                        if args.set_min_numpy and version.parse(version_number) <= version.parse(args.set_min_numpy):
                                             print(f"Error: this wheel {w} requires numpy {version_spec}, but requested numpy is >={args.set_min_numpy}.")
                                             sys.exit(1)
                             # no conflict, but a > requirement was not found, so adding one
                             if args.set_min_numpy and not min_numpy_set:
-                                req_versions += ['>='+args.set_min_numpy]
+                                version_specifiers += ['>='+args.set_min_numpy]
                             # no conflict, but a < requirement was not found, so adding one
                             if args.set_lt_numpy and not lt_numpy_set:
-                                req_versions += ['<'+args.set_lt_numpy]
-                            req_tokens[1] = '(' + ','.join(req_versions) + ')'
+                                version_specifiers += ['<'+args.set_lt_numpy]
+                            to_req_tokens[1] = '(' + ','.join(version_specifiers) + ')'
 
-                            to_req = ' '.join(req_tokens)
+                            to_req = ' '.join(new_req_tokens)
                             if curr_req != to_req:
                                 if args.verbose:
                                     print(f"{w}: updating requirement {curr_req} to {to_req}")
