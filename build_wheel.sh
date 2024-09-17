@@ -385,7 +385,7 @@ function build()
 		log_command $PRE_BUILD_COMMANDS
 	fi
 	log_command $PRE_BUILD_COMMANDS_DEFAULT
-	
+
 	verify_and_patch_arch_flags
 
 	# change the name of the wheel to add a suffix
@@ -406,7 +406,7 @@ function build()
 	fi
 
 	if [[ -d dist ]]; then
-		log_command cp dist/*.whl . 
+		log_command cp dist/*.whl .
 	fi
 
 	WHEEL_NAME=$(ls *.whl)
@@ -608,7 +608,7 @@ for pv in $PYTHON_VERSIONS; do
 		echo "Extraction done."
 		log_command pushd $PVDIR
 		log_command pushd $PACKAGE_FOLDER_NAME* || log_command pushd *
-		
+
 		patch_function
 
 		build
