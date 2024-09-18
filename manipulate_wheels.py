@@ -219,7 +219,7 @@ def main():
                                 version_specifiers += ['<'+args.set_lt_numpy]
                             to_req_tokens[1] = '(' + ','.join(version_specifiers) + ')'
 
-                            to_req = ' '.join(new_req_tokens)
+                            to_req = ' '.join(to_req_tokens)
                             if curr_req != to_req:
                                 if args.verbose:
                                     print(f"{w}: updating requirement {curr_req} to {to_req}")
