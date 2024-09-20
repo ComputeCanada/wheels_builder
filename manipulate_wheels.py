@@ -75,47 +75,28 @@ def narrow_version_specifiers(specifiers, verbose=False):
         print(f"le_specifiers:{le_specifiers}")
 
     # find min/max of version specifiers
-    gt_specifiers_max = max(gt_specifiers, key=version.parse) if gt_specifiers else None
-    ge_specifiers_max = max(ge_specifiers, key=version.parse) if ge_specifiers else None
-    lt_specifiers_min = min(lt_specifiers, key=version.parse) if lt_specifiers else None
-    le_specifiers_min = min(le_specifiers, key=version.parse) if le_specifiers else None
+    greater_specifiers_max = max(gt_specifiers + ge_specifiers, key=version.parse) if gt_specifiers or ge_specifiers else None
+    lower_specifiers_min = min(lt_specifiers + le_specifiers, key=version.parse) if lt_specifiers or le_specifiers else None
 
     # sanity check, if both exist, gt/ge should be lower than lt/le
-    if (gt_specifiers or ge_specifiers) and (lt_specifiers or le_specifiers):
-        if version.parse(max(gt_specifiers + ge_specifiers, key=version.parse)) > version.parse(min(lt_specifiers + le_specifiers, key=version.parse)):
+    if greater_specifiers_max and lower_specifiers_min:
+        if version.parse(greater_specifiers_max) > version.parse(lower_specifiers_min):
             raise ValueError(f"Null range provided for {specifiers}")
 
     if verbose:
-        print(f"gt_specifiers_max:{gt_specifiers_max}")
-        print(f"lt_specifiers_min:{lt_specifiers_min}")
-        print(f"ge_specifiers_max:{ge_specifiers_max}")
-        print(f"le_specifiers_min:{le_specifiers_min}")
+        print(f"greater_specifiers_max:{greater_specifiers_max}")
+        print(f"lower_specifiers_min:{lower_specifiers_min}")
 
     # start with special specifiers
     new_specifiers = other_specifiers
-    # both are defined
-    if lt_specifiers_min and le_specifiers_min:
-        # in case of equality or <=, we use <
-        if version.parse(lt_specifiers_min) <= version.parse(le_specifiers_min):
-            new_specifiers += [f"<{lt_specifiers_min}"]
-        else:
-            new_specifiers += [f"<={le_specifiers_min}"]
-    elif lt_specifiers_min:
-        new_specifiers += [f"<{lt_specifiers_min}"]
-    elif le_specifiers_min:
-        new_specifiers += [f"<={le_specifiers_min}"]
-
-    # both are defined
-    if gt_specifiers_max and ge_specifiers_max:
-        # in case of equality or >=, we use >
-        if version.parse(gt_specifiers_max) >= version.parse(ge_specifiers_max):
-            new_specifiers += [f">{gt_specifiers_max}"]
-        else:
-            new_specifiers += [f">={ge_specifiers_max}"]
-    elif gt_specifiers_max:
-        new_specifiers += [f">{gt_specifiers_max}"]
-    elif ge_specifiers_max:
-        new_specifiers += [f">={ge_specifiers_max}"]
+    if lower_specifiers_min in lt_specifiers:
+        new_specifiers += [f"<{lower_specifiers_min}"]
+    elif lower_specifiers_min in le_specifiers:
+        new_specifiers += [f"<={lower_specifiers_min}"]
+    if greater_specifiers_max in gt_specifiers:
+        new_specifiers += [f">{greater_specifiers_max}"]
+    elif greater_specifiers_max in ge_specifiers:
+        new_specifiers += [f">={greater_specifiers_max}"]
 
     if verbose:
         print(f"{new_specifiers}")
