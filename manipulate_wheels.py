@@ -47,6 +47,81 @@ def create_argparser():
 
     return parser
 
+# given a list of version specifiers, this function
+# collapse the list to its smallest number of parts
+# for example, ['<1.23', '>1.2', '<1.24'] will yield ['>1.2', '<1.23']
+def narrow_version_specifiers(specifiers, verbose=False):
+    if verbose:
+        print("specifiers")
+    # split <, >, <=, >= specifiers in distinct lists
+    gt_specifiers = [s for s in specifiers if s.startswith('>') and not s.startswith('>=')]
+    lt_specifiers = [s for s in specifiers if s.startswith('<') and not s.startswith('<=')]
+    ge_specifiers = [s for s in specifiers if s.startswith('>=')]
+    le_specifiers = [s for s in specifiers if s.startswith('<=')]
+
+    # keep other kinds of specifiers (==, !=, etc) separate
+    other_specifiers = [s for s in specifiers if s not in gt_specifiers + lt_specifiers + ge_specifiers + le_specifiers]
+
+    # remove <, >, <=, >=
+    gt_specifiers = [s[1:] for s in gt_specifiers]
+    lt_specifiers = [s[1:] for s in lt_specifiers]
+    ge_specifiers = [s[2:] for s in ge_specifiers]
+    le_specifiers = [s[2:] for s in le_specifiers]
+
+    if verbose:
+        print(f"gt_specifiers:{gt_specifiers}")
+        print(f"lt_specifiers:{lt_specifiers}")
+        print(f"ge_specifiers:{ge_specifiers}")
+        print(f"le_specifiers:{le_specifiers}")
+
+    # find min/max of version specifiers
+    gt_specifiers_max = max(gt_specifiers, key=version.parse) if gt_specifiers else None
+    ge_specifiers_max = max(ge_specifiers, key=version.parse) if ge_specifiers else None
+    lt_specifiers_min = min(lt_specifiers, key=version.parse) if lt_specifiers else None
+    le_specifiers_min = min(le_specifiers, key=version.parse) if le_specifiers else None
+
+    # sanity check, if both exist, gt/ge should be lower than lt/le
+    if (gt_specifiers or ge_specifiers) and (lt_specifiers or le_specifiers):
+        if version.parse(max(gt_specifiers + ge_specifiers, key=version.parse)) > version.parse(min(lt_specifiers + le_specifiers, key=version.parse)):
+            raise ValueError(f"Null range provided for {specifiers}")
+
+    if verbose:
+        print(f"gt_specifiers_max:{gt_specifiers_max}")
+        print(f"lt_specifiers_min:{lt_specifiers_min}")
+        print(f"ge_specifiers_max:{ge_specifiers_max}")
+        print(f"le_specifiers_min:{le_specifiers_min}")
+
+    # start with special specifiers
+    new_specifiers = other_specifiers
+    # both are defined
+    if lt_specifiers_min and le_specifiers_min:
+        # in case of equality or <=, we use <
+        if version.parse(lt_specifiers_min) <= version.parse(le_specifiers_min):
+            new_specifiers += [f"<{lt_specifiers_min}"]
+        else:
+            new_specifiers += [f"<={le_specifiers_min}"]
+    elif lt_specifiers_min:
+        new_specifiers += [f"<{lt_specifiers_min}"]
+    elif le_specifiers_min:
+        new_specifiers += [f"<={le_specifiers_min}"]
+
+    # both are defined
+    if gt_specifiers_max and ge_specifiers_max:
+        # in case of equality or >=, we use >
+        if version.parse(gt_specifiers_max) >= version.parse(ge_specifiers_max):
+            new_specifiers += [f">{gt_specifiers_max}"]
+        else:
+            new_specifiers += [f">={ge_specifiers_max}"]
+    elif gt_specifiers_max:
+        new_specifiers += [f">{gt_specifiers_max}"]
+    elif ge_specifiers_max:
+        new_specifiers += [f">={ge_specifiers_max}"]
+
+    if verbose:
+        print(f"{new_specifiers}")
+    return new_specifiers
+
+
 def main():
     args = create_argparser().parse_args()
 
@@ -191,35 +266,18 @@ def main():
                             if markers:
                                 to_req_tokens += [';' + ';'.join(markers)]
 
-                            min_numpy_set = False
-                            lt_numpy_set = False
-                            if version_specifiers:
-                                for i, version_spec in enumerate(version_specifiers):
-                                    version_number = re.sub(REQ_SEP, '', version_spec)
-                                    if '>' in version_spec:
-                                        # case: old minimum version is lower than our minimal version
-                                        if args.set_min_numpy and version.parse(version_number) < version.parse(args.set_min_numpy):
-                                            version_specifiers[i] = '>='+args.set_min_numpy
-                                            min_numpy_set = True
-                                        # case: existing minimum version is higher than our maximum version
-                                        elif args.set_lt_numpy and version.parse(version_number) >= version.parse(args.set_lt_numpy):
-                                            print(f"Error: this wheel {w} requires numpy {version_spec}, but requested numpy is <{args.set_lt_numpy}.")
-                                            sys.exit(1)
-                                    elif '<' in version_spec:
-                                        # case: old maximum version is higher than our maximumversion
-                                        if args.set_lt_numpy and version.parse(version_number) >= version.parse(args.set_lt_numpy):
-                                            version_specifiers[i] = '<'+args.set_lt_numpy
-                                            lt_numpy_set = True
-                                        # case: existing maximum version is higher than our minimal version
-                                        if args.set_min_numpy and version.parse(version_number) <= version.parse(args.set_min_numpy):
-                                            print(f"Error: this wheel {w} requires numpy {version_spec}, but requested numpy is >={args.set_min_numpy}.")
-                                            sys.exit(1)
-                            # no conflict, but a > requirement was not found, so adding one
-                            if args.set_min_numpy and not min_numpy_set:
-                                version_specifiers += ['>='+args.set_min_numpy]
-                            # no conflict, but a < requirement was not found, so adding one
-                            if args.set_lt_numpy and not lt_numpy_set:
-                                version_specifiers += ['<'+args.set_lt_numpy]
+
+                            if args.set_min_numpy:
+                                version_specifiers += [f">={args.set_min_numpy}"]
+                            if args.set_lt_numpy:
+                                version_specifiers += [f"<{args.set_lt_numpy}"]
+
+                            try:
+                                version_specifiers = narrow_version_specifiers(version_specifiers)
+                            except ValueError as e:
+                                print(f"Error: {e}")
+                                sys.exit(1)
+
                             to_req_tokens[1] = '(' + ','.join(version_specifiers) + ')'
 
                             to_req = ' '.join(to_req_tokens)
