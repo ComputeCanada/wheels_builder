@@ -73,9 +73,10 @@ if [[ ! -z "$ARG_FIND_LINKS" ]]; then
 	export PIP_FIND_LINKS=$ARG_FIND_LINKS
 fi
 #a
-TEMP_DIR=tmp.$$
-mkdir $TEMP_DIR
-cd $TEMP_DIR
+TEMP_DIR=/tmp/unmanylinuxize_tmp.$$
+ORIGINAL_DIR=$(pwd)
+mkdir -p $TEMP_DIR
+pushd $TEMP_DIR
 
 if [[ ! -z "$ARG_URL" ]]; then
 	wget $ARG_URL
@@ -111,6 +112,6 @@ done
 
 # Ensure wheels are all readable!
 chmod a+r *.whl
-cp -vp *.whl ..
-cd ..
+cp -vp *.whl $ORIGINAL_DIR
+popd
 rm -rf $TEMP_DIR

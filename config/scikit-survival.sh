@@ -1,2 +1,2 @@
-PYTHON_DEPS="scikit-learn Cython==0.29.*"
+PYTHON_DEPS="scikit-learn"
 PYTHON_IMPORT_NAME="sksurv"
