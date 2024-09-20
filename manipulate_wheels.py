@@ -184,6 +184,9 @@ def main():
                             dependency, *markers = curr_req.split(';')
 
                             version_specifiers = dependency.replace("numpy","").replace("(","").replace(")","").strip().split(',')
+                            if version_specifiers == ['']:
+                                version_specifiers = []
+
                             to_req_tokens = ["numpy",""]
                             if markers:
                                 to_req_tokens += [';' + ';'.join(markers)]
