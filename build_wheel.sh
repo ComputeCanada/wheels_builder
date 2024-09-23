@@ -492,7 +492,11 @@ function adjust_numpy_requirements_based_on_link_info()
 		popd
 		rm -rf $tmpdir
 		if [[ $num_links -gt 0 ]]; then
-			numpy_build_version=$(pip show numpy | grep Version | awk '{print $2}' | sed -e "s/\([0-9]\.[0-9]*\)\..*/\1/g")
+			numpy_build_version=$(pip show numpy | grep -E '^Version:' | awk '{print $2}' | sed -e "s/\([0-9]\.[0-9]*\)\..*/\1/g")
+			if [[ $numpy_build_version =~ ^2.* ]]; then # only pin minimal numpy if it is a 1.x version
+				echo "Numpy 2.x found, not pinning the minimal version of numpy."
+				return
+			fi
 			echo "Found $num_links shared objects that mention a specific version of API of numpy. Pinning the minimum required version of numpy to $numpy_build_version"
 			if [[ $(grep -ic $PACKAGE $SCRIPT_DIR/packages_w_numpy_api.txt) -eq 0 ]]; then
 				echo "Recording '$PACKAGE' in 'packages_w_numpy_api.txt'."
@@ -500,6 +504,10 @@ function adjust_numpy_requirements_based_on_link_info()
 				echo -e "${COL_YEL}Please commit the file 'packages_w_numpy_api.txt'.${COL_RST}"
 			fi
 			log_command $SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME
+			if [[ $numpy_build_version =~ ^1.* ]]; then
+				echo "Built with numpy 1.x; pinning numpy lower than 2.0"
+				log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $TMP_WHEELHOUSE/$WHEEL_NAME --set_lt_numpy 2.0
+			fi
 			log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $TMP_WHEELHOUSE/$WHEEL_NAME --set_min_numpy $numpy_build_version
 			log_command $SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME
 		fi
