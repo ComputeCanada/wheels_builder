@@ -5,16 +5,17 @@ SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$THIS_SCRIPT")")
 
 YEAR="${EBVERSIONGENTOO:-2017}"
 EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[5678]"
-OLDEST_SUPPORTED_NUMPY_VERSION=.2022a
 if [[ "$YEAR" == "2017" ]]; then
 	GCC_VERSION=7.3.0
 elif [[ "$YEAR" == "2020" ]]; then
 	GCC_VERSION=9.3.0
 	CYTHON_VERSION=.0.29.36
+	NUMPY_MODULE="oldest-supported-numpy/.2022a"
 else
 	GCC_VERSION=12.3
 	EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[56789]"
 	CYTHON_VERSION=.3.0.10
+	NUMPY_MODULE="numpy/.2.1.1" # oldest-supported-numpy is now depcrecated with v2.0+
 fi
 
 if [[ -z "$PYTHON_VERSIONS" ]]; then
@@ -99,12 +100,8 @@ PATCHES=""
 PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary \$PACKAGE --no-use-pep517 --no-build-isolation --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py'
 
-PYTHON_DEPS_DEFAULT="numpy==2.1.1"
-MODULE_BUILD_DEPS_DEFAULT="python-build-bundle pytest cython/$CYTHON_VERSION"
-if [[ "$YEAR" == "2020" ]]; then
-	PYTHON_DEPS_DEFAULT=""
-	MODULE_BUILD_DEPS_DEFAULT="oldest-supported-numpy/$OLDEST_SUPPORTED_NUMPY_VERSION $MODULE_BUILD_DEPS_DEFAULT"
-fi
+PYTHON_DEPS_DEFAULT=""
+MODULE_BUILD_DEPS_DEFAULT="$NUMPY_MODULE python-build-bundle pytest cython/$CYTHON_VERSION"
 
 PYTHON27_ONLY="cogent OBITools gdata qcli emperor RSeQC preprocess Amara pysqlite IPTest ipaddress functools32 blmath bamsurgeon"
 if [[ $PYTHON27_ONLY =~ " $PACKAGE " ]]; then
@@ -388,7 +385,7 @@ function build()
 		log_command $PRE_BUILD_COMMANDS
 	fi
 	log_command $PRE_BUILD_COMMANDS_DEFAULT
-	
+
 	verify_and_patch_arch_flags
 
 	# change the name of the wheel to add a suffix
@@ -409,7 +406,7 @@ function build()
 	fi
 
 	if [[ -d dist ]]; then
-		log_command cp dist/*.whl . 
+		log_command cp dist/*.whl .
 	fi
 
 	WHEEL_NAME=$(ls *.whl)
@@ -611,7 +608,7 @@ for pv in $PYTHON_VERSIONS; do
 		echo "Extraction done."
 		log_command pushd $PVDIR
 		log_command pushd $PACKAGE_FOLDER_NAME* || log_command pushd *
-		
+
 		patch_function
 
 		build
