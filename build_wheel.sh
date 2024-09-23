@@ -492,7 +492,7 @@ function adjust_numpy_requirements_based_on_link_info()
 		popd
 		rm -rf $tmpdir
 		if [[ $num_links -gt 0 ]]; then
-			numpy_build_version=$(pip show numpy | grep -E '^Version:' | awk '{print $2}' | sed -e "s/\([0-9]\.[0-9]*\)\..*/\1/g")
+			numpy_build_version=$(python -c "import numpy; print(numpy.__version__)" | grep -P -oe '\d+.\d+') # Get the numpy version (major.minor) used to build the wheel
 			if [[ $numpy_build_version =~ ^2.* ]]; then # only pin minimal numpy if it is a 1.x version
 				echo "Numpy 2.x found, not pinning the minimal version of numpy."
 				return
