@@ -8,7 +8,7 @@ POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NA
 
 MODULE_BUILD_DEPS="flexiblas cmake"
 PYTHON_DEPS_DEFAULT=""
-PYTHON_DEPS=" pythran meson-python pooch hypothesis pytest-xdist"
+PYTHON_DEPS="pythran>=0.14.0 meson-python>=0.15.0 pooch hypothesis pytest-xdist Cython==3.0.11"
 if [[ ${VERSION} =~ 1.10.* ]]; then
 	PYTHON_DEPS="$PYTHON_DEPS numpy==1.19.5;python_version<'3.10' "
 fi
