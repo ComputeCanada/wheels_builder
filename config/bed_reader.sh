@@ -1,2 +1,3 @@
 MODULE_RUNTIME_DEPS="rust hdf5"
-PYTHON_DEPS="pooch maturin~=0.13.0"
+PYTHON_DEPS="pooch maturin"
+PRE_BUILD_COMMANDS='export CARGO_BUILD_JOBS=${SLURM_CPUS_PER_TASK:-1}'
