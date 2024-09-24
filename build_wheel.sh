@@ -37,7 +37,7 @@ function translate_version {
 	echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }';
 }
 
-TEMP=$(getopt -o h --longoptions help,keep-build-dir,autocopy,verbose:,recursive:,package:,version:,python: -n $0 -- "$@")
+TEMP=$(getopt -o h --longoptions help,keep-build-dir,autocopy,verbose:,recursive:,package:,version:,no-verify,python: -n $0 -- "$@")
 if [ $? != 0 ] ; then print_usage; exit 1 ; fi
 eval set -- "$TEMP"
 
@@ -45,6 +45,7 @@ ARG_RECURSIVE=1
 ARG_KEEP_BUILD_DIR=0
 ARG_VERBOSE_LEVEL=0
 ARG_AUTOCOPY=0
+ARG_NO_VERIFY=0
 while true; do
 	case "$1" in
 		--recursive)
@@ -59,6 +60,8 @@ while true; do
 			ARG_KEEP_BUILD_DIR=1; shift ;;
 		--autocopy)
 			ARG_AUTOCOPY=1; shift ;;
+		--no-verify)
+			ARG_NO_VERIFY=1; shift ;;
 		--verbose)
 			ARG_VERBOSE_LEVEL=$2; shift 2;;
 		-h|--help)
@@ -386,7 +389,9 @@ function build()
 	fi
 	log_command $PRE_BUILD_COMMANDS_DEFAULT
 
-	verify_and_patch_arch_flags
+	if [[ $ARG_NO_VERIFY -eq 0 ]]; then
+		verify_and_patch_arch_flags
+	fi
 
 	# change the name of the wheel to add a suffix
 	if [[ -n "$PACKAGE_SUFFIX" ]]; then
