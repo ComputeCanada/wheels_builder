@@ -1,1 +1,1 @@
-PYTHON_DEPS="numpy==1.17.5 pandas patsy"
+PYTHON_DEPS="pandas scipy>=1.13,<2 patsy"
