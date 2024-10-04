@@ -118,12 +118,19 @@ else
 fi
 
 CONFIGDIR=$SCRIPT_DIR/config
-if [[ -e "$CONFIGDIR/${PACKAGE}-${VERSION}.sh" ]]; then
-	source $CONFIGDIR/${PACKAGE}-${VERSION}.sh
-	echo "INFO: Sourced configuration $CONFIGDIR/${PACKAGE}-${VERSION}.sh"
-elif [[ -e "$CONFIGDIR/${PACKAGE}.sh" ]]; then
-	source $CONFIGDIR/${PACKAGE}.sh
-	echo "INFO: Sourced configuration $CONFIGDIR/${PACKAGE}.sh"
+PACKAGE_PATTERN=$(echo $PACKAGE | sed -e 's/[_-]/\?/') # Ignores packages with - or _ replace with ? char for pattern.
+# Check case-insensitively if package-version.sh exists.
+if [[ -n $(find $CONFIGDIR -iname "${PACKAGE_PATTERN}-${VERSION}.sh") ]]; then
+	config_name=$(find $CONFIGDIR -iname "${PACKAGE_PATTERN}-${VERSION}.sh")
+	echo "INFO: Sourced configuration $config_name"
+	source $config_name
+
+# Check case-insensitively if package.sh exists.
+elif [[ -n $(find $CONFIGDIR -iname "${PACKAGE_PATTERN}.sh") ]]; then
+	config_name=$(find $CONFIGDIR -iname "${PACKAGE_PATTERN}.sh")
+	echo "INFO: Sourced configuration $config_name"
+	source $config_name
+
 else
 	echo "INFO: no configuration file sourced."
 fi
