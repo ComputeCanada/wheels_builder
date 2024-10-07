@@ -64,6 +64,7 @@ if [[ ! -z "$ARG_REQUIREMENTS" ]]; then
 else
 	wheel=${ARG_PACKAGE//,/ }
 	versions=${ARG_VERSION//,/ }
+	pythons=${pythons//,/ }
 
 	if [[ -n "$versions" ]]; then
 		cmd="bash build_wheel.sh --package {1} --version {2} --python {3} --recursive 0 --verbose 3 &> build-{1}-{2}-py{3}.log ::: ${wheel} ::: ${versions} ::: ${pythons}"
