@@ -1,7 +1,7 @@
-PYTHON_DEPS="ninja pyyaml"
+PYTHON_DEPS="ninja pyyaml astunparse typing-extensions requests six"
 
 if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
-	MODULE_BUILD_DEPS="gcc openmpi flexiblas cmake fftw eigen protobuf abseil flatbuffers opencv cuda/12 cusparselt cudnn nccl magma"
+	MODULE_BUILD_DEPS="gcc openmpi flexiblas cmake fftw eigen protobuf abseil flatbuffers cuda/12 cusparselt cudnn/9 nccl magma opencv/4.10.0-2"
 else
 	# 11.7 and up is required for flash attention
 	MODULE_BUILD_DEPS="gcc cuda/11.7 openmpi magma nccl cudnn ffmpeg cmake flexiblas/3.0.4 eigen protobuf opencv fftw"
@@ -12,8 +12,6 @@ PACKAGE_DOWNLOAD_METHOD="Git"
 PACKAGE_DOWNLOAD_CMD="git clone --jobs 16 --depth 1 --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 PRE_BUILD_COMMANDS='
-	pip install -r requirements.txt;
-
 	export PYTORCH_BUILD_VERSION=$VERSION;
 	export PYTORCH_BUILD_NUMBER=0;
 
@@ -60,8 +58,9 @@ PRE_BUILD_COMMANDS='
 	export USE_FLASH_ATTENTION=ON;
 	export USE_MEM_EFF_ATTENTION=ON;
 
-	# export USE_TENSORRT=ON;
 	export USE_CUSPARSELT=ON;
 
 	export CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=ON"
 '
+
+	# export USE_TENSORRT=ON;
