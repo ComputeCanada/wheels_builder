@@ -14,12 +14,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-if __name__ == "__main__":
-    # We allow python setup.py sdist to always work to be able to create the sdist
-    sdist_mode = len(sys.argv) == 2 and sys.argv[1] == "sdist"
-
-    if not sdist_mode:
-        msg = f"""
+msg = f"""
 
 
 
@@ -39,10 +34,19 @@ if __name__ == "__main__":
 
         """
 
+
+
+if __name__ == "__main__":
+    # We allow python setup.py sdist to always work to be able to create the sdist
+    sdist_mode = len(sys.argv) == 2 and sys.argv[1] == "sdist"
+    bdist_mode = len(sys.argv) == 2 and sys.argv[1] == "bdist_wheel"
+
+    if not sdist_mode and not bdist_mode:
         raise SystemExit(msg)
 
     setup(
-        description="Dummy PyArrow wheels to inform users to load the module instead.",
-        name="pyarrow",
-        version=f"{os.environ.get('PYARROW_DUMMY_VERSION',9999)}+dummy.computecanada",
+        description="Dummy pyarrow wheels to inform users to load the module instead.",
+        name="pyarrow-noinstall" if sdist_mode else "pyarrow",
+        version=f"{os.environ.get('DUMMY_VERSION',9999)}+dummy.computecanada",
+        install_requires = ["pyarrow-noinstall==9999+dummy.computecanada"] if bdist_mode else [],
     )

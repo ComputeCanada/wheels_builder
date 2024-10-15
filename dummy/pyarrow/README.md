@@ -17,7 +17,8 @@ pip install --no-index ...
 Generate `sdist` in `dist` directory.
 ```bash
 python setup.py sdist; # default higher version
+python setup.py bdist_wheel
 for v in $(module --terse spider arrow); do # define specific versions
-	PYARROW_DUMMY_VERSION=${v##arrow/} python setup.py sdist; 
+	DUMMY_VERSION=${v##arrow/} python setup.py bdist_wheel; 
 done
 ```
