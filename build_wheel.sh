@@ -29,6 +29,9 @@ function print_usage {
 	echo "         [--python=<comma separated list of python versions>]"
 	echo "         [--keep-build-dir]"
 	echo "         [--verbose=<1,2,3>]"
+	echo "         [--job]"
+	echo "         [--cpus=<number of cpus>] (default: 1)"
+	echo "         [--mem-cpu=<memory per cpu>[mM|gG]] (default: 3G)"
 }
 
 # Translate a version number into a comparable number, supports up to 4 digits
@@ -37,7 +40,7 @@ function translate_version {
 	echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }';
 }
 
-TEMP=$(getopt -o h --longoptions help,keep-build-dir,autocopy,verbose:,recursive:,package:,version:,no-verify,python: -n $0 -- "$@")
+TEMP=$(getopt -o h --longoptions help,keep-build-dir,autocopy,verbose:,recursive:,package:,version:,no-verify,python:,job,cpus:,mem-cpu: -n $0 -- "$@")
 if [ $? != 0 ] ; then print_usage; exit 1 ; fi
 eval set -- "$TEMP"
 
@@ -46,6 +49,9 @@ ARG_KEEP_BUILD_DIR=0
 ARG_VERBOSE_LEVEL=0
 ARG_AUTOCOPY=0
 ARG_NO_VERIFY=0
+ARG_JOB=0
+ARG_NCPUS=1
+ARG_MEM_CPU=3G
 while true; do
 	case "$1" in
 		--recursive)
@@ -62,6 +68,12 @@ while true; do
 			ARG_AUTOCOPY=1; shift ;;
 		--no-verify)
 			ARG_NO_VERIFY=1; shift ;;
+		--job)
+			ARG_JOB=1; shift ;;
+		--cpus)
+			ARG_NCPUS=$2; shift 2;;
+		--mem-cpu)
+			ARG_MEM_CPU=$2; shift 2;;
 		--verbose)
 			ARG_VERBOSE_LEVEL=$2; shift 2;;
 		-h|--help)
@@ -79,6 +91,17 @@ RECURSIVE=$ARG_RECURSIVE
 if [[ -z "$PACKAGE" ]]; then
 	print_usage
 	exit 1
+fi
+
+if [[ $ARG_JOB -eq 1 ]]; then
+	jobname="$PACKAGE${VERSION:+-$VERSION}"
+
+	# submit non-interactive job, remove job related arguments
+	sbatch --time=24:00:00 --mem-per-cpu=$ARG_MEM_CPU --cpus-per-task=$ARG_NCPUS --nodes=1 --job-name=$jobname --output="$jobname-%j.log" <<-EOF
+		#!/bin/bash
+		bash build_wheel.sh $(sed -e "s/--job//" -E -e "s/--cpus\s'[0-9]+'//" -e "s/--mem-cpu\s'[0-9]+.?'//" -e "s/--$//" <<< $TEMP)
+	EOF
+	exit $?
 fi
 
 if [[ ! -z "$ARG_PYTHON_VERSIONS" ]]; then
