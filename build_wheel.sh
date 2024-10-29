@@ -141,7 +141,7 @@ else
 fi
 
 CONFIGDIR=$SCRIPT_DIR/config
-PACKAGE_PATTERN=$(echo $PACKAGE | sed -e 's/[_-]/\?/') # Ignores packages with - or _ replace with ? char for pattern.
+PACKAGE_PATTERN=$(echo $PACKAGE | sed -e 's/[_-]/\?/g') # Ignores packages with - or _ replace with ? char for pattern.
 # Check case-insensitively if package-version.sh exists.
 if [[ -n $(find $CONFIGDIR -iname "${PACKAGE_PATTERN}-${VERSION}.sh") ]]; then
 	config_name=$(find $CONFIGDIR -iname "${PACKAGE_PATTERN}-${VERSION}.sh")
