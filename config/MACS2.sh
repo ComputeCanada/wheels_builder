@@ -1,0 +1,1 @@
+MODULE_BUILD_DEPS='cython/.0.29.36'
