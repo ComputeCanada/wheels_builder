@@ -62,11 +62,22 @@ else
 	PACKAGE_DOWNLOAD_ARGUMENT="$ARG_PACKAGE"
 fi
 
-CONFIGDIR=$(dirname $0)/config
-if [[ -e "$CONFIGDIR/${ARG_PACKAGE}-${ARG_VERSION}.sh" ]]; then
-	source $CONFIGDIR/${ARG_PACKAGE}-${ARG_VERSION}.sh
-elif [[ -e "$CONFIGDIR/${ARG_PACKAGE}.sh" ]]; then
-	source $CONFIGDIR/${ARG_PACKAGE}.sh
+CONFIGDIR=$SCRIPT_DIR/config
+PACKAGE_PATTERN=$(echo $ARG_PACKAGE | sed -e 's/[_-]/\?/g') # Ignores packages with - or _ replace with ? char for pattern.
+# Check case-insensitively if package-version.sh exists.
+if [[ -n $(find $CONFIGDIR -iname "${PACKAGE_PATTERN}-${VERSION}.sh") ]]; then
+	config_name=$(find $CONFIGDIR -iname "${PACKAGE_PATTERN}-${VERSION}.sh")
+	echo "INFO: Sourced configuration $config_name"
+	source $config_name
+
+# Check case-insensitively if package.sh exists.
+elif [[ -n $(find $CONFIGDIR -iname "${PACKAGE_PATTERN}.sh") ]]; then
+	config_name=$(find $CONFIGDIR -iname "${PACKAGE_PATTERN}.sh")
+	echo "INFO: Sourced configuration $config_name"
+	source $config_name
+
+else
+	echo "INFO: no configuration file sourced."
 fi
 
 if [[ ! -z "$ARG_FIND_LINKS" ]]; then
