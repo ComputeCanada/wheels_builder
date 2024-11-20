@@ -1,0 +1,11 @@
+MODULE_BUILD_DEPS='cmake'
+MODULE_RUNTIME_DEPS='rdkit/2024.03.5'
+PYTHON_DEPS='scikit-build-core>=0.10.7'
+PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
+PYTHON_IMPORT_NAME=$PACKAGE
+PACKAGE_FOLDER_NAME=$PACKAGE
+PACKAGE_DOWNLOAD_METHOD="Git"
+PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/google-deepmind/alphafold3.git"
+# As of Nov. 20 2024, this commit contains some fixes and support 3.12
+PACKAGE_DOWNLOAD_CMD="git clone --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME && cd $PACKAGE_FOLDER_NAME && git checkout 23e3d46d4ca126e8731e8c0cbb5673e9a848ceb5 && cd .."
+POST_DOWNLOAD_COMMANDS="tar -zcf $PACKAGE_DOWNLOAD_NAME $PACKAGE_FOLDER_NAME"
