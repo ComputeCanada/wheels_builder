@@ -1,4 +1,4 @@
-MODULE_BUILD_DEPS='fmt cuda/11.4 boost eigen openmpi'
+MODULE_BUILD_DEPS='cuda boost eigen openmpi'
 PYTHON_DEPS='scikit_build_core pyproject_metadata'
 PRE_BUILD_COMMANDS='
 	sed -i "s#../../../external_libs/fmt/include/##" include/LightGBM/utils/common.h;
