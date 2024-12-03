@@ -1,0 +1,3 @@
+PRE_BUILD_COMMANDS='
+    export PYSLOW5_ZSTD=1;
+'
