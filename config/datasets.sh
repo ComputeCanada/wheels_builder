@@ -1,2 +1,1 @@
-MODULE_BUILD_DEPS="gcc arrow"
-#PYTHON_DEPS=''
+MODULE_RUNTIME_DEPS="gcc arrow"
