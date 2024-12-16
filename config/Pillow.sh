@@ -9,5 +9,7 @@ else
 		python setup.py build_ext --inplace --enable-raqm;
 	'
 fi
+
+PYTHON_DEPS='setuptools>=67.8 trove-classifiers>=2024.10.16'
 MODULE_BUILD_DEPS="raqm"
 TEST_COMMAND="python -c 'import PIL; from PIL import features; assert features.check(\"freetype2\"); assert features.check(\"raqm\")'"
