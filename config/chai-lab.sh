@@ -1,0 +1,2 @@
+MODULE_RUNTIME_DEPS='rdkit/2023.09.5 arrow'
+
