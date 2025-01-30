@@ -16,6 +16,6 @@ PIP_WHEEL_ARGS='
 '
 # cython is not picked up in one test, and it fail. Install cython in the virtual env.
 PRE_TEST_COMMANDS="pip install --ignore-installed 'cython>3.0.0'"
-MODULE_BUILD_DEPS_DEFAULT="cython/.3.0.10"
+MODULE_BUILD_DEPS_DEFAULT="cython/.3.0.11"
 
 PYTHON_TESTS="numpy.__config__.show(); numpy.test()"
