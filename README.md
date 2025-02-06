@@ -28,14 +28,20 @@ Usage: build_wheel.sh --package <python package name>
          [--python=<comma separated list of python versions>]
          [--keep-build-dir]
          [--verbose=<1,2,3>]
+         [--job]
+         [--cpus=<number of cpus>] (default: 1)
+         [--mem-cpu=<memory per cpu>[mM|gG]] (default: 3G)
 
-    --recursive       Recursively build wheels for dependencies.
     --package         Name of the Python package to build.
     --version         Version of the Python package to build. (default:  latest)
+    --recursive       Recursively build wheels for dependencies.
     --python          Build wheels for these Python versions. (default: "3.9,3.10,3.11")
     --keep-build-dir  Don't delete build-dirs after successful build.
     --autocopy        Run `./cp_wheels.sh --remove` after successful build.
     --verbose         Set level for verbosity. (0,1,2,3; default: 0)
+    --job             Submit as non-interactive Slurm job to build-cluster
+    --cpus            Number of CPUs for non-interactive job
+    --mem-cpu         Amount of memory for non-interactive job (default: 3G)
  -h --help            Print help message.
 
 ```
@@ -185,8 +191,9 @@ Variable                    | Description
 #### Usage
 ```bash
 $ ./manipulate_wheels.py -h
-
-usage: manipulate_wheels [-h] -w WHEELS [WHEELS ...] [-i] [-u UPDATE_REQ [UPDATE_REQ ...]] [-a ADD_REQ [ADD_REQ ...]] [--set_min_numpy SET_MIN_NUMPY] [--inplace] [--force] [-p] [-v] [-t TAG]
+usage: manipulate_wheels [-h] -w WHEELS [WHEELS ...] [-i] [-u UPDATE_REQ [UPDATE_REQ ...]] [-a ADD_REQ [ADD_REQ ...]]
+                         [-r REMOVE_REQ [REMOVE_REQ ...]] [--set_min_numpy SET_MIN_NUMPY]
+                         [--set_lt_numpy SET_LT_NUMPY] [--inplace] [--force] [-p] [-v] [-t TAG]
 
 Manipulate wheel files
 
@@ -200,10 +207,16 @@ optional arguments:
                         Updates requirements of the wheel. (default: None)
   -a ADD_REQ [ADD_REQ ...], --add_req ADD_REQ [ADD_REQ ...]
                         Add requirements to the wheel. (default: None)
+  -r REMOVE_REQ [REMOVE_REQ ...], --remove_req REMOVE_REQ [REMOVE_REQ ...]
+                        Remove requirements from the wheel. (default: None)
   --set_min_numpy SET_MIN_NUMPY
                         Sets the minimum required numpy version. (default: None)
-  --inplace             Work in the same directory as the existing wheel instead of a temporary location (default: False)
-  --force               If combined with --inplace, overwrites existing wheel if the resulting wheel has the same name (default: False)
+  --set_lt_numpy SET_LT_NUMPY
+                        Sets the lower than (<) required numpy version. (default: None)
+  --inplace             Work in the same directory as the existing wheel instead of a temporary location
+                        (default: False)
+  --force               If combined with --inplace, overwrites existing wheel if the resulting wheel has
+                        the same name (default: False)
   -p, --print_req       Prints the current requirements (default: False)
   -v, --verbose         Displays information about what it is doing (default: False)
   -t TAG, --add_tag TAG
@@ -226,6 +239,7 @@ New wheel created wheel-0.2.2+computecanada-py3-none-any.whl
 
 Rename a requirement, and update a requirement version:
 **Note**: the special separator `->` in order to rename a requirement.
+
 ```bash
 $ ./manipulate_wheels.py -v -w wheel-0.2.2-py3-none-any.whl -u "faiss-cpu->faiss" "tensorflow (>=2.2.2)"
 Resulting wheels will be in directory ./tmp

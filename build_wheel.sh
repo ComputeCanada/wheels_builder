@@ -28,6 +28,7 @@ function print_usage {
 	echo "         [--recursive=<1|0>]"
 	echo "         [--python=<comma separated list of python versions>]"
 	echo "         [--keep-build-dir]"
+	echo "         [--autocopy]"
 	echo "         [--verbose=<1,2,3>]"
 	echo "         [--job]"
 	echo "         [--cpus=<number of cpus>] (default: 1)"
