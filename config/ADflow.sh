@@ -8,3 +8,4 @@ PRE_BUILD_COMMANDS='
 	make -j LINKER_FLAGS="-Wl,-rpath,$EBROOTCGNS/lib";
 '
 POST_BUILD_COMMANDS='wheel tags --remove --abi-tag=none --python-tag=py3 --platform-tag=linux_x86_64 $WHEEL_NAME && WHEEL_NAME=$(ls *.whl)'
+PYTHON_DEPS='numpy>=2.2.0' # bug in f2py in prior versions
