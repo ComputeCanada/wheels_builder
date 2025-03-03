@@ -370,8 +370,8 @@ function verify_and_patch_arch_flags()
 {
 	echo "=============================="
 	echo "Testing source code for CPU architecture instructions in $PWD"
-	files_native=$(grep -rl -- "-march=native" .)
-	files_xHost=$(grep -rl -- "-xHost" .)
+	files_native=$(grep -rl --exclude='*.md' -- "-march=native" . )
+	files_xHost=$(grep -rl --exclude='*.md' -- "-xHost" .)
 	if [[ -n "$files_native" ]]; then
 		declare -A gcc_targets
 		gcc_targets=(
