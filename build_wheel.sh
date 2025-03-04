@@ -31,7 +31,7 @@ function print_usage {
 	echo "         [--autocopy]"
 	echo "         [--verbose=<1,2,3>]"
 	echo "         [--job]"
-	echo "         [--cpus=<number of cpus>] (default: 1)"
+	echo "         [--cpus|job-cores=<number of cpus>] (default: 1)"
 	echo "         [--mem-cpu=<memory per cpu>[mM|gG]] (default: 3G)"
 }
 
@@ -41,7 +41,7 @@ function translate_version {
 	echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }';
 }
 
-TEMP=$(getopt -o h --longoptions help,keep-build-dir,autocopy,verbose:,recursive:,package:,version:,no-verify,python:,job,cpus:,mem-cpu: -n $0 -- "$@")
+TEMP=$(getopt -o h --longoptions help,keep-build-dir,autocopy,verbose:,recursive:,package:,version:,no-verify,python:,job,cpus:,job-cores:,mem-cpu: -n $0 -- "$@")
 if [ $? != 0 ] ; then print_usage; exit 1 ; fi
 eval set -- "$TEMP"
 
@@ -71,7 +71,7 @@ while true; do
 			ARG_NO_VERIFY=1; shift ;;
 		--job)
 			ARG_JOB=1; shift ;;
-		--cpus)
+		--cpus|--job-cores)
 			ARG_NCPUS=$2; shift 2;;
 		--mem-cpu)
 			ARG_MEM_CPU=$2; shift 2;;
@@ -100,7 +100,7 @@ if [[ $ARG_JOB -eq 1 ]]; then
 	# submit non-interactive job, remove job related arguments
 	sbatch --time=24:00:00 --mem-per-cpu=$ARG_MEM_CPU --cpus-per-task=$ARG_NCPUS --nodes=1 --job-name=$jobname --output="$jobname-%j.log" <<-EOF
 		#!/bin/bash
-		bash build_wheel.sh $(sed -e "s/--job//" -E -e "s/--cpus\s'[0-9]+'//" -e "s/--mem-cpu\s'[0-9]+.?'//" -e "s/--$//" <<< $TEMP)
+		bash build_wheel.sh $(sed -e "s/--job//" -E -e "s/--cpus\s'[0-9]+'//" -e "s/--job-cores\s'[0-9]+'//" -e "s/--mem-cpu\s'[0-9]+.?'//" -e "s/--$//" <<< $TEMP)
 	EOF
 	exit $?
 fi
