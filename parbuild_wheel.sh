@@ -17,7 +17,7 @@ function ls_pythons()
 
 function print_usage
 {
-	echo "Usage: $0 --package <comma separated list of package name> [--version <comma separated list of versions>] [--python <comma separated list of python versions>]"
+	echo "Usage: $0 --package <comma separated list of package name> [--version <comma separated list of versions>] [--python <comma separated list of python versions>] [--requirements <requirements file>"
 }
 
 TEMP=$(getopt -o h --longoptions help,package:,version:,python:,requirements: --name $0 -- "$@")
