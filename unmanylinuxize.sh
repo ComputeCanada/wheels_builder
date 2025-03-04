@@ -14,7 +14,7 @@ function ls_pythons()
 
 function print_usage
 {
-	echo "Usage: $0 --package <package name> [--version <version>] [--python <comma separated list of python versions>] [--find_links https://index.url | --url https://direct.url.to.wheel.whl ]"
+	echo "Usage: $0 --package <package name> [--version <version>] [--python <comma separated list of python versions>] [--add_path <rpath>] [--add_origin] [--find_links https://index.url | --url https://direct.url.to.wheel.whl ]"
 }
 
 TEMP=$(getopt -o h --longoptions help,package:,version:,python:,add_path:,find_links:,url:,add_origin --name $0 -- "$@")
