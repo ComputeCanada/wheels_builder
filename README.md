@@ -1,15 +1,14 @@
-# ComputeCanada/wheels\_builder
+# wheels_builder
 
-Scripts to automate building Python wheels for Compute Canada's wheelhouse.
+Scripts to automate building Python wheels for DRAC's wheelhouse.
 
 **Table of Content:**
 
-* [Quick Start](#quick-start)
+* [Quick Start]
   * [`build_wheel.sh`](#build_wheelsh)
   * [`wheel_architecture.sh`](#wheel_architecturesh)
   * [`cp_wheels.sh`](#cp_wheelssh)
   * [`parbuild_wheel.sh`](#parbuild_wheelsh)
-  * [`protobuf_optimized_wheel.sh`](#protobuf_optimized_wheelsh)
   * [`unmanylinuxize.sh`](#unmanylinuxizesh)
   * [`config/<package>.sh`](#configpackagesh)
   * [`manipulate_wheels.py`](#manipulate_wheelspy)
@@ -22,25 +21,27 @@ Scripts to automate building Python wheels for Compute Canada's wheelhouse.
 Build wheel(s) for a Python package.
 
 ```
-Usage: build_wheel.sh --package <python package name> 
-         [--version <specific version]
-         [--recursive=<1|0>]
-         [--python=<comma separated list of python versions>]
-         [--keep-build-dir]
-         [--verbose=<1,2,3>]
-         [--job]
-         [--cpus=<number of cpus>] (default: 1)
-         [--mem-cpu=<memory per cpu>[mM|gG]] (default: 3G)
+Usage: build_wheel.sh 
+    --package <python package name> 
+    [--version <specific version]
+    [--recursive=<1|0>]
+    [--python=<comma separated list of python versions>]
+    [--keep-build-dir]
+    [--autocopy]
+    [--verbose=<1,2,3>]
+    [--job]
+    [--cpus|job-cores=<number of cpus>] (default: 1)
+    [--mem-cpu=<memory per cpu>[mM|gG]] (default: 3G)
 
     --package         Name of the Python package to build.
     --version         Version of the Python package to build. (default:  latest)
     --recursive       Recursively build wheels for dependencies.
-    --python          Build wheels for these Python versions. (default: "3.9,3.10,3.11")
+    --python          Build wheels for these Python versions. (default: "3.11,3.12,3.13")
     --keep-build-dir  Don't delete build-dirs after successful build.
     --autocopy        Run `./cp_wheels.sh --remove` after successful build.
     --verbose         Set level for verbosity. (0,1,2,3; default: 0)
     --job             Submit as non-interactive Slurm job to build-cluster
-    --cpus            Number of CPUs for non-interactive job
+    --cpus|job-cores  Number of CPUs for non-interactive job
     --mem-cpu         Amount of memory for non-interactive job (default: 3G)
  -h --help            Print help message.
 
@@ -50,13 +51,12 @@ This script will:
 - Create a build-virtualenv based on the (first) Python version and install dependencies.
 - Download the package from PyPI (by default), either the version specified or else the latest.
 - Build the wheel.
-- Add the +computecanada to the wheel name.
+- Add the `+computecanada` to the wheel name.
 - To test: install the wheel into the build-virtualenv and try to import it.
 
-By default, it tries to build wheels for Python 3.9, 3.10, and 3.11.
+By default, it tries to build wheels for Python 3.11 to 3.13.
 
-If no `arch` module is loaded, it will load `arch/sse3`, our current smallest
-common denominator. To build AVX2-optimised wheels, do `module load arch/avx2`
+To build AVX512-optimized wheels, do `module load arch/avx512` 
 before calling `build_wheel.sh`. This has no effect on generic packages, i.e.
 those that do not contain compiled libraries and do not link external ones.
 
@@ -68,14 +68,14 @@ trying some prefixes or suffixes (python, py, Py, 2).
 While these assumptions work surprisingly well, many packages need special treatment,
 by creating a [`package.sh` file in the `config/` directory](#configpackagesh),
 which will be sourced and can therefore be used to configure the build.
-In there variations of the package-, archive-, folder-, import-name can be specified
+In these variations of the package-, archive-, folder-, import-name can be specified
 as well as differing download-, build-, and test-commands.
 See [below](#configpackagesh) for a list of options.
 
 -------------------------------------------------------------------------------
 ### `wheel_architecture.sh`
 
-Analyzes the content of the wheel and makes some prediction into which sub-directory
+Analyzes the content of the wheel and tries to make some prediction into which sub-directory
 of our wheelhouse the wheel needs to be placed.
 
 ```
@@ -87,6 +87,9 @@ Usage: wheel_architecture.sh  <FILENAME>.whl
 * gentoo  generic : requires Gentoo prefix but is not architecture dependent
 * nix     avx2    : requires NIX and depends on libraries located in arch/avx2
 * ...
+* gentoo2023 generic : requires Gentoo 2023 but is not architecture dependent. May contains `x86-64-v3` optimizations.
+* x86-64-v3 avx2  : requires Gentoo 2023 and depends on libraries located in arch/avx2
+* x86-64-v4 avx512  : requires Gentoo 2023 and depends on libraries located in arch/avx512
 
 *NOTE*: While the script tries to make a good job, there are cases e.g. when a wheel
 depends on a certain library or certain version of a library that is available only 
@@ -117,58 +120,71 @@ wheel to be arch-specific if it links external libraries not in the Gentoo or
 Nix compatibility layer, or if any existing wheels for the same package are in
 arch-specific directories in our wheelhouse.
 
+If `--wheel` argument is provided, then only the given file will be processed, else
+all `computecanada` tagged files will be processed.
+
 -------------------------------------------------------------------------------
 ### `parbuild_wheel.sh`
 
-**TODO**
+Build multiple versions and/or multiple wheels in parallel.
 
--------------------------------------------------------------------------------
-### `protobuf_optimized_wheel.sh`
-
-**TODO**
+```bash
+Usage: parbuild_wheel.sh 
+  --package <comma separated list of package name>
+  [--version <comma separated list of versions>]
+  [--python <comma separated list of python versions>]
+  [--requirements <requirements file>
+```
 
 -------------------------------------------------------------------------------
 ### `unmanylinuxize.sh`
 
+Note: prefer to build with `build_wheels.sh` (and source) when possible.
+
 A number of (difficult to build) Python packages are distributed as binary wheels
 that are compatible with many common Linux distributions and therefore tagged 
-with `manylinux` in the filename.  These are -- out of the box -- incompatible
-with the CC software stack, because most of our libraries live in either the NIX
-profile or Gentoo prefix.
+with `manylinux` in the filename. These are -- out of the box -- incompatible
+with the software stack, because most of our libraries live in different locations.
 
 However this script can download and patch `manylinux` wheels (basically by 
 treating them with the `setrpaths.sh` script), thereby trying to make them 
-compatible with the CC software stack.
+compatible with the software stack.
 
 ```
-Usage: unmanylinuxize.sh --package <package name> 
-                        [--version <version>] 
-                        [--python <comma separated list of python versions>]
+Usage: unmanylinuxize.sh 
+  --package <package name> 
+  [--version <version>]
+  [--python <comma separated list of python versions>]
+  [--add_path <add rpath>]
+  [--add_origin <add origin to rpath>]
+  [--find_links https://index.url | --url https://direct.url.to.wheel.whl ]
 ```
+
+`--find-links` set `PIP_FIND_LINKS` and can be useful to search an alternative index then PyPI.
+`--url` allows one to directly download a specific wheel file with `wget`
 
 -------------------------------------------------------------------------------
 ### `config/<package>.sh`
 
-`build_wheel.sh` will try to source `${PACKAGE}-${VERSION}.sh` or `${PACKAGE}.sh` (whichever it finds first)
-from the `config` directory, which allows for some package- and version- specific configurations.
+`build_wheel.sh` will try to source (case insensitively) `${PACKAGE}-${VERSION}.sh` then `${PACKAGE}.sh`
+from the `config` directory, which allows for some package- and version- specific configurations. 
 
-To see examples on how to use these options, just grep through the `config/*.sh` files to find other recipes that use them.
+To see examples on how to use these options, just `grep` through the `config/*.sh` files to find other recipes that use them.
 
 Variable                    | Description
 ----------------------------|---------------------------------------------------
   `PACKAGE`                 | Name of the package. Defaults to the value of `--package`. 
   `VERSION`                 | Version of the package. Defaults to the value of `--version` or latest. 
-  `PYTHON_VERSIONS`         | Comma separated list of Python versions, for which the wheel is to be built. Defaults to the value of `--python` (if set) or currently all installed python/3.x modules except 3.5.
+  `PYTHON_VERSIONS`         | List of Python versions, for which the wheel is to be built. Defaults to the value of `--python` (if set) or default python versions (ie 3.11,3.12,3.13).
 `BDIST_WHEEL_ARGS`          | Extra arguments to pass to `python setup.py bdist_wheel $BDIST_WHEEL_ARGS`.
+`PIP_WHEEL_ARGS`            | Extra arguments to pass to `pip wheel $PIP_WHEEL_ARGS`. 
 `MODULE_BUILD_DEPS`         | Loads these modules for building the wheel.
-`MODULE_BUILD_DEPS_DEFAULT` | Is set to oldest-supported-numpy/.2022a python-build-bundle pytest/7.0.1 cython/.0.29.33 
+`MODULE_BUILD_DEPS_DEFAULT` | Is set to `numpy/.2.1.1 python-build-bundle pytest cython/.3.0.11`
 `MODULE_RUNTIME_DEPS`       | Loads these modules for building and testing the wheel.
-`MODULE_DEPS`               | **REMOVED** This variable is no longer used.
-`NUMPY_DEFAULT_VERSION`     | Compile wheels against an older version of numpy to avoid making them incompatible with slightly older versions. Will switch to `oldest-supported-numpy` metapackage in the future.  
 `PACKAGE_DOWNLOAD_CMD`      | Custom download command, e.g. `git clone ...`. (default: `pip download --no-cache --no-binary \$PACKAGE_DOWNLOAD_ARGUMENT --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT`)
 `PACKAGE_DOWNLOAD_ARGUMENT` | Additional argument to pass to `pip download`.
 `PACKAGE_DOWNLOAD_NAME`     | In case downloaded name is different from `$PACKAGE`, e.g. `v${VERSION}.tar.gz` (default: `$PACKAGE`)
-`PACKAGE_DOWNLOAD_METHOD`   | 
+`PACKAGE_DOWNLOAD_METHOD`   | Use `pip download` (default) or specify `Git`
 `PACKAGE_FOLDER_NAME`       | In case extracted folder has a name different from `$PACKAGE`. (default: `$PACKAGE`)
 `PACKAGE_SUFFIX`            | Add this suffix to our package name, e.g. `-cpu` or `-gpu`. (default: "")
 `PATCHES`                   | Applies these patch-files before building. Specify as a single or list of patch files, that have been placed in the `patches/` directory.
@@ -191,9 +207,7 @@ Variable                    | Description
 #### Usage
 ```bash
 $ ./manipulate_wheels.py -h
-usage: manipulate_wheels [-h] -w WHEELS [WHEELS ...] [-i] [-u UPDATE_REQ [UPDATE_REQ ...]] [-a ADD_REQ [ADD_REQ ...]]
-                         [-r REMOVE_REQ [REMOVE_REQ ...]] [--set_min_numpy SET_MIN_NUMPY]
-                         [--set_lt_numpy SET_LT_NUMPY] [--inplace] [--force] [-p] [-v] [-t TAG]
+usage: manipulate_wheels [-h] -w WHEELS [WHEELS ...] [-i] [-u UPDATE_REQ [UPDATE_REQ ...]] [-a ADD_REQ [ADD_REQ ...]] [-r REMOVE_REQ [REMOVE_REQ ...]] [--set_min_numpy SET_MIN_NUMPY] [--set_lt_numpy SET_LT_NUMPY] [--inplace] [--force] [-p] [-v] [-t TAG]
 
 Manipulate wheel files
 
@@ -213,10 +227,8 @@ optional arguments:
                         Sets the minimum required numpy version. (default: None)
   --set_lt_numpy SET_LT_NUMPY
                         Sets the lower than (<) required numpy version. (default: None)
-  --inplace             Work in the same directory as the existing wheel instead of a temporary location
-                        (default: False)
-  --force               If combined with --inplace, overwrites existing wheel if the resulting wheel has
-                        the same name (default: False)
+  --inplace             Work in the same directory as the existing wheel instead of a temporary location (default: False)
+  --force               If combined with --inplace, overwrites existing wheel if the resulting wheel has the same name (default: False)
   -p, --print_req       Prints the current requirements (default: False)
   -v, --verbose         Displays information about what it is doing (default: False)
   -t TAG, --add_tag TAG
