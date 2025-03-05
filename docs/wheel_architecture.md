@@ -17,9 +17,10 @@ Usage: wheel_architecture.sh  <FILENAME>.whl
 * x86-64-v3 avx2  : requires Gentoo 2023 and depends on libraries located in arch/avx2
 * x86-64-v4 avx512  : requires Gentoo 2023 and depends on libraries located in arch/avx512
 
-*NOTE*: While the script tries to make a good job, there are cases e.g. when a wheel
-depends on a certain library or certain version of a library that is available only 
-in one of the NIX or Gentoo layers but not the other, where it makes a wrong prediction.
+> [!NOTE]  
+> While the script tries to make a good job, there are cases e.g. when a wheel
+> depends on a certain library or certain version of a library that is available only 
+> in one of the NIX or Gentoo layers but not the other, where it makes a wrong prediction.
 
 Make sure to test it!
 
