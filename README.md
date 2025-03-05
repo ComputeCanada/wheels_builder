@@ -7,7 +7,7 @@ Scripts to automate building Python wheels for DRAC's wheelhouse.
 * [Quick Start]
   * [`build_wheel.sh`](./docs/#build_wheelsh)
   * [`wheel_architecture.sh`](./docs/#wheel_architecturesh)
-  * [`cp_wheels.sh`](#cp_wheelssh)
+  * [`cp_wheels.sh`](./docs/#cp_wheelssh)
   * [`parbuild_wheel.sh`](#parbuild_wheelsh)
   * [`unmanylinuxize.sh`](#unmanylinuxizesh)
   * [`config/<package>.sh`](#configpackagesh)
@@ -16,32 +16,6 @@ Scripts to automate building Python wheels for DRAC's wheelhouse.
 
 ## Quick Start
 
-### `cp_wheels.sh`
-
-Copies all wheels in the current directory to the predicted location in the wheelhouse
-after adjusting the permissions. 
-
-```
-Usage: cp_wheels.sh [--wheel <wheel file>] [--arch generic|<rsnt_arch>]
-                    [--remove] [--dry-run]
-
-   --wheel <wheel file>       Process only this wheel (otherwise all in the $CWD)
-   --arch generic|<rsnt_arch> Copy to a generic or arch-specific directory.
-   --remove                   Delete the wheel after copying.
-   --dry-run                  Just print the commands, but don't execute anything.
-```
-
-If `cp_wheels.sh` detects an arch-specific wheel, it will refuse to copy it
-unless the `--arch` flag is used. Choice of arch should match what was used
-when building the wheel (see `build_wheel.sh`). `cp_wheels.sh` considers a
-wheel to be arch-specific if it links external libraries not in the Gentoo or
-Nix compatibility layer, or if any existing wheels for the same package are in
-arch-specific directories in our wheelhouse.
-
-If `--wheel` argument is provided, then only the given file will be processed, else
-all `computecanada` tagged files will be processed.
-
--------------------------------------------------------------------------------
 ### `parbuild_wheel.sh`
 
 Build multiple versions and/or multiple wheels in parallel.
