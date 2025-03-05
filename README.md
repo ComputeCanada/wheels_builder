@@ -3,13 +3,13 @@
 Scripts to automate building Python wheels for DRAC's wheelhouse.
 
 **Documentation:**
-  * [`build_wheel.sh`](./docs/#build_wheelsh)
-  * [`wheel_architecture.sh`](./docs/#wheel_architecturesh)
-  * [`cp_wheels.sh`](./docs/#cp_wheelssh)
-  * [`parbuild_wheel.sh`](./docs/#parbuild_wheelsh)
-  * [`unmanylinuxize.sh`](./docs/#unmanylinuxizesh)
-  * [`config/<package>.sh`](./docs/#configurations)
-  * [`manipulate_wheels.py`](./docs/#manipulate_wheelspy)
+  * [`build_wheel.sh`](./docs/build_wheels.md)
+  * [`wheel_architecture.sh`](./docs/wheel_architecture.md)
+  * [`cp_wheels.sh`](./docs/cp_wheels.md)
+  * [`parbuild_wheel.sh`](./docs/parbuild_wheel.md)
+  * [`unmanylinuxize.sh`](./docs/unmanylinuxize.md)
+  * [`config/<package>.sh`](./docs/config.md)
+  * [`manipulate_wheels.py`](./docs/manipulate_wheels.md)
 
 
 ## TLDR
