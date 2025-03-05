@@ -22,11 +22,11 @@ of the module when imported, however for importing it also try some variants by
 trying some prefixes or suffixes (python, py, Py, 2).
 
 While these assumptions work surprisingly well, many packages need special treatment,
-by creating a [`package.sh` file in the `config/` directory](https://github.com/ComputeCanada/wheels_builder/wiki/Configuration),
+by creating a [`package.sh` file in the `config/` directory](config.md),
 which will be sourced and can therefore be used to configure the build.
 In these variations of the package-, archive-, folder-, import-name can be specified
 as well as differing download-, build-, and test-commands.
-See the [variable section](https://github.com/ComputeCanada/wheels_builder/wiki/Configuration#variables) for a list of options.
+See the [variable section](config.md#variables) for a list of options.
 
 ## Examples
 ### Build latest
