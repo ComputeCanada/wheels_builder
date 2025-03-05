@@ -2,9 +2,7 @@
 
 Scripts to automate building Python wheels for DRAC's wheelhouse.
 
-**Table of Content:**
-
-* [Quick Start]
+**Documentation:**
   * [`build_wheel.sh`](./docs/#build_wheelsh)
   * [`wheel_architecture.sh`](./docs/#wheel_architecturesh)
   * [`cp_wheels.sh`](./docs/#cp_wheelssh)
