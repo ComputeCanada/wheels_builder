@@ -6,7 +6,7 @@ Scripts to automate building Python wheels for DRAC's wheelhouse.
 
 * [Quick Start]
   * [`build_wheel.sh`](./docs/#build_wheelsh)
-  * [`wheel_architecture.sh`](#wheel_architecturesh)
+  * [`wheel_architecture.sh`](./docs/#wheel_architecturesh)
   * [`cp_wheels.sh`](#cp_wheelssh)
   * [`parbuild_wheel.sh`](#parbuild_wheelsh)
   * [`unmanylinuxize.sh`](#unmanylinuxizesh)
@@ -16,31 +16,6 @@ Scripts to automate building Python wheels for DRAC's wheelhouse.
 
 ## Quick Start
 
-### `wheel_architecture.sh`
-
-Analyzes the content of the wheel and tries to make some prediction into which sub-directory
-of our wheelhouse the wheel needs to be placed.
-
-```
-Usage: wheel_architecture.sh  <FILENAME>.whl
-```
-
-* generic generic : Generic in terms of nix/gentoo prefix as well as for architecture
-* nix     generic : requires NIX but is not architecture dependent
-* gentoo  generic : requires Gentoo prefix but is not architecture dependent
-* nix     avx2    : requires NIX and depends on libraries located in arch/avx2
-* ...
-* gentoo2023 generic : requires Gentoo 2023 but is not architecture dependent. May contains `x86-64-v3` optimizations.
-* x86-64-v3 avx2  : requires Gentoo 2023 and depends on libraries located in arch/avx2
-* x86-64-v4 avx512  : requires Gentoo 2023 and depends on libraries located in arch/avx512
-
-*NOTE*: While the script tries to make a good job, there are cases e.g. when a wheel
-depends on a certain library or certain version of a library that is available only 
-in one of the NIX or Gentoo layers but not the other, where it makes a wrong prediction.
-
-Make sure to test it!
-
--------------------------------------------------------------------------------
 ### `cp_wheels.sh`
 
 Copies all wheels in the current directory to the predicted location in the wheelhouse
