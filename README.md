@@ -9,41 +9,13 @@ Scripts to automate building Python wheels for DRAC's wheelhouse.
   * [`wheel_architecture.sh`](./docs/#wheel_architecturesh)
   * [`cp_wheels.sh`](./docs/#cp_wheelssh)
   * [`parbuild_wheel.sh`](./docs/#parbuild_wheelsh)
-  * [`unmanylinuxize.sh`](#unmanylinuxizesh)
+  * [`unmanylinuxize.sh`](./docs/#unmanylinuxizesh)
   * [`config/<package>.sh`](#configpackagesh)
   * [`manipulate_wheels.py`](#manipulate_wheelspy)
 
 
 ## Quick Start
 
-
-### `unmanylinuxize.sh`
-
-Note: prefer to build with `build_wheels.sh` (and source) when possible.
-
-A number of (difficult to build) Python packages are distributed as binary wheels
-that are compatible with many common Linux distributions and therefore tagged 
-with `manylinux` in the filename. These are -- out of the box -- incompatible
-with the software stack, because most of our libraries live in different locations.
-
-However this script can download and patch `manylinux` wheels (basically by 
-treating them with the `setrpaths.sh` script), thereby trying to make them 
-compatible with the software stack.
-
-```
-Usage: unmanylinuxize.sh 
-  --package <package name> 
-  [--version <version>]
-  [--python <comma separated list of python versions>]
-  [--add_path <add rpath>]
-  [--add_origin <add origin to rpath>]
-  [--find_links https://index.url | --url https://direct.url.to.wheel.whl ]
-```
-
-`--find-links` set `PIP_FIND_LINKS` and can be useful to search an alternative index then PyPI.
-`--url` allows one to directly download a specific wheel file with `wget`
-
--------------------------------------------------------------------------------
 ### `config/<package>.sh`
 
 `build_wheel.sh` will try to source (case insensitively) `${PACKAGE}-${VERSION}.sh` then `${PACKAGE}.sh`
