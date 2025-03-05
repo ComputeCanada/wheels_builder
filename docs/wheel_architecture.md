@@ -66,4 +66,4 @@ $ bash wheel_architecture.sh torchtext-0.18.0+computecanada-cp310-cp310-linux_x8
 ./torchtext/lib/libtorchtext.so is missing some libraries in Gentoo 2023
 unknown generic
 ```
-Since it requires a glibc 2.34 but cannot find `libtorch.so`, the script is enable to correctly determine which architecture. We then need to copy it with care under `gentoo2023/generic`.
+Since it requires a glibc 2.34 but cannot find `libtorch.so`, the script cannot correctly determine which architecture. We then need to copy it with care under `gentoo2023/generic`.
