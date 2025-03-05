@@ -5,7 +5,7 @@ Scripts to automate building Python wheels for DRAC's wheelhouse.
 **Table of Content:**
 
 * [Quick Start]
-  * [`build_wheel.sh`](#build_wheelsh)
+  * [`build_wheel.sh`](./docs/#build_wheelsh)
   * [`wheel_architecture.sh`](#wheel_architecturesh)
   * [`cp_wheels.sh`](#cp_wheelssh)
   * [`parbuild_wheel.sh`](#parbuild_wheelsh)
@@ -16,63 +16,6 @@ Scripts to automate building Python wheels for DRAC's wheelhouse.
 
 ## Quick Start
 
-### `build_wheel.sh`
-
-Build wheel(s) for a Python package.
-
-```
-Usage: build_wheel.sh 
-    --package <python package name> 
-    [--version <specific version]
-    [--recursive=<1|0>]
-    [--python=<comma separated list of python versions>]
-    [--keep-build-dir]
-    [--autocopy]
-    [--verbose=<1,2,3>]
-    [--job]
-    [--cpus|job-cores=<number of cpus>] (default: 1)
-    [--mem-cpu=<memory per cpu>[mM|gG]] (default: 3G)
-
-    --package         Name of the Python package to build.
-    --version         Version of the Python package to build. (default:  latest)
-    --recursive       Recursively build wheels for dependencies.
-    --python          Build wheels for these Python versions. (default: "3.11,3.12,3.13")
-    --keep-build-dir  Don't delete build-dirs after successful build.
-    --autocopy        Run `./cp_wheels.sh --remove` after successful build.
-    --verbose         Set level for verbosity. (0,1,2,3; default: 0)
-    --job             Submit as non-interactive Slurm job to build-cluster
-    --cpus|job-cores  Number of CPUs for non-interactive job
-    --mem-cpu         Amount of memory for non-interactive job (default: 3G)
- -h --help            Print help message.
-
-```
-
-This script will:
-- Create a build-virtualenv based on the (first) Python version and install dependencies.
-- Download the package from PyPI (by default), either the version specified or else the latest.
-- Build the wheel.
-- Add the `+computecanada` to the wheel name.
-- To test: install the wheel into the build-virtualenv and try to import it.
-
-By default, it tries to build wheels for Python 3.11 to 3.13.
-
-To build AVX512-optimized wheels, do `module load arch/avx512` 
-before calling `build_wheel.sh`. This has no effect on generic packages, i.e.
-those that do not contain compiled libraries and do not link external ones.
-
-`build_wheel.sh` assumes that the package name is also the first part of the 
-downloaded archive, the directory name of the extracted archive and the name
-of the module when imported, however for importing also try some variants by 
-trying some prefixes or suffixes (python, py, Py, 2).
-
-While these assumptions work surprisingly well, many packages need special treatment,
-by creating a [`package.sh` file in the `config/` directory](#configpackagesh),
-which will be sourced and can therefore be used to configure the build.
-In these variations of the package-, archive-, folder-, import-name can be specified
-as well as differing download-, build-, and test-commands.
-See [below](#configpackagesh) for a list of options.
-
--------------------------------------------------------------------------------
 ### `wheel_architecture.sh`
 
 Analyzes the content of the wheel and tries to make some prediction into which sub-directory
