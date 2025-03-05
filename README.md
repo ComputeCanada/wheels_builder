@@ -14,4 +14,9 @@ Scripts to automate building Python wheels for DRAC's wheelhouse.
   * [`manipulate_wheels.py`](./docs/#manipulate_wheelspy)
 
 
-## Quick Start
+## TLDR
+
+1. Build a wheel for a specific version:
+```bash
+bash build_wheels.sh --package <name> --version <version> --verbose 3
+```
