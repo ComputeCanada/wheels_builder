@@ -7,15 +7,16 @@ of our wheelhouse the wheel needs to be placed.
 ```
 Usage: wheel_architecture.sh  <FILENAME>.whl
 ```
-
-* generic generic : Generic in terms of nix/gentoo prefix as well as for architecture
-* nix     generic : requires NIX but is not architecture dependent
-* gentoo  generic : requires Gentoo prefix but is not architecture dependent
-* nix     avx2    : requires NIX and depends on libraries located in arch/avx2
-* ...
-* gentoo2023 generic : requires Gentoo 2023 but is not architecture dependent. May contains `x86-64-v3` optimizations.
-* x86-64-v3 avx2  : requires Gentoo 2023 and depends on libraries located in arch/avx2
-* x86-64-v4 avx512  : requires Gentoo 2023 and depends on libraries located in arch/avx512
+|    Layer   |    Arch   | Description                                                                                     |
+|:----------:|:---------:|-------------------------------------------------------------------------------------------------|
+|   generic  |  generic  | Generic in terms of nix/gentoo prefix as well as for architecture                               |
+|     nix    |  generic  | requires NIX but is not architecture dependent                                                  |
+|   gentoo   |  generic  | requires Gentoo prefix but is not architecture dependent                                        |
+|     nix    |    avx2   | requires NIX and depends on libraries located in arch/avx2                                      |
+|     ...    |    ...    | ...                                                                                             |
+| gentoo2023 |  generic  | requires Gentoo 2023 but is not architecture dependent. May contains `x86-64-v3` optimizations. |
+| gentoo2023 | x86-64-v3 | requires Gentoo 2023 and depends on libraries located in `x86-64-v3`                            |
+| gentoo2023 | x86-64-v4 | requires Gentoo 2023 and depends on libraries located in  `x86-64-v4`                           |
 
 > [!NOTE]  
 > While the script tries to make a good job, there are cases e.g. when a wheel
