@@ -8,7 +8,7 @@ Scripts to automate building Python wheels for DRAC's wheelhouse.
   * [`build_wheel.sh`](./docs/#build_wheelsh)
   * [`wheel_architecture.sh`](./docs/#wheel_architecturesh)
   * [`cp_wheels.sh`](./docs/#cp_wheelssh)
-  * [`parbuild_wheel.sh`](#parbuild_wheelsh)
+  * [`parbuild_wheel.sh`](./docs/#parbuild_wheelsh)
   * [`unmanylinuxize.sh`](#unmanylinuxizesh)
   * [`config/<package>.sh`](#configpackagesh)
   * [`manipulate_wheels.py`](#manipulate_wheelspy)
@@ -16,19 +16,7 @@ Scripts to automate building Python wheels for DRAC's wheelhouse.
 
 ## Quick Start
 
-### `parbuild_wheel.sh`
 
-Build multiple versions and/or multiple wheels in parallel.
-
-```bash
-Usage: parbuild_wheel.sh 
-  --package <comma separated list of package name>
-  [--version <comma separated list of versions>]
-  [--python <comma separated list of python versions>]
-  [--requirements <requirements file>
-```
-
--------------------------------------------------------------------------------
 ### `unmanylinuxize.sh`
 
 Note: prefer to build with `build_wheels.sh` (and source) when possible.
