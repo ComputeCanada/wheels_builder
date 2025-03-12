@@ -1,16 +1,18 @@
-diff --git a/fairseq2n/python/src/fairseq2n/__init__.py b/fairseq2n/python/src/fairseq2n/__init__.py
-index 7752c64..193743f 100644
---- a/fairseq2n/python/src/fairseq2n/__init__.py
-+++ b/fairseq2n/python/src/fairseq2n/__init__.py
-@@ -12,6 +12,7 @@ from ctypes.util import find_library
- from os import environ
- from pathlib import Path
- from typing import List, Optional, Tuple
+diff --git a/native/python/src/fairseq2n/__init__.py b/native/python/src/fairseq2n/__init__.py
+index 381bb3d..7adce7c 100644
+--- a/native/python/src/fairseq2n/__init__.py
++++ b/native/python/src/fairseq2n/__init__.py
+@@ -3,8 +3,8 @@
+ #
+ # This source code is licensed under the BSD-style license found in the
+ # LICENSE file in the root directory of this source tree.
+-
+ from __future__ import annotations
 +import torch
  
- __version__ = "0.1.1"
+ __version__ = "0.4.5"
  
-@@ -107,7 +108,9 @@ def _load_shared_library(lib_name: str) -> Optional[CDLL]:
+@@ -166,7 +166,9 @@ def _load_shared_library(lib_name: str) -> CDLL | None:
  
  # We load shared libraries that we depend on using our own extended lookup logic
  # since they might be located in non-default locations.
@@ -20,4 +22,4 @@ index 7752c64..193743f 100644
 +#_load_shared_libraries()
  
  
- def get_lib() -> Path:
+ def _check_torch_version() -> None:
