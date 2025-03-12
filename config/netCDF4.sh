@@ -1,5 +1,7 @@
-MODULE_BUILD_DEPS="openmpi hdf5-mpi netcdf-mpi mpi4py"
-MODULE_RUNTIME_DEPS="openmpi mpi4py"
+# For parallel io, mpi4py is required
+MODULE_BUILD_DEPS="openmpi hdf5-mpi netcdf-mpi"
+MODULE_RUNTIME_DEPS="openmpi"
 PRE_DOWNLOAD_COMMANDS='export HDF5_DIR=$EBROOTHDF5; export NETCDF4_DIR=$EBROOTNETCDF'
 RPATH_TO_ADD='$EBROOTOPENMPI/lib'
 PYTHON_DEPS='pip>=23.0'
+PYTHON_IMPORT_NAME="netCDF4"
