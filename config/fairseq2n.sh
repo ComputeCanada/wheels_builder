@@ -3,14 +3,14 @@
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/facebookresearch/fairseq2.git"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PACKAGE_DOWNLOAD_METHOD="Git"
-PACKAGE_DOWNLOAD_CMD="git clone --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
+PACKAGE_DOWNLOAD_CMD="git clone --depth 1 --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
-MODULE_BUILD_DEPS='cuda/12 tbb'
+MODULE_BUILD_DEPS='cuda/12 tbb git-lfs'
 MODULE_RUNTIME_DEPS='tbb'
 PRE_BUILD_COMMANDS='
-        cd fairseq2n;
-        cmake -GNinja -DBUILD_TESTING=OFF -DFAIRSEQ2N_INSTALL_STANDALONE=ON -DFAIRSEQ2N_USE_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="60;70;75;80;86" -DFAIRSEQ2N_BUILD_FOR_NATIVE=OFF -B build -S .;
-        cmake --build build --parallel 4;
+        cd native;
+        cmake -GNinja -DBUILD_TESTING=OFF -DFAIRSEQ2N_INSTALL_STANDALONE=ON -DFAIRSEQ2N_USE_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="60;70;75;80;86;90" -DFAIRSEQ2N_BUILD_FOR_NATIVE=OFF -B build -S .;
+        cmake --build build --parallel;
         cd python;
         sed -i "/tbb/d" setup.py;
 '
