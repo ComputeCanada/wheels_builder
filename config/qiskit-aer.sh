@@ -10,4 +10,5 @@ BDIST_WHEEL_ARGS='
     -DAER_MPI=ON
     -DBUILD_TESTS=OFF
 '
-PYTHON_IMPORT_NAME='qiskit_aer'
+# PYTHON_IMPORT_NAME='qiskit_aer'
+PYTHON_TESTS='from qiskit_aer import AerSimulator'
