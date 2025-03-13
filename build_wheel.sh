@@ -670,7 +670,8 @@ for pv in $PYTHON_VERSIONS; do
 
 	test_whl
 
-	if [[ $WHEEL_NAME =~ .*-py3-.* || $WHEEL_NAME =~ .*py2.py3.* ]]; then
+	# If wheel is Pure Python (py3, py2.py3) or abi3 compatible (cp*-abi3)
+	if [[ $WHEEL_NAME =~ .*-py3-.* || $WHEEL_NAME =~ .*py2.py3.* || $WHEEL_NAME =~ .*abi3.* ]]; then
 		echo "Wheel $WHEEL_NAME is compatible with all further versions of python. Breaking"
 		break
 	fi
