@@ -1,7 +1,7 @@
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/traveller59/spconv/archive/refs/tags/v${VERSION:?version required}.tar.gz"
 PYTHON_DEPS="pccm>=0.4.2 cumm"
 if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
-	MODULE_BUILD_DEPS='cuda/12'
+	MODULE_BUILD_DEPS='cuda/12.6'
 else
 	MODULE_BUILD_DEPS='cuda/11.7'
 fi
