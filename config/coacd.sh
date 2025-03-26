@@ -1,0 +1,2 @@
+PACKAGE_DOWNLOAD_ARGUMENT="git+https://github.com/SarahWeiii/CoACD@${VERSION:?version required}"
+PRE_BUILD_COMMANDS='export CMAKE_BUILD_PARALLEL_LEVEL=${SLURM_CPUS_PER_TASK:-1}'
