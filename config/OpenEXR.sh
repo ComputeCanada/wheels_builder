@@ -4,3 +4,4 @@ else
 	MODULE_BUILD_DEPS='openexr'
 fi
 PATCHES='OpenEXR-fix-lib.patch'
+PYTHON_IMPORT_NAME="OpenEXR"
