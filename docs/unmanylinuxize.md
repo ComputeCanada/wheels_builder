@@ -2,8 +2,8 @@
 
 This script allow one to download a `manylinux` wheel and patch it.
 
-> [!NOTE]  
-> Prefer to build with `build_wheels.sh` (and source) when possible.
+!!! tip "optimization"
+    Prefer to build with `build_wheels.sh` (and source) when possible.
 
 A number of (difficult to build) Python packages are distributed as binary wheels
 that are compatible with many common Linux distributions and therefore tagged 
