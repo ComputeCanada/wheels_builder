@@ -3,13 +3,16 @@
 Build wheel(s) for a Python package.
 
 This script will:
+
 - Create a build-virtualenv based on the Python version and install any dependencies.
 - Download the package from PyPI (by default), either the version specified or else the latest.
 - Build the wheel.
 - Add the `+computecanada` to the wheel name.
 - install the wheel into the build-virtualenv and try to import it.
 
+
 By default,
+
 - it tries to build wheels for Python 3.11 to 3.13;
 - all downloaded dependencies will be built.
 

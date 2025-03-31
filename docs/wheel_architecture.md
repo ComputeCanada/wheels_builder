@@ -7,6 +7,7 @@ of our wheelhouse the wheel needs to be placed.
 ```
 Usage: wheel_architecture.sh  <FILENAME>.whl
 ```
+
 |    Layer   |    Arch   | Description                                                                                     |
 |:----------:|:---------:|-------------------------------------------------------------------------------------------------|
 |   generic  |  generic  | Generic in terms of nix/gentoo prefix as well as for architecture                               |
@@ -18,10 +19,10 @@ Usage: wheel_architecture.sh  <FILENAME>.whl
 | gentoo2023 | x86-64-v3 | requires Gentoo 2023 and depends on libraries located in `x86-64-v3`                            |
 | gentoo2023 | x86-64-v4 | requires Gentoo 2023 and depends on libraries located in  `x86-64-v4`                           |
 
-> [!NOTE]  
-> While the script tries to make a good job, there are cases e.g. when a wheel
-> depends on a certain library or certain version of a library that is available only 
-> in one of the NIX or Gentoo layers but not the other, where it makes a wrong prediction.
+!!! note
+	While the script tries to make a good job, there are cases e.g. when a wheel
+	depends on a certain library or certain version of a library that is available only 
+	in one of the NIX or Gentoo layers but not the other, where it makes a wrong prediction.
 
 Make sure to test it!
 
