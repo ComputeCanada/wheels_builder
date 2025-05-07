@@ -6,13 +6,13 @@ PACKAGE_DOWNLOAD_CMD="git clone --jobs 16 --depth 1 --recursive $PACKAGE_DOWNLOA
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 
 MODULE_RUNTIME_DEPS='arrow'
-MODULE_BUILD_DEPS='cuda protobuf abseil nccl'
-PYTHON_DEPS='torch==2.5.1'
+MODULE_BUILD_DEPS='cuda protobuf abseil nccl/2.26'
+PYTHON_DEPS='torch==2.6.0'
 # nvcc uses os.cpu_count() hardcoded threads which returns 16
 PRE_BUILD_COMMANDS='
 	export SETUPTOOLS_SCM_PRETEND_VERSION=${VERSION:?version required};
 	export TORCH_CUDA_ARCH_LIST="7.0;7.5;8.0;8.6;9.0";
-    export USE_SCCACHE=1;
+	export USE_SCCACHE=1;
 	export MAX_JOBS=2;
 	export NVCC_THREADS=2;
 	sed -i -e "0,/MAIN_CUDA_VERSION/{s/MAIN_CUDA_VERSION.*/MAIN_CUDA_VERSION=\"$EBVERSIONCUDA\"/}" setup.py;
