@@ -247,7 +247,8 @@ function wrapped_pip_install {
 	else
 		pip install $@ --no-cache --find-links=$TMP_WHEELHOUSE &> $TMPFILE
 	fi
-	DOWNLOADED_DEPS=$(grep Downloading $TMPFILE | awk '{print $2}')
+	# Cut the .metadata extension of downloaded wheels, preserve downloaded order, and build once downloaded deps
+	DOWNLOADED_DEPS=$(grep Downloading $TMPFILE | sed -e 's/.metadata//' | awk '{if(!seen[$2]++) print $2;}')
 	if [[ ! -z "$DOWNLOADED_DEPS" && $RECURSIVE -eq 1 ]]; then
 		echo "========================================================="
 		echo "The following dependencies were downloaded. Building them: $DOWNLOADED_DEPS"
