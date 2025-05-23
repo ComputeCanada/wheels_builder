@@ -4,5 +4,6 @@ PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/pytorch/torchrec/archive/refs/tags
 PRE_BUILD_COMMANDS='
 	wget https://raw.githubusercontent.com/pytorch/torchrec/main/install-requirements.txt -O requirements.txt;
 	sed -i -e "s/-nightly//" requirements.txt;
+	sed -i -e "s/1.1.0a0/1.1.0/" version.txt;
 '
 MODULE_RUNTIME_DEPS='arch/avx2'
