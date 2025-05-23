@@ -1,3 +1,5 @@
 MODULE_BUILD_DEPS="arch/avx2"
 PYTHON_TESTS="numexpr.test()"
-
+PRE_BUILD_COMMANDS='
+    CPATH=$EBROOTPYTHON/include:$CPATH;
+'
