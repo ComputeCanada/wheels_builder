@@ -5,4 +5,4 @@ if [[ $(translate_version $VERSION) -lt $(translate_version '0.4.34')  ]]; then
 fi
 
 # Remove the extras that installs nvidia librairies
-PRE_BUILD_COMMANDS="sed -i -e 's/\[with_cuda\]//' setup.py"
+PRE_BUILD_COMMANDS="sed -i -e 's/\[with[-_]cuda\]//' setup.py"

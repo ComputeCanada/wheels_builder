@@ -1,11 +1,10 @@
-MODULE_RUNTIME_DEPS="cuda tensorrt/8.6 cudnn/9.2 nccl/2.18"
+MODULE_RUNTIME_DEPS="cuda/12.6 cudnn/9.10 nccl/2.26"
 
 RPATHS=(
     '$EBROOTCUDACORE/lib64'
     '$EBROOTCUDACORE/extras/CUPTI/lib64'
     '$EBROOTCUDNN/lib'
     '$EBROOTNCCL/lib'
-    '$EBROOTTENSORRT/lib'
 )
 RPATHS=${RPATHS[*]}
 
