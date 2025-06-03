@@ -359,7 +359,8 @@ function download()
 	echo "Downloaded '$ARCHNAME'"
 	if [[ -z "$ARCHNAME" ]]; then
 		echo -e "${COL_RED}Error while downloading package. Aborting...${COL_RST}"
-		echo "See : $PWD/download.log"
+		cat download.log
+		echo "See also : $PWD/download.log"
 		exit 1
 	fi
 	if [[ ! -z $POST_DOWNLOAD_COMMANDS ]]; then
