@@ -601,7 +601,7 @@ function adjust_torch_requirements_based_on_link_info()
 }
 
 echo "Building wheel for $PACKAGE"
-WORKDIR=/shared_tmp/build_wheels_tmp.$$
+WORKDIR=/tmp/build_wheels_tmp.$$
 mkdir $WORKDIR
 log_command pushd $WORKDIR
 if [[ -z "$EBROOTGENTOO" ]]; then
