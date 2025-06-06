@@ -1,0 +1,13 @@
+diff --git a/pyopencl/version.py b/pyopencl/version.py
+index 2cd0fff..3cbf6fd 100644
+--- a/pyopencl/version.py
++++ b/pyopencl/version.py
+@@ -2,7 +2,7 @@ import re
+ from importlib import metadata
+ 
+ 
+-VERSION_TEXT = metadata.version("pyopencl")
++VERSION_TEXT = metadata.version("pyopencl").rstrip('+computecanada')
+ _match = re.match(r"^([0-9.]+)([a-z0-9]*?)$", VERSION_TEXT)
+ assert _match is not None
+ VERSION_STATUS = _match.group(2)
