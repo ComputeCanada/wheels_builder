@@ -1,0 +1,13 @@
+diff --git a/pytools/version.py b/pytools/version.py
+index 58f2219..72d0d4a 100644
+--- a/pytools/version.py
++++ b/pytools/version.py
+@@ -4,7 +4,7 @@ import re
+ from importlib import metadata
+ 
+ 
+-VERSION_TEXT = metadata.version("pytools")
++VERSION_TEXT = metadata.version("pytools").rstrip('+computecanada')
+ _match = re.match(r"^([0-9.]+)([a-z0-9]*?)$", VERSION_TEXT)
+ assert _match is not None
+ VERSION_STATUS = _match.group(2)
