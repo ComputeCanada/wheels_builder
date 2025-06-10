@@ -18,6 +18,7 @@ PRE_BUILD_COMMANDS='
 	sed -i -e "0,/MAIN_CUDA_VERSION/{s/MAIN_CUDA_VERSION.*/MAIN_CUDA_VERSION=\"$EBVERSIONCUDA\"/}" setup.py;
 	sed -i -e "s/cupy-cuda12x/cupy/" -e "/vllm-nccl-.*/d" -e "/^cmake/d" -e "$ a triton" requirements*.txt;
 	rm -f requirements-build.txt;
+	sed -i -e "/license/d" pyproject.toml;
 '
 POST_BUILD_COMMANDS='wheel tags --remove --abi-tag=abi3 --python-tag=cp38 --platform-tag=linux_x86_64 $WHEEL_NAME && WHEEL_NAME=$(ls *.whl)'
 PYTHON_TESTS='from vllm._C import *'
