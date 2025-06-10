@@ -1,7 +1,7 @@
 PYTHON_DEPS="ninja pyyaml astunparse typing-extensions requests six"
 
 if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
-	MODULE_BUILD_DEPS="gcc openmpi flexiblas cmake fftw eigen protobuf abseil flatbuffers cuda/12 cusparselt cudnn/9 nccl magma opencv/4.10.0-2"
+	MODULE_BUILD_DEPS="gcc/13 openmpi flexiblas cmake fftw eigen protobuf abseil flatbuffers cuda/12.6 cusparselt cudnn/9.5 nccl/2.26 magma opencv/4.11"
 else
 	# 11.7 and up is required for flash attention
 	MODULE_BUILD_DEPS="gcc cuda/11.7 openmpi magma nccl cudnn ffmpeg cmake flexiblas/3.0.4 eigen protobuf opencv fftw"
@@ -24,7 +24,7 @@ PRE_BUILD_COMMANDS='
 	export DEBUG=OFF;
 	export BUILD_TEST=OFF;
 	export INSTALL_TEST=OFF;
-	export TORCH_CUDA_ARCH_LIST="6.0;7.0;7.5;8.0;8.6;9.0";
+	export TORCH_CUDA_ARCH_LIST="7.0;8.0;9.0";
 	export NO_CUDA=OFF;
 	export MAGMA_HOME=$EBROOTMAGMA;
 

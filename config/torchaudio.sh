@@ -1,5 +1,5 @@
 if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
-	MODULE_BUILD_DEPS="cuda/12.2 cudnn cmake protobuf abseil"
+	MODULE_BUILD_DEPS="cuda/12.6 cudnn/9.5 cmake protobuf abseil"
 else
     MODULE_BUILD_DEPS="gcc/9 cuda/11.7 cudnn cmake protobuf/3.21.3"
 fi
@@ -13,5 +13,5 @@ PRE_BUILD_COMMANDS='
     export LDFLAGS="$LDFLAGS -ltinfo -lgsm ";
     export BUILD_SOX=1;
     export BUILD_VERSION=$VERSION;
-    export TORCH_CUDA_ARCH_LIST="6.0;7.0;7.5;8.0;8.6;9.0";
+    export TORCH_CUDA_ARCH_LIST="7.0;8.0;9.0";
 '
