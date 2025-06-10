@@ -1,1 +1,1 @@
-PYTHON_DEPS='nanobind'
+PYTHON_DEPS='nanobind -U scikit-build-core'
