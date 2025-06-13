@@ -1,0 +1,12 @@
+diff -Nru prompt_toolkit-3.0.51.orig/src/prompt_toolkit/__init__.py prompt_toolkit-3.0.51/src/prompt_toolkit/__init__.py
+--- prompt_toolkit-3.0.51.orig/src/prompt_toolkit/__init__.py	2025-06-13 08:30:48.243973426 -0400
++++ prompt_toolkit-3.0.51/src/prompt_toolkit/__init__.py	2025-06-13 08:31:50.086282892 -0400
+@@ -29,7 +29,7 @@
+ from .shortcuts import PromptSession, print_formatted_text, prompt
+ 
+ # Don't forget to update in `docs/conf.py`!
+-__version__ = metadata.version("prompt_toolkit")
++__version__ = metadata.version("prompt_toolkit").rstrip("+computecanada")
+ 
+ assert pep440.match(__version__)
+ 
