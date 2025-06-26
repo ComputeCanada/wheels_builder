@@ -1,0 +1,12 @@
+diff -ru calliope-orig/requirements.txt calliope/requirements.txt 
+--- calliope-orig/requirements.txt      2025-06-25 21:47:58.331212996 +0000
++++ calliope/requirements.txt   2025-06-25 21:49:25.168175678 +0000
+@@ -4,7 +4,7 @@
+ jinja2 >= 2.10
+ natsort >= 5
+ netcdf4 >= 1.2.2
+-numpy ~= 1.23.5
++numpy ~= 1.23.2
+ pandas ~= 1.5.2
+ plotly ~= 3.10.0
+ pyomo ~= 6.4.4

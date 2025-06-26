@@ -1,0 +1,4 @@
+MODULE_RUNTIME_DEPS="netcdf"
+PATCHES="calliope.patch"
+
+#PACKAGE_DOWNLOAD_METHOD
