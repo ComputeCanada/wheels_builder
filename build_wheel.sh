@@ -14,7 +14,7 @@ elif [[ "$YEAR" == "2020" ]]; then
 else
 	GCC_VERSION=12.3
 	EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[56789]\|3.10"
-	CYTHON_VERSION=.3.0.11
+	CYTHON_VERSION=.3.1.2
 	NUMPY_MODULE="numpy/.2.1.1" # oldest-supported-numpy is now depcrecated with v2.0+
 fi
 
