@@ -1,5 +1,5 @@
 diff --git a/jwst/__init__.py b/jwst/__init__.py
-index 8ec268c7e..4c47448f8 100644
+index 6fdd1e4..4c47448 100644
 --- a/jwst/__init__.py
 +++ b/jwst/__init__.py
 @@ -4,9 +4,3 @@ from importlib.metadata import version
@@ -9,6 +9,6 @@ index 8ec268c7e..4c47448f8 100644
 -_regex_git_hash = re.compile(r".*\+g(\w+)")
 -__version_commit__ = ""
 -if "+" in __version__:
--    commit = _regex_git_hash.match(__version__).groups()
+-    commit = _regex_git_hash.match(__version__).groups()  # type: ignore
 -    if commit:
 -        __version_commit__ = commit[0]
