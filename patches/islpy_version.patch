@@ -1,0 +1,17 @@
+Patch for islpy/version.py to deal with +computecanada version tag
+
+Author: Oliver Stueker
+Date:   2025-07-17
+
+
+--- a/islpy/version.py	2025-07-17 11:05:25.534105839 -0230
++++ b/islpy/version.py	2025-07-17 11:05:51.301386323 -0230
+@@ -5,7 +5,7 @@
+ 
+ 
+ VERSION_TEXT = metadata.version("islpy")
+-_match = re.match(r"^([0-9.]+)([a-z0-9]*?)$", VERSION_TEXT)
++_match = re.match(r"^([0-9.]+)(\+?[a-z0-9]*?)$", VERSION_TEXT)
+ assert _match is not None
+ VERSION_STATUS = _match.group(2)
+ VERSION = tuple(int(nr) for nr in _match.group(1).split("."))
