@@ -1,0 +1,16 @@
+Patch for pymbolic/version.py to deal with +computecanada version tag
+
+Author: Oliver Stueker
+Date:   2025-07-17
+
+--- a/pymbolic/version.py	2025-07-17 10:16:26.757080943 -0230
++++ b/pymbolic/version.py	2025-07-17 10:18:01.656116018 -0230
+@@ -6,7 +6,7 @@
+ def _parse_version(version: str) -> tuple[tuple[int, ...], str]:
+     import re
+ 
+-    m = re.match(r"^([0-9.]+)([a-z0-9]*?)$", VERSION_TEXT)
++    m = re.match(r"^([0-9.]+)(\+?[a-z0-9]*?)$", VERSION_TEXT)
+     assert m is not None
+ 
+     return tuple(int(nr) for nr in m.group(1).split(".")), m.group(2)
