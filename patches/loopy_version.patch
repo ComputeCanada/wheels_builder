@@ -1,0 +1,16 @@
+Patch for loopy/version.py to deal with +computecanada version tag
+
+Author: Oliver Stueker
+Date:   2025-07-21
+
+--- a/loopy/version.py	2025-07-21 16:58:17.498590003 -0230
++++ b/loopy/version.py	2025-07-21 16:59:34.391996215 -0230
+@@ -29,7 +29,7 @@
+ 
+ 
+ VERSION_TEXT = metadata.version("loopy")
+-_match = re.match(r"^([0-9.]+)([a-z0-9]*?)$", VERSION_TEXT)
++_match = re.match(r"^([0-9.]+)(\+[a-z0-9]*?)$", VERSION_TEXT)
+ assert _match is not None
+ VERSION_STATUS = _match.group(2)
+ VERSION = tuple(int(nr) for nr in _match.group(1).split("."))
