@@ -1,0 +1,37 @@
+--- firedrake-2025.4.2/pyproject.toml.orig	2025-07-21 18:07:23.508545000 -0230
++++ firedrake-2025.4.2/pyproject.toml	2025-07-22 11:36:29.625705000 -0230
+@@ -17,14 +17,14 @@
+ dependencies = [
+   "cachetools",
+   "decorator<=4.4.2",
+-  "mpi4py>3; python_version >= '3.13'",
+-  "mpi4py; python_version < '3.13'",
++#  "mpi4py>3; python_version >= '3.13'",  # use module instead
++#  "mpi4py; python_version < '3.13'",  # use module instead
+   "fenics-ufl>=2025.1.0",
+   "firedrake-fiat>=2025.4.0",
+   "h5py>3.12.1",
+   "libsupermesh",
+   "loopy>2024.1",
+-  "petsc4py==3.23.4",
++#  "petsc4py==3.23.4",  # use module instead
+   "numpy",
+   "packaging",
+   "pkgconfig",
+@@ -132,13 +132,13 @@
+ requires = [
+   "Cython>=3.0",
+   "libsupermesh",
+-  "mpi4py>3; python_version >= '3.13'",
+-  "mpi4py; python_version < '3.13'",
++#  "mpi4py>3; python_version >= '3.13'",  # use module instead
++#  "mpi4py; python_version < '3.13'",  # use module instead
+   "numpy",
+   "pkgconfig",
+   "pybind11",
+   "setuptools>=77.0.3",
+-  "petsc4py==3.23.4",
++#  "petsc4py==3.23.4",  # use module instead
+   "rtree>=1.2",
+ ]
+ build-backend = "setuptools.build_meta"
