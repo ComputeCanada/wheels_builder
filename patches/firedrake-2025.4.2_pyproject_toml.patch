@@ -6,7 +6,7 @@
    "decorator<=4.4.2",
 -  "mpi4py>3; python_version >= '3.13'",
 -  "mpi4py; python_version < '3.13'",
-+#  "mpi4py>3; python_version >= '3.13'",  # use module instead
++  "mpi4py~=4.0",  # use mpi4py moduled
 +#  "mpi4py; python_version < '3.13'",  # use module instead
    "fenics-ufl>=2025.1.0",
    "firedrake-fiat>=2025.4.0",
@@ -14,7 +14,7 @@
    "libsupermesh",
    "loopy>2024.1",
 -  "petsc4py==3.23.4",
-+#  "petsc4py==3.23.4",  # use module instead
++  "petsc4py==3.23.4",  # use module
    "numpy",
    "packaging",
    "pkgconfig",
@@ -24,14 +24,14 @@
    "libsupermesh",
 -  "mpi4py>3; python_version >= '3.13'",
 -  "mpi4py; python_version < '3.13'",
-+#  "mpi4py>3; python_version >= '3.13'",  # use module instead
++  "mpi4py~=4.0",  # use mpi4py moduled
 +#  "mpi4py; python_version < '3.13'",  # use module instead
    "numpy",
    "pkgconfig",
    "pybind11",
    "setuptools>=77.0.3",
 -  "petsc4py==3.23.4",
-+#  "petsc4py==3.23.4",  # use module instead
++  "petsc4py==3.23.4",  # use module
    "rtree>=1.2",
  ]
  build-backend = "setuptools.build_meta"
