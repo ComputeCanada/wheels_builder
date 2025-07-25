@@ -143,8 +143,8 @@ else
 fi
 
 # define common cuda compute capabilities
-TORCH_CUDA_ARCH_LIST="7.0;8.0;9.0" # for torch and others using it
-CUDAARCHS="70;80;90" # for cmake, used to set CMAKE_CUDA_ARCHITECTURES
+export TORCH_CUDA_ARCH_LIST="7.0;8.0;9.0" # for torch and others using it
+export CUDAARCHS="70;80;90" # for cmake, used to set CMAKE_CUDA_ARCHITECTURES
 
 CONFIGDIR=$SCRIPT_DIR/config
 PACKAGE_PATTERN=$(echo $PACKAGE | sed -e 's/[_-]/\?/g') # Ignores packages with - or _ replace with ? char for pattern.
