@@ -1,0 +1,37 @@
+[1mdiff --git a/src/stopit/__init__.py b/src/stopit/__init__.py[m
+[1mindex 6ca0180..bbf7068 100644[m
+[1m--- a/src/stopit/__init__.py[m
+[1m+++ b/src/stopit/__init__.py[m
+[36m@@ -7,18 +7,25 @@[m [mstopit[m
+Public resources from ``stopit``[m
+"""[m
+
+[31mimport pkg_resources[m
+
+from .utils import LOG, TimeoutException[m
+[31mfrom .threadstop import ThreadingTimeout, async_raise, threading_timeoutable[m
+[31mfrom .signalstop import SignalTimeout, signal_timeoutable[m
+
+[31m# PEP 396 style version marker[m
+try:[m
+    [32mfrom importlib.metadata import version[m
+    __version__ = [31mpkg_resources.get_distribution(__name__).version[m
+[31mexcept:[m
+[31m    LOG.warning("Could[m[32mversion(__name__)[m
+[32mexcept Exception:[m
+[32m    # pkg_resources is deprecated as of Python 3.12 and no longer available for[m
+[32m    # import by default.[m
+[32m    try:[m
+[32m        import pkg_resources[m
+[32m    except Exception:[m
+[32m        LOG.warning([m
+[32m            "Could[m not get the package version from [32mimportlib or[m pkg_resources")
+        __version__ = 'unknown'
+    [32melse:[m
+[32m        __version__ = pkg_resources.get_distribution(__name__).version[m
+
+[32mfrom .threadstop import ThreadingTimeout, async_raise, threading_timeoutable[m
+[32mfrom .signalstop import SignalTimeout, signal_timeoutable[m
+
+__all__ = ([m
+    'ThreadingTimeout', 'async_raise', 'threading_timeoutable',[m
