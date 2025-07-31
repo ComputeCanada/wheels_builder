@@ -1,0 +1,20 @@
+diff --git a/setup.py b/setup.py
+index 892dc956..b23ac3e1 100644
+--- a/setup.py
++++ b/setup.py
+@@ -135,13 +135,13 @@ if have_mpi:
+ cmake_args += [
+         '-DUSE_SUPERBUILD:BOOL=ON',
+         '-DUSE_CCACHE:BOOL=ON',
+-        '-DUSE_GUI=ON',
++        '-DUSE_GUI=OFF',
+         '-DUSE_NATIVE_ARCH=OFF',
+         '-DBUILD_ZLIB=ON',
+         '-DZLIB_USE_STATIC_LIBS=ON',
+         '-DBUILD_OCC=OFF',
+         '-DUSE_OCC=ON',
+-        '-DBUILD_FOR_CONDA=ON',
++        '-DBUILD_FOR_CONDA=OFF',
+         f'-DNETGEN_PYTHON_PACKAGE_NAME={name}',
+         '-DBUILD_STUB_FILES=ON',
+ ]
