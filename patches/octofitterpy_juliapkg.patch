@@ -1,0 +1,13 @@
+--- octofitterpy/juliapkg.json.orig	2025-08-25 15:18:31.000000000 -0230
++++ octofitterpy/juliapkg.json	2025-08-25 15:19:33.000000000 -0230
+@@ -24,6 +24,10 @@
+         "Pigeons": {
+             "uuid":"0eb8d820-af6a-4919-95ae-11206f830c31",
+             "version": "0.4.7"
++        },
++	"OpenSSL_jll": {
++            "uuid":"458c3c95-2e84-50aa-8efc-19380b2a3a95",
++            "version": "=3.0.16"
+         }
+     }
+ }
