@@ -7,7 +7,7 @@ POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NA
 
 MODULE_RUNTIME_DEPS='arrow'
 MODULE_BUILD_DEPS='cuda protobuf abseil nccl/2.26'
-PYTHON_DEPS='torch==2.6.0'
+PYTHON_DEPS="torch${TORCH_VERSION:+==$TORCH_VERSION}"
 # nvcc uses os.cpu_count() hardcoded threads which returns 16
 PRE_BUILD_COMMANDS='
 	export SETUPTOOLS_SCM_PRETEND_VERSION=${VERSION:?version required};
