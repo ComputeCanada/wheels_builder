@@ -12,7 +12,7 @@ PRE_BUILD_COMMANDS='
 	cmake --build _build_cpu --parallel ${SLURM_CPUS_PER_TASK:-4} --config Release;
 
 	for cudaver in 12.2 12.6; do
-		module load cuda/$cudaver && cmake -G Ninja  -B _build-$EBVERSIONCUDACORE -S . -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY="60;70;75;80;86;90" -DCMAKE_BUILD_TYPE=Release;
+		module load cuda/$cudaver && cmake -G Ninja  -B _build-$EBVERSIONCUDACORE -S . -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY="70;80;90" -DCMAKE_BUILD_TYPE=Release;
 		cmake --build _build-$EBVERSIONCUDACORE --parallel ${SLURM_CPUS_PER_TASK:-4} --config Release;
 	done
 '
