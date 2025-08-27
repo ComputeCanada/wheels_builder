@@ -4,7 +4,7 @@ PRE_BUILD_COMMANDS='
 	export USE_CPP=1;
 	export USE_SYSTEM_LIBS=1;
 	export FORCE_CUDA=1;
-	export TORCH_CUDA_ARCH_LIST="8.0;8.6;9.0";
+	export TORCH_CUDA_ARCH_LIST="8.0;9.0";
 	export MAX_JOBS=2;
 	export VERSION_SUFFIX="";
 '
