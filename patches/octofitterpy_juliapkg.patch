@@ -3,7 +3,7 @@
 @@ -1,5 +1,5 @@
  {
 -    "julia": "=1.10.6",
-+    "julia": "=1.10.0",
++    "julia": "=1.10.10",
      "packages": {
          "Octofitter": {
              "uuid": "daf3887e-d01a-44a1-9d7e-98f15c5d69c9",
