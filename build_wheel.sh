@@ -125,7 +125,9 @@ PATCHES=""
 # Make sure $PACKAGE_DOWNLOAD_ARGUMENT is not expanded right away
 # Do not collect binaries and don't install dependencies
 PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary \$PACKAGE --no-use-pep517 --no-build-isolation --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
-PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py'
+
+# not all project are pep621 compliant, remove the license when it is not, else do nothing
+PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py && sed -i -e "/^\s*license\s*=\s*\"[^\"]*\"\s*$/d" pyproject.toml'
 
 PYTHON_DEPS_DEFAULT=""
 MODULE_BUILD_DEPS_DEFAULT="$NUMPY_MODULE python-build-bundle pytest cython/$CYTHON_VERSION rust"
