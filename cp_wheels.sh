@@ -120,9 +120,17 @@ fi
 
 if [ -z "$ARG_WHEEL" ]
 then
-        WHEEL_LIST=*computecanada*.whl
+    WHEEL_LIST=*computecanada*.whl
 else
-        WHEEL_LIST=$ARG_WHEEL
+    case "$ARG_WHEEL" in
+        *.whl)
+            WHEEL_LIST=$ARG_WHEEL
+            ;;
+        *)
+            echo "Error: argument must be a .whl file" >&2
+            exit 1
+            ;;
+    esac
 fi
 
 for w in $WHEEL_LIST; do
