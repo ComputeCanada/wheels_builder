@@ -1,0 +1,1939 @@
+From 7c70f72e6ca0b2dea13344c22517aa6faf060db5 Mon Sep 17 00:00:00 2001
+From: Ali Asadi <10773383+maliasadi@users.noreply.github.com>
+Date: Thu, 31 Jul 2025 16:29:26 -0400
+Subject: [PATCH 1/3] Add ENABLE_SCIPY_OPENBLAS
+
+---
+ CMakeLists.txt                                | 41 ++++++++++-------
+ Makefile                                      |  2 +-
+ .../core/algorithms/JacobianData.hpp          | 12 ++---
+ .../tests/Test_MeasurementsBase.cpp           | 12 +++++
+ .../lightning_gpu/StateVectorCudaBase.hpp     |  2 +-
+ .../tests/Test_LightningGPUMeasures.cpp       |  2 +
+ .../lightning_gpu/gates/cuGateCache.hpp       |  2 +-
+ .../Test_StateVectorCudaManaged_NonParam.cpp  | 14 +++---
+ .../Test_StateVectorCudaManaged_Param.cpp     |  6 ++-
+ .../Test_StateVectorCudaMPI_Generators.cpp    | 40 ++++++++++------
+ .../mpi/Test_StateVectorCudaMPI_NonParam.cpp  | 26 +++++++----
+ .../mpi/Test_StateVectorCudaMPI_Param.cpp     | 46 ++++++++++++-------
+ .../lightning_gpu/utils/CSRMatrix.hpp         |  4 +-
+ .../lightning_gpu/utils/cuStateVecError.hpp   |  4 +-
+ .../lightning_kokkos/StateVectorKokkos.hpp    |  2 +-
+ .../lightning_kokkos/StateVectorKokkosMPI.hpp |  4 +-
+ .../tests/Test_LightningKokkosMeasures.cpp    |  2 +
+ .../measurements/MeasurementsKokkosMPI.hpp    |  4 +-
+ .../lightning_qubit/StateVectorLQubit.hpp     |  4 +-
+ .../catalyst/tests/Test_LightningMeasures.cpp |  2 +
+ .../lightning_qubit/gates/KernelMap.hpp       |  2 +-
+ .../lightning_qubit/gates/RegisterKernel.hpp  |  5 +-
+ .../cpu_kernels/avx_common/AVX2Concept.hpp    |  8 +---
+ .../cpu_kernels/avx_common/AVX512Concept.hpp  |  8 +---
+ .../cpu_kernels/avx_common/AVXConceptType.hpp | 12 ++---
+ .../avx_common/TwoQubitGateHelper.hpp         |  6 +--
+ .../Test_GateImplementations_Nonparam.cpp     | 24 +++++-----
+ .../tests/Test_GateImplementations_Param.cpp  | 10 ++--
+ .../gates/tests/Test_KernelMap.cpp            | 10 ++--
+ .../measurements/MeasurementKernels.hpp       |  2 +-
+ .../lightning_qubit/utils/LinearAlgebra.hpp   |  6 ++-
+ .../tncuda/gates/TNCudaGateCache.hpp          |  2 +-
+ .../measurements/MeasurementsTNCuda.hpp       |  2 +-
+ .../utils/tncuda_utils/tncudaError.hpp        |  4 +-
+ pennylane_lightning/core/utils/TypeTraits.hpp |  8 +---
+ pennylane_lightning/core/utils/Util.hpp       |  2 +-
+ .../core/utils/UtilLinearAlg.hpp              | 19 ++++++++
+ .../core/utils/cuda_utils/DataBuffer.hpp      |  4 +-
+ .../core/utils/cuda_utils/cuError.hpp         | 12 ++---
+ .../core/utils/tests/Test_UtilLinearAlg.cpp   |  2 +
+ 40 files changed, 216 insertions(+), 163 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9df532cd05..7857cd56a5 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -46,6 +46,7 @@ option(ENABLE_COVERAGE "Enable code coverage" OFF)
+ option(ENABLE_WARNINGS "Enable warnings" ON)
+ option(ENABLE_NATIVE "Enable native CPU build tuning" OFF)
+ option(ENABLE_PYTHON "Enable compilation of the Python module" ON)
++option(ENABLE_SCIPY_OPENBLAS "Enable SciPy OpenBLAS support" OFF)
+ 
+ # OpenMP
+ find_package(OpenMP)
+@@ -97,25 +98,33 @@ endif()
+ # Print Python site-packages directory for reference
+ message("Python site-packages directory: ${Python_SITELIB}")
+ 
+-if(DEFINED PY_INSTALL)
+-    # Note the following setting is only for pyenv and not for conda
+-    # TODO: Add support for conda
+-    if(APPLE)
+-        set(SCIPY_OPENBLAS32_RUNTIME_LIB_PATH "@loader_path/../scipy_openblas32/lib")
++if (ENABLE_SCIPY_OPENBLAS)
++    # Define a preprocessing macro to enable SCIPY_OPENBLAS32
++    add_compile_definitions(SCIPY_OPENBLAS_ENABLED)
++    message(STATUS "ENABLE_SCIPY_OPENBLAS is ON. SciPy OpenBLAS support is enabled.")
++    if(DEFINED PY_INSTALL)
++        # Note the following setting is only for pyenv and not for conda
++        # TODO: Add support for conda
++        if(APPLE)
++            set(SCIPY_OPENBLAS32_RUNTIME_LIB_PATH "@loader_path/../scipy_openblas32/lib")
++        else()
++            set(SCIPY_OPENBLAS32_RUNTIME_LIB_PATH "$ORIGIN/../scipy_openblas32/lib")
++        endif()
+     else()
+-        set(SCIPY_OPENBLAS32_RUNTIME_LIB_PATH "$ORIGIN/../scipy_openblas32/lib")
++        include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindSCIPY_OPENBLAS32.cmake")
++        if(NOT DEFINED SCIPY_OPENBLAS32_LIB_PATH AND NOT EXISTS ${SCIPY_OPENBLAS32_LIB_PATH})
++            set(SCIPY_OPENBLAS32_LIB_PATH "")
++            find_path_to_openblas(SCIPY_OPENBLAS32_LIB_PATH)
++            add_compile_definitions(SCIPY_OPENBLAS32_LIB="${SCIPY_OPENBLAS32_LIB_PATH}")
++            message(STATUS "SCIPY_OPENBLAS32_LIB_PATH: ${SCIPY_OPENBLAS32_LIB_PATH}")
++        else()
++            add_compile_definitions(SCIPY_OPENBLAS32_LIB="${SCIPY_OPENBLAS32_LIB_PATH}")
++        endif()
++        set(SCIPY_OPENBLAS32_RUNTIME_LIB_PATH "${SCIPY_OPENBLAS32_LIB_PATH}")
+     endif()
+ else()
+-    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindSCIPY_OPENBLAS32.cmake")
+-    if(NOT DEFINED SCIPY_OPENBLAS32_LIB_PATH AND NOT EXISTS ${SCIPY_OPENBLAS32_LIB_PATH})
+-        set(SCIPY_OPENBLAS32_LIB_PATH "")
+-        find_path_to_openblas(SCIPY_OPENBLAS32_LIB_PATH)
+-        add_compile_definitions(SCIPY_OPENBLAS32_LIB="${SCIPY_OPENBLAS32_LIB_PATH}")
+-        message(STATUS "SCIPY_OPENBLAS32_LIB_PATH: ${SCIPY_OPENBLAS32_LIB_PATH}")
+-    else()
+-        add_compile_definitions(SCIPY_OPENBLAS32_LIB="${SCIPY_OPENBLAS32_LIB_PATH}")
+-    endif()
+-    set(SCIPY_OPENBLAS32_RUNTIME_LIB_PATH "${SCIPY_OPENBLAS32_LIB_PATH}")
++    message(STATUS "ENABLE_SCIPY_OPENBLAS is OFF. SciPy OpenBLAS support is disabled.")
++    set(SCIPY_OPENBLAS32_RUNTIME_LIB_PATH "")
+ endif()
+ 
+ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+diff --git a/Makefile b/Makefile
+index 96ea4953a6..9886c2c21a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -128,9 +128,9 @@ test-cpp:
+ 		  -DBUILD_TESTS=ON \
+ 		  -DENABLE_WARNINGS=ON \
+ 		  -DPL_BACKEND=$(PL_BACKEND) \
+-		  -DSCIPY_OPENBLAS=$(SCIPY_OPENBLAS) \
+ 		  -DCMAKE_C_COMPILER_LAUNCHER=$(COMPILER_LAUNCHER) \
+ 		  -DCMAKE_CXX_COMPILER_LAUNCHER=$(COMPILER_LAUNCHER) \
++		  -DSCIPY_OPENBLAS=$(SCIPY_OPENBLAS) \
+ 		  $(OPTIONS)
+ ifdef target
+ 	cmake --build ./BuildTests $(VERBOSE) --target $(target)
+diff --git a/pennylane_lightning/core/algorithms/JacobianData.hpp b/pennylane_lightning/core/algorithms/JacobianData.hpp
+index aede16fa22..f8f6e89e0d 100644
+--- a/pennylane_lightning/core/algorithms/JacobianData.hpp
++++ b/pennylane_lightning/core/algorithms/JacobianData.hpp
+@@ -75,8 +75,8 @@ template <class StateVectorT> class OpsData {
+             std::vector<std::vector<bool>> ops_controlled_values)
+         : num_par_ops_{0}, ops_name_{std::move(ops_name)},
+           ops_params_{ops_params}, ops_wires_{std::move(ops_wires)},
+-          ops_inverses_{std::move(ops_inverses)},
+-          ops_matrices_{std::move(ops_matrices)},
++          ops_inverses_{std::move(ops_inverses)}, ops_matrices_{std::move(
++                                                      ops_matrices)},
+           ops_controlled_wires_{std::move(ops_controlled_wires)},
+           ops_controlled_values_{std::move(ops_controlled_values)} {
+         for (const auto &p : ops_params) {
+@@ -104,8 +104,8 @@ template <class StateVectorT> class OpsData {
+             std::vector<std::vector<ComplexT>> ops_matrices)
+         : num_par_ops_{0}, ops_name_{std::move(ops_name)},
+           ops_params_{ops_params}, ops_wires_{std::move(ops_wires)},
+-          ops_inverses_{std::move(ops_inverses)},
+-          ops_matrices_{std::move(ops_matrices)},
++          ops_inverses_{std::move(ops_inverses)}, ops_matrices_{std::move(
++                                                      ops_matrices)},
+           ops_controlled_wires_(ops_name.size()),
+           ops_controlled_values_(ops_name.size()) {
+         for (const auto &p : ops_params) {
+@@ -129,8 +129,8 @@ template <class StateVectorT> class OpsData {
+             std::vector<std::vector<std::size_t>> ops_wires,
+             std::vector<bool> ops_inverses)
+         : num_par_ops_{0}, ops_name_{ops_name}, ops_params_{ops_params},
+-          ops_wires_{std::move(ops_wires)},
+-          ops_inverses_{std::move(ops_inverses)},
++          ops_wires_{std::move(ops_wires)}, ops_inverses_{std::move(
++                                                ops_inverses)},
+           ops_matrices_(ops_name.size()),
+           ops_controlled_wires_(ops_name.size()),
+           ops_controlled_values_(ops_name.size()) {
+diff --git a/pennylane_lightning/core/measurements/tests/Test_MeasurementsBase.cpp b/pennylane_lightning/core/measurements/tests/Test_MeasurementsBase.cpp
+index e57d5e9eb2..e8ff3bdff4 100644
+--- a/pennylane_lightning/core/measurements/tests/Test_MeasurementsBase.cpp
++++ b/pennylane_lightning/core/measurements/tests/Test_MeasurementsBase.cpp
+@@ -654,11 +654,13 @@ template <typename TypeList> void testHermitianObsExpvalShot() {
+     }
+ }
+ 
++#ifdef SCIPY_OPENBLAS_ENABLED
+ TEST_CASE("Expval Shot - HermitianObs ", "[MeasurementsBase][Observables]") {
+     if constexpr (BACKEND_FOUND) {
+         testHermitianObsExpvalShot<TestStateVectorBackends>();
+     }
+ }
++#endif // SCIPY_OPENBLAS_ENABLED
+ 
+ template <typename TypeList> void testHermitianObsExpval() {
+     if constexpr (!std::is_same_v<TypeList, void>) {
+@@ -849,11 +851,13 @@ template <typename TypeList> void testTensorProdObsExpvalShot() {
+     }
+ }
+ 
++#ifdef SCIPY_OPENBLAS_ENABLED
+ TEST_CASE("Expval Shot- TensorProdObs", "[MeasurementsBase][Observables]") {
+     if constexpr (BACKEND_FOUND) {
+         testTensorProdObsExpvalShot<TestStateVectorBackends>();
+     }
+ }
++#endif // SCIPY_OPENBLAS_ENABLED
+ 
+ template <typename TypeList> void testNamedObsVar() {
+     if constexpr (!std::is_same_v<TypeList, void>) {
+@@ -1073,11 +1077,13 @@ template <typename TypeList> void testHermitianObsShotVar() {
+     }
+ }
+ 
++#ifdef SCIPY_OPENBLAS_ENABLED
+ TEST_CASE("Var - HermitianObs Shot", "[MeasurementsBase][Observables]") {
+     if constexpr (BACKEND_FOUND) {
+         testHermitianObsShotVar<TestStateVectorBackends>();
+     }
+ }
++#endif // SCIPY_OPENBLAS_ENABLED
+ 
+ template <typename TypeList> void testTensorProdObsVarShot() {
+     if constexpr (!std::is_same_v<TypeList, void>) {
+@@ -1221,11 +1227,13 @@ template <typename TypeList> void testTensorProdObsVarShot() {
+     }
+ }
+ 
++#ifdef SCIPY_OPENBLAS_ENABLED
+ TEST_CASE("Var Shot- TensorProdObs", "[MeasurementsBase][Observables]") {
+     if constexpr (BACKEND_FOUND) {
+         testTensorProdObsVarShot<TestStateVectorBackends>();
+     }
+ }
++#endif // SCIPY_OPENBLAS_ENABLED
+ 
+ template <typename TypeList>
+ void testSamples(const std::optional<std::size_t> &seed = std::nullopt) {
+@@ -1569,11 +1577,13 @@ template <typename TypeList> void testHamiltonianObsExpvalShot() {
+     }
+ }
+ 
++#ifdef SCIPY_OPENBLAS_ENABLED
+ TEST_CASE("Expval Shot - HamiltonianObs ", "[MeasurementsBase][Observables]") {
+     if constexpr (BACKEND_FOUND) {
+         testHamiltonianObsExpvalShot<TestStateVectorBackends>();
+     }
+ }
++#endif // SCIPY_OPENBLAS_ENABLED
+ 
+ template <typename TypeList> void testHamiltonianObsVarShot() {
+     if constexpr (!std::is_same_v<TypeList, void>) {
+@@ -1656,11 +1666,13 @@ template <typename TypeList> void testHamiltonianObsVarShot() {
+     }
+ }
+ 
++#ifdef SCIPY_OPENBLAS_ENABLED
+ TEST_CASE("Var Shot - HamiltonianObs ", "[MeasurementsBase][Observables]") {
+     if constexpr (BACKEND_FOUND) {
+         testHamiltonianObsVarShot<TestStateVectorBackends>();
+     }
+ }
++#endif // SCIPY_OPENBLAS_ENABLED
+ 
+ template <typename TypeList> void testSparseHObsMeasureShot() {
+     if constexpr (!std::is_same_v<TypeList, void>) {
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/StateVectorCudaBase.hpp b/pennylane_lightning/core/simulators/lightning_gpu/StateVectorCudaBase.hpp
+index b6e5c94a40..8e8020e98c 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/StateVectorCudaBase.hpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/StateVectorCudaBase.hpp
+@@ -220,7 +220,7 @@ class StateVectorCudaBase : public StateVectorBase<Precision, Derived> {
+     StateVectorCudaBase(const StateVectorCudaBase &other) = delete;
+     StateVectorCudaBase(StateVectorCudaBase &&other) = delete;
+ 
+-    virtual ~StateVectorCudaBase() {};
++    virtual ~StateVectorCudaBase(){};
+ 
+     /**
+      * @brief Return the mapping of named gates to amount of control wires they
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/catalyst/tests/Test_LightningGPUMeasures.cpp b/pennylane_lightning/core/simulators/lightning_gpu/catalyst/tests/Test_LightningGPUMeasures.cpp
+index 6b9728a72f..ee3870d27f 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/catalyst/tests/Test_LightningGPUMeasures.cpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/catalyst/tests/Test_LightningGPUMeasures.cpp
+@@ -276,6 +276,7 @@ TEST_CASE("Expval(HermitianObs) test", "[Measures]") {
+     CHECK(sim->Expval(h2) == Approx(.0).margin(1e-5));
+ }
+ 
++#ifdef SCIPY_OPENBLAS_ENABLED
+ TEST_CASE("Expval(HermitianObs) shots test", "[Measures]") {
+     std::unique_ptr<LGPUSimulator> sim = std::make_unique<LGPUSimulator>();
+ 
+@@ -322,6 +323,7 @@ TEST_CASE("Var(HermitianObs) shots test", "[Measures]") {
+     ObsIdType h1 = sim->Observable(ObsId::Hermitian, mat1, {Qs[0], Qs[1]});
+     CHECK(sim->Var(h1) == Approx(0.0).margin(1e-5));
+ }
++#endif // SCIPY_OPENBLAS_ENABLED
+ 
+ TEST_CASE("Expval(TensorProd(NamedObs)) test", "[Measures]") {
+     std::unique_ptr<LGPUSimulator> sim = std::make_unique<LGPUSimulator>();
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/gates/cuGateCache.hpp b/pennylane_lightning/core/simulators/lightning_gpu/gates/cuGateCache.hpp
+index d71b02dd7c..f7e8e08f6a 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/gates/cuGateCache.hpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/gates/cuGateCache.hpp
+@@ -62,7 +62,7 @@ template <class fp_t> class GateCache {
+             defaultPopulateCache();
+         }
+     }
+-    virtual ~GateCache() {};
++    virtual ~GateCache(){};
+ 
+     /**
+      * @brief Add a default gate-set to the given cache. Assumes
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_NonParam.cpp b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_NonParam.cpp
+index 725539e699..829cf445a7 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_NonParam.cpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_NonParam.cpp
+@@ -1338,9 +1338,10 @@ TEMPLATE_TEST_CASE("StateVectorCudaManaged::applyOperation non-param "
+         }
+     }
+ 
+-    DYNAMIC_SECTION("N-controlled S - " << "controls = {" << control << "} "
+-                                        << ", wires = {" << wire << "} - "
+-                                        << PrecisionToName<PrecisionT>::value) {
++    DYNAMIC_SECTION("N-controlled S - "
++                    << "controls = {" << control << "} "
++                    << ", wires = {" << wire << "} - "
++                    << PrecisionToName<PrecisionT>::value) {
+         if (control != wire) {
+             const auto matrix = getS<std::complex, PrecisionT>();
+ 
+@@ -1373,9 +1374,10 @@ TEMPLATE_TEST_CASE("StateVectorCudaManaged::applyOperation non-param "
+         }
+     }
+ 
+-    DYNAMIC_SECTION("N-controlled T - " << "controls = {" << control << "} "
+-                                        << ", wires = {" << wire << "} - "
+-                                        << PrecisionToName<PrecisionT>::value) {
++    DYNAMIC_SECTION("N-controlled T - "
++                    << "controls = {" << control << "} "
++                    << ", wires = {" << wire << "} - "
++                    << PrecisionToName<PrecisionT>::value) {
+         if (control != wire) {
+             const std::vector<std::complex<PrecisionT>> matrix =
+                 getT<std::complex, PrecisionT>();
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_Param.cpp b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_Param.cpp
+index 50f1396592..ccdfa3fc5c 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_Param.cpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_Param.cpp
+@@ -1448,7 +1448,8 @@ TEMPLATE_TEST_CASE("LightningGPU::applyPCPhase", "[LightningGPU_Param]", float,
+ 
+     std::vector<cp_t> expected_results(1 << num_qubits, expected_value);
+ 
+-    DYNAMIC_SECTION("PCPhase 0.27 1,2" << " inverse = " << inverse) {
++    DYNAMIC_SECTION("PCPhase 0.27 1,2"
++                    << " inverse = " << inverse) {
+         StateVectorCudaManaged<TestType> sv_direct{init_state.data(),
+                                                    init_state.size()};
+ 
+@@ -1463,7 +1464,8 @@ TEMPLATE_TEST_CASE("LightningGPU::applyPCPhase", "[LightningGPU_Param]", float,
+         CHECK(sv_direct.getDataVector() ==
+               Pennylane::Util::approx(expected_results));
+     }
+-    DYNAMIC_SECTION("PCPhase 0.27 0,2" << " inverse = " << inverse) {
++    DYNAMIC_SECTION("PCPhase 0.27 0,2"
++                    << " inverse = " << inverse) {
+         StateVectorCudaManaged<TestType> sv_direct{init_state.data(),
+                                                    init_state.size()};
+         sv_direct.applyOperation("PCPhase", {0, 2}, inverse, params);
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Generators.cpp b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Generators.cpp
+index 164fed7f01..d5254e6eb0 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Generators.cpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Generators.cpp
+@@ -32,21 +32,31 @@ using namespace Pennylane::LightningGPU::MPI;
+ // evaluation, so excluded from the matrices here.
+ 
+ #define num_qubits 8
+-#define lsb_1qbit {0}
+-#define msb_1qbit {num_qubits - 1}
+-
+-#define lsb_2qbit {0, 1}
+-#define msb_2qbit {num_qubits - 2, num_qubits - 1}
+-#define mlsb_2qbit {0, num_qubits - 1}
+-
+-#define lsb_3qbit {0, 1, 2}
+-#define msb_3qbit {num_qubits - 3, num_qubits - 2, num_qubits - 1}
+-#define mlsb_3qbit {0, num_qubits - 2, num_qubits - 1}
+-
+-#define lsb_4qbit {0, 1, 2, 3}
++#define lsb_1qbit                                                              \
++    { 0 }
++#define msb_1qbit                                                              \
++    { num_qubits - 1 }
++
++#define lsb_2qbit                                                              \
++    { 0, 1 }
++#define msb_2qbit                                                              \
++    { num_qubits - 2, num_qubits - 1 }
++#define mlsb_2qbit                                                             \
++    { 0, num_qubits - 1 }
++
++#define lsb_3qbit                                                              \
++    { 0, 1, 2 }
++#define msb_3qbit                                                              \
++    { num_qubits - 3, num_qubits - 2, num_qubits - 1 }
++#define mlsb_3qbit                                                             \
++    { 0, num_qubits - 2, num_qubits - 1 }
++
++#define lsb_4qbit                                                              \
++    { 0, 1, 2, 3 }
+ #define msb_4qbit                                                              \
+-    {num_qubits - 4, num_qubits - 3, num_qubits - 2, num_qubits - 1}
+-#define mlsb_4qbit {0, 1, num_qubits - 2, num_qubits - 1}
++    { num_qubits - 4, num_qubits - 3, num_qubits - 2, num_qubits - 1 }
++#define mlsb_4qbit                                                             \
++    { 0, 1, num_qubits - 2, num_qubits - 1 }
+ 
+ #define PLGPU_MPI_TEST_GENERATOR(TestType, NUM_QUBITS, GEN_METHOD, GEN_NAME,   \
+                                  WIRE)                                         \
+@@ -59,7 +69,7 @@ using namespace Pennylane::LightningGPU::MPI;
+         std::size_t nGlobalIndexBits =                                         \
+             std::bit_width(static_cast<std::size_t>(mpi_manager.getSize())) -  \
+             1;                                                                 \
+-        std::size_t nLocalIndexBits = (NUM_QUBITS) - nGlobalIndexBits;         \
++        std::size_t nLocalIndexBits = (NUM_QUBITS)-nGlobalIndexBits;           \
+         std::size_t subSvLength = 1 << nLocalIndexBits;                        \
+         std::size_t svLength = 1 << (NUM_QUBITS);                              \
+         mpi_manager.Barrier();                                                 \
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_NonParam.cpp b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_NonParam.cpp
+index 672975ea86..d96e9763c1 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_NonParam.cpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_NonParam.cpp
+@@ -39,14 +39,22 @@ using namespace Pennylane;
+ using namespace Pennylane::LightningGPU;
+ 
+ #define num_qubits 8
+-#define lsb_1qbit {0}
+-#define msb_1qbit {num_qubits - 1}
+-#define lsb_2qbit {0, 1}
+-#define msb_2qubit {num_qubits - 2, num_qubits - 1}
+-#define mlsb_2qubit {0, num_qubits - 1}
+-#define lsb_3qbit {0, 1, 2}
+-#define msb_3qubit {num_qubits - 3, num_qubits - 2, num_qubits - 1}
+-#define mlsb_3qubit {0, num_qubits - 2, num_qubits - 1}
++#define lsb_1qbit                                                              \
++    { 0 }
++#define msb_1qbit                                                              \
++    { num_qubits - 1 }
++#define lsb_2qbit                                                              \
++    { 0, 1 }
++#define msb_2qubit                                                             \
++    { num_qubits - 2, num_qubits - 1 }
++#define mlsb_2qubit                                                            \
++    { 0, num_qubits - 1 }
++#define lsb_3qbit                                                              \
++    { 0, 1, 2 }
++#define msb_3qubit                                                             \
++    { num_qubits - 3, num_qubits - 2, num_qubits - 1 }
++#define mlsb_3qubit                                                            \
++    { 0, num_qubits - 2, num_qubits - 1 }
+ 
+ /**
+  * @brief Tests the constructability of the StateVectorCudaMPI class.
+@@ -223,7 +231,7 @@ TEMPLATE_TEST_CASE("StateVectorCudaMPI::SetIthStates",
+         std::size_t nGlobalIndexBits =                                         \
+             std::bit_width(static_cast<std::size_t>(mpi_manager.getSize())) -  \
+             1;                                                                 \
+-        std::size_t nLocalIndexBits = (NUM_QUBITS) - nGlobalIndexBits;         \
++        std::size_t nLocalIndexBits = (NUM_QUBITS)-nGlobalIndexBits;           \
+         std::size_t subSvLength = 1 << nLocalIndexBits;                        \
+         std::size_t svLength = 1 << (NUM_QUBITS);                              \
+         mpi_manager.Barrier();                                                 \
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Param.cpp b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Param.cpp
+index db8f0ef4b5..e0f3721ecf 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Param.cpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Param.cpp
+@@ -38,24 +38,36 @@ using namespace Pennylane::LightningGPU;
+ using namespace Pennylane::LightningGPU::MPI;
+ 
+ #define num_qubits 8
+-#define lsb_1qbit {0}
+-#define msb_1qbit {num_qubits - 1}
+-
+-#define lsb_2qbit {0, 1}
+-#define msb_2qbit {num_qubits - 2, num_qubits - 1}
+-#define mlsb_2qbit {0, num_qubits - 1}
+-
+-#define lsb_3qbit {0, 1, 2}
+-#define msb_3qbit {num_qubits - 3, num_qubits - 2, num_qubits - 1}
+-#define mlsb_3qbit {0, num_qubits - 2, num_qubits - 1}
+-
+-#define lsb_4qbit {0, 1, 2, 3}
++#define lsb_1qbit                                                              \
++    { 0 }
++#define msb_1qbit                                                              \
++    { num_qubits - 1 }
++
++#define lsb_2qbit                                                              \
++    { 0, 1 }
++#define msb_2qbit                                                              \
++    { num_qubits - 2, num_qubits - 1 }
++#define mlsb_2qbit                                                             \
++    { 0, num_qubits - 1 }
++
++#define lsb_3qbit                                                              \
++    { 0, 1, 2 }
++#define msb_3qbit                                                              \
++    { num_qubits - 3, num_qubits - 2, num_qubits - 1 }
++#define mlsb_3qbit                                                             \
++    { 0, num_qubits - 2, num_qubits - 1 }
++
++#define lsb_4qbit                                                              \
++    { 0, 1, 2, 3 }
+ #define msb_4qbit                                                              \
+-    {num_qubits - 4, num_qubits - 3, num_qubits - 2, num_qubits - 1}
+-#define mlsb_4qbit {0, 1, num_qubits - 2, num_qubits - 1}
+-
+-#define angle_1param {0.4}
+-#define angle_3param {0.4, 0.3, 0.2}
++    { num_qubits - 4, num_qubits - 3, num_qubits - 2, num_qubits - 1 }
++#define mlsb_4qbit                                                             \
++    { 0, 1, num_qubits - 2, num_qubits - 1 }
++
++#define angle_1param                                                           \
++    { 0.4 }
++#define angle_3param                                                           \
++    { 0.4, 0.3, 0.2 }
+ 
+ #define PLGPU_MPI_TEST_GATE_OPS_PARAM(TestType, NUM_QUBITS, GATE_METHOD,       \
+                                       GATE_NAME, WIRE, ANGLE)                  \
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/utils/CSRMatrix.hpp b/pennylane_lightning/core/simulators/lightning_gpu/utils/CSRMatrix.hpp
+index e81f7974f1..7daeb4d467 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/utils/CSRMatrix.hpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/utils/CSRMatrix.hpp
+@@ -43,13 +43,13 @@ template <class Precision, class IndexT> class CSRMatrix {
+ 
+   public:
+     CSRMatrix(std::size_t num_rows, std::size_t nnz)
+-        : columns_(nnz, 0), csrOffsets_(num_rows + 1, 0), values_(nnz) {};
++        : columns_(nnz, 0), csrOffsets_(num_rows + 1, 0), values_(nnz){};
+ 
+     CSRMatrix(std::size_t num_rows, std::size_t nnz, IndexT *column_ptr,
+               IndexT *csrOffsets_ptr, std::complex<Precision> *value_ptr)
+         : columns_(column_ptr, column_ptr + nnz),
+           csrOffsets_(csrOffsets_ptr, csrOffsets_ptr + num_rows + 1),
+-          values_(value_ptr, value_ptr + nnz) {};
++          values_(value_ptr, value_ptr + nnz){};
+ 
+     CSRMatrix() = default;
+ 
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/utils/cuStateVecError.hpp b/pennylane_lightning/core/simulators/lightning_gpu/utils/cuStateVecError.hpp
+index e754e9bd15..b983e3e793 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/utils/cuStateVecError.hpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/utils/cuStateVecError.hpp
+@@ -50,9 +50,7 @@ using namespace Pennylane::Util;
+ 
+ #else
+ #define PL_CUSTATEVEC_IS_SUCCESS(err)                                          \
+-    {                                                                          \
+-        static_cast<void>(err);                                                \
+-    }
++    { static_cast<void>(err); }
+ #endif
+ namespace Pennylane::LightningGPU::Util {
+ static const std::string
+diff --git a/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkos.hpp b/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkos.hpp
+index 816a835d25..55e405edc5 100644
+--- a/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkos.hpp
++++ b/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkos.hpp
+@@ -815,7 +815,7 @@ class StateVectorKokkos final
+         PrecisionT squaredNorm = 0.0;
+         Kokkos::parallel_reduce(
+             sv_view.size(),
+-            KOKKOS_LAMBDA(std::size_t i, PrecisionT &sum) {
++            KOKKOS_LAMBDA(std::size_t i, PrecisionT & sum) {
+                 const PrecisionT norm = Kokkos::abs(sv_view(i));
+                 sum += norm * norm;
+             },
+diff --git a/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkosMPI.hpp b/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkosMPI.hpp
+index 9f5f3d04ea..04f736a990 100644
+--- a/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkosMPI.hpp
++++ b/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkosMPI.hpp
+@@ -192,7 +192,7 @@ class StateVectorKokkosMPI final
+                          const Kokkos::InitializationSettings &kokkos_args = {})
+         : StateVectorKokkosMPI(MPIManagerKokkos(mpi_communicator),
+                                num_global_qubits, num_local_qubits,
+-                               kokkos_args) {};
++                               kokkos_args){};
+ 
+     /**
+      * @brief Create a new state vector with default MPI_COMM_WORLD
+@@ -514,7 +514,7 @@ class StateVectorKokkosMPI final
+         PrecisionT squaredLocalNorm = 0.0;
+         Kokkos::parallel_reduce(
+             sv_view.size(),
+-            KOKKOS_LAMBDA(std::size_t i, PrecisionT &sum) {
++            KOKKOS_LAMBDA(std::size_t i, PrecisionT & sum) {
+                 const PrecisionT norm = Kokkos::abs(sv_view(i));
+                 sum += norm * norm;
+             },
+diff --git a/pennylane_lightning/core/simulators/lightning_kokkos/catalyst/tests/Test_LightningKokkosMeasures.cpp b/pennylane_lightning/core/simulators/lightning_kokkos/catalyst/tests/Test_LightningKokkosMeasures.cpp
+index f2eab6fde7..520b9e9366 100644
+--- a/pennylane_lightning/core/simulators/lightning_kokkos/catalyst/tests/Test_LightningKokkosMeasures.cpp
++++ b/pennylane_lightning/core/simulators/lightning_kokkos/catalyst/tests/Test_LightningKokkosMeasures.cpp
+@@ -275,6 +275,7 @@ TEST_CASE("Expval(HermitianObs) test", "[Measures]") {
+     CHECK(sim->Expval(h2) == Approx(.0).margin(1e-5));
+ }
+ 
++#ifdef SCIPY_OPENBLAS_ENABLED
+ TEST_CASE("Expval(HermitianObs) shots test", "[Measures]") {
+     std::unique_ptr<LKSimulator> sim = std::make_unique<LKSimulator>();
+ 
+@@ -322,6 +323,7 @@ TEST_CASE("Var(HermitianObs) shots test", "[Measures]") {
+ 
+     CHECK(sim->Var(h1) == Approx(0.0).margin(1e-5));
+ }
++#endif // SCIPY_OPENBLAS_ENABLED
+ 
+ TEST_CASE("Expval(TensorProd(NamedObs)) test", "[Measures]") {
+     std::unique_ptr<LKSimulator> sim = std::make_unique<LKSimulator>();
+diff --git a/pennylane_lightning/core/simulators/lightning_kokkos/measurements/MeasurementsKokkosMPI.hpp b/pennylane_lightning/core/simulators/lightning_kokkos/measurements/MeasurementsKokkosMPI.hpp
+index b8ab118f76..8a66cd4384 100644
+--- a/pennylane_lightning/core/simulators/lightning_kokkos/measurements/MeasurementsKokkosMPI.hpp
++++ b/pennylane_lightning/core/simulators/lightning_kokkos/measurements/MeasurementsKokkosMPI.hpp
+@@ -66,7 +66,7 @@ class MeasurementsMPI final
+ 
+   public:
+     explicit MeasurementsMPI(StateVectorT &statevector)
+-        : BaseType{statevector}, mpi_manager_(statevector.getMPIManager()) {};
++        : BaseType{statevector}, mpi_manager_(statevector.getMPIManager()){};
+     /**
+      * @brief Expectation value of an observable.
+      *
+@@ -575,7 +575,7 @@ class MeasurementsMPI final
+         PrecisionT local_squared_norm = 0.0;
+         Kokkos::parallel_reduce(
+             local_sv_view.size(),
+-            KOKKOS_LAMBDA(std::size_t i, PrecisionT &sum) {
++            KOKKOS_LAMBDA(std::size_t i, PrecisionT & sum) {
+                 const PrecisionT norm = Kokkos::abs(local_sv_view(i));
+                 sum += norm * norm;
+             },
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/StateVectorLQubit.hpp b/pennylane_lightning/core/simulators/lightning_qubit/StateVectorLQubit.hpp
+index ebe316487a..249ed606c6 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/StateVectorLQubit.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/StateVectorLQubit.hpp
+@@ -296,8 +296,8 @@ class StateVectorLQubit : public StateVectorBase<PrecisionT, Derived> {
+   protected:
+     explicit StateVectorLQubit(std::size_t num_qubits, Threading threading,
+                                CPUMemoryModel memory_model)
+-        : BaseType(num_qubits), threading_{threading},
+-          memory_model_{memory_model} {
++        : BaseType(num_qubits), threading_{threading}, memory_model_{
++                                                           memory_model} {
+         setKernels(num_qubits, threading, memory_model);
+     }
+ 
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/catalyst/tests/Test_LightningMeasures.cpp b/pennylane_lightning/core/simulators/lightning_qubit/catalyst/tests/Test_LightningMeasures.cpp
+index b57af0b3a4..a50320c70d 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/catalyst/tests/Test_LightningMeasures.cpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/catalyst/tests/Test_LightningMeasures.cpp
+@@ -276,6 +276,7 @@ TEST_CASE("Expval(HermitianObs) test", "[Measures]") {
+     CHECK(sim->Expval(h2) == Approx(.0).margin(1e-5));
+ }
+ 
++#ifdef SCIPY_OPENBLAS_ENABLED
+ TEST_CASE("Expval(HermitianObs) shots test", "[Measures]") {
+     std::unique_ptr<LQSimulator> sim = std::make_unique<LQSimulator>();
+ 
+@@ -322,6 +323,7 @@ TEST_CASE("Var(HermitianObs) shots test", "[Measures]") {
+     ObsIdType h1 = sim->Observable(ObsId::Hermitian, mat1, {Qs[0], Qs[1]});
+     CHECK(sim->Var(h1) == Approx(0.0).margin(1e-5));
+ }
++#endif // SCIPY_OPENBLAS_ENABLED
+ 
+ TEST_CASE("Expval(TensorProd(NamedObs)) test", "[Measures]") {
+     std::unique_ptr<LQSimulator> sim = std::make_unique<LQSimulator>();
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/KernelMap.hpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/KernelMap.hpp
+index 7683835665..2d214bc154 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/KernelMap.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/KernelMap.hpp
+@@ -138,7 +138,7 @@ class PriorityDispatchSet {
+     PriorityDispatchSet() = default;
+     explicit PriorityDispatchSet(
+         const std::vector<DispatchElement> &ordered_vec)
+-        : ordered_vec_(ordered_vec) {};
++        : ordered_vec_(ordered_vec){};
+     PriorityDispatchSet(const PriorityDispatchSet &other) = default;
+     PriorityDispatchSet(PriorityDispatchSet &&other) = default;
+     PriorityDispatchSet &operator=(const PriorityDispatchSet &other) = default;
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/RegisterKernel.hpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/RegisterKernel.hpp
+index 7fa43fb32b..070f0d7867 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/RegisterKernel.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/RegisterKernel.hpp
+@@ -277,9 +277,8 @@ constexpr auto constructControlledSparseMatrixOpsFunctorTupleIter() {
+  * @tparam GateImplementation Gate implementation class.
+  */
+ template <class PrecisionT, class ParamT, class GateImplementation>
+-constexpr auto gate_op_functor_tuple =
+-    constructGateOpsFunctorTupleIter<PrecisionT, ParamT, GateImplementation,
+-                                     0>();
++constexpr auto gate_op_functor_tuple = constructGateOpsFunctorTupleIter<
++    PrecisionT, ParamT, GateImplementation, 0>();
+ 
+ /**
+  * @brief Tuple of controlled gate operation and function pointer pairs.
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX2Concept.hpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX2Concept.hpp
+index d697f92037..917266f201 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX2Concept.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX2Concept.hpp
+@@ -30,12 +30,8 @@ namespace Internal {
+ template <typename T> struct AVX2Intrinsic {
+     static_assert(std::is_same_v<T, float> || std::is_same_v<T, double>);
+ };
+-template <> struct AVX2Intrinsic<float> {
+-    using Type = __m256;
+-};
+-template <> struct AVX2Intrinsic<double> {
+-    using Type = __m256d;
+-};
++template <> struct AVX2Intrinsic<float> { using Type = __m256; };
++template <> struct AVX2Intrinsic<double> { using Type = __m256d; };
+ } // namespace Internal
+ /// @endcond
+ 
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX512Concept.hpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX512Concept.hpp
+index 7e9245e9b5..ebcf1a66ef 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX512Concept.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX512Concept.hpp
+@@ -31,12 +31,8 @@ namespace Internal {
+ template <typename T> struct AVX512Intrinsic {
+     static_assert(std::is_same_v<T, float> || std::is_same_v<T, double>);
+ };
+-template <> struct AVX512Intrinsic<float> {
+-    using Type = __m512;
+-};
+-template <> struct AVX512Intrinsic<double> {
+-    using Type = __m512d;
+-};
++template <> struct AVX512Intrinsic<float> { using Type = __m512; };
++template <> struct AVX512Intrinsic<double> { using Type = __m512d; };
+ } // namespace Internal
+ /// @endcond
+ 
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVXConceptType.hpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVXConceptType.hpp
+index f6acacf894..11f8c75b25 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVXConceptType.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVXConceptType.hpp
+@@ -32,18 +32,12 @@ namespace Pennylane::LightningQubit::Gates::AVXCommon {
+ template <class PrecisionT, std::size_t packed_size> struct AVXConcept;
+ 
+ #ifdef PL_USE_AVX2
+-template <> struct AVXConcept<float, 8> {
+-    using Type = AVX2Concept<float>;
+-};
+-template <> struct AVXConcept<double, 4> {
+-    using Type = AVX2Concept<double>;
+-};
++template <> struct AVXConcept<float, 8> { using Type = AVX2Concept<float>; };
++template <> struct AVXConcept<double, 4> { using Type = AVX2Concept<double>; };
+ #endif
+ 
+ #ifdef PL_USE_AVX512F
+-template <> struct AVXConcept<float, 16> {
+-    using Type = AVX512Concept<float>;
+-};
++template <> struct AVXConcept<float, 16> { using Type = AVX512Concept<float>; };
+ template <> struct AVXConcept<double, 8> {
+     using Type = AVX512Concept<double>;
+ };
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/TwoQubitGateHelper.hpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/TwoQubitGateHelper.hpp
+index a6aea04400..866de2e975 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/TwoQubitGateHelper.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/TwoQubitGateHelper.hpp
+@@ -136,7 +136,7 @@ concept TwoQubitGateWithParam =
+ 
+ template <class T>
+ concept TwoQubitGateWithoutParam = SymmetricTwoQubitGateWithoutParam<T> ||
+-                                   AsymmetricTwoQubitGateWithoutParam<T>;
++    AsymmetricTwoQubitGateWithoutParam<T>;
+ 
+ namespace Internal {
+ // InternalInternal for two qubit gates with param begin
+@@ -326,7 +326,7 @@ constexpr auto InternalExternalFunctions() -> decltype(auto) {
+  * @brief A helper class for two-qubit gate without parameters.
+  */
+ template <class AVXImpl>
+-    requires TwoQubitGateWithoutParam<AVXImpl>
++requires TwoQubitGateWithoutParam<AVXImpl>
+ class TwoQubitGateWithoutParamHelper {
+   public:
+     using Precision = typename AVXImpl::Precision;
+@@ -451,7 +451,7 @@ class TwoQubitGateWithoutParamHelper {
+  * @brief A helper class for two-qubit gate without parameters.
+  */
+ template <class AVXImpl, class ParamT>
+-    requires TwoQubitGateWithParam<AVXImpl>
++requires TwoQubitGateWithParam<AVXImpl>
+ class TwoQubitGateWithParamHelper {
+   public:
+     using Precision = typename AVXImpl::Precision;
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Nonparam.cpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Nonparam.cpp
+index 1c20709926..93b9781699 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Nonparam.cpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Nonparam.cpp
+@@ -51,11 +51,11 @@ using namespace Pennylane::Util;
+         constexpr static bool value = false;                                   \
+     };                                                                         \
+     template <typename PrecisionT, class GateImplementation>                   \
+-    struct Apply##GATE_NAME##                                                  \
+-        IsDefined<PrecisionT, GateImplementation,                              \
+-                  std::enable_if_t<std::is_pointer_v<                          \
+-                      decltype(&GateImplementation::template apply##GATE_NAME< \
+-                               PrecisionT>)>>> {                               \
++    struct Apply##GATE_NAME##IsDefined<                                        \
++        PrecisionT, GateImplementation,                                        \
++        std::enable_if_t<std::is_pointer_v<                                    \
++            decltype(&GateImplementation::template apply##GATE_NAME<           \
++                     PrecisionT>)>>> {                                         \
+         constexpr static bool value = true;                                    \
+     };                                                                         \
+     template <typename PrecisionT, typename TypeList>                          \
+@@ -834,9 +834,10 @@ TEMPLATE_TEST_CASE("StateVectorLQubitManaged::applyOperation non-param "
+                               LightningException);
+         }
+     }
+-    DYNAMIC_SECTION("N-controlled S - " << "controls = {" << control << "} "
+-                                        << ", wires = {" << wire << "} - "
+-                                        << PrecisionToName<PrecisionT>::value) {
++    DYNAMIC_SECTION("N-controlled S - "
++                    << "controls = {" << control << "} "
++                    << ", wires = {" << wire << "} - "
++                    << PrecisionToName<PrecisionT>::value) {
+         if (control != wire) {
+             auto st0 = createRandomStateVectorData<PrecisionT>(re, num_qubits);
+             sv0.updateData(st0);
+@@ -855,9 +856,10 @@ TEMPLATE_TEST_CASE("StateVectorLQubitManaged::applyOperation non-param "
+         }
+     }
+ 
+-    DYNAMIC_SECTION("N-controlled T - " << "controls = {" << control << "} "
+-                                        << ", wires = {" << wire << "} - "
+-                                        << PrecisionToName<PrecisionT>::value) {
++    DYNAMIC_SECTION("N-controlled T - "
++                    << "controls = {" << control << "} "
++                    << ", wires = {" << wire << "} - "
++                    << PrecisionToName<PrecisionT>::value) {
+         if (control != wire) {
+             auto st0 = createRandomStateVectorData<PrecisionT>(re, num_qubits);
+             sv0.updateData(st0);
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Param.cpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Param.cpp
+index 128a04d85d..e68409a75b 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Param.cpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Param.cpp
+@@ -56,11 +56,11 @@ using namespace Pennylane::Gates;
+         constexpr static bool value = false;                                   \
+     };                                                                         \
+     template <typename PrecisionT, typename ParamT, class GateImplementation>  \
+-    struct Apply##GATE_NAME##                                                  \
+-        IsDefined<PrecisionT, ParamT, GateImplementation,                      \
+-                  std::enable_if_t<std::is_pointer_v<                          \
+-                      decltype(&GateImplementation::template apply##GATE_NAME< \
+-                               PrecisionT, ParamT>)>>> {                       \
++    struct Apply##GATE_NAME##IsDefined<                                        \
++        PrecisionT, ParamT, GateImplementation,                                \
++        std::enable_if_t<std::is_pointer_v<                                    \
++            decltype(&GateImplementation::template apply##GATE_NAME<           \
++                     PrecisionT, ParamT>)>>> {                                 \
+         constexpr static bool value = true;                                    \
+     };                                                                         \
+     template <typename PrecisionT, typename ParamT, typename TypeList>         \
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_KernelMap.cpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_KernelMap.cpp
+index a42cb5118c..68049e196e 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_KernelMap.cpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_KernelMap.cpp
+@@ -195,7 +195,7 @@ TEST_CASE("Test KernelMap is consistent in extreme usecase", "[KernelMap]") {
+ #ifdef _OPENMP
+ #pragma omp parallel default(none)                                             \
+     shared(instance, records, rd, num_qubits, threadings, memory_models)       \
+-    firstprivate(num_iter)
++        firstprivate(num_iter)
+ #endif
+     {
+         std::mt19937 re;
+@@ -203,9 +203,7 @@ TEST_CASE("Test KernelMap is consistent in extreme usecase", "[KernelMap]") {
+ #ifdef _OPENMP
+ #pragma omp critical
+ #endif
+-        {
+-            re.seed(rd());
+-        }
++        { re.seed(rd()); }
+ 
+         std::uniform_int_distribution<std::size_t> num_qubit_dist(
+             0, num_qubits.size() - 1);
+@@ -230,9 +228,7 @@ TEST_CASE("Test KernelMap is consistent in extreme usecase", "[KernelMap]") {
+ #ifdef _OPENMP
+ #pragma omp critical
+ #endif
+-        {
+-            records.insert(records.end(), res.begin(), res.end());
+-        }
++        { records.insert(records.end(), res.begin(), res.end()); }
+     }
+     records.push_back(instance.getKernelMap(12, Threading::SingleThread,
+                                             CPUMemoryModel::Aligned256));
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/measurements/MeasurementKernels.hpp b/pennylane_lightning/core/simulators/lightning_qubit/measurements/MeasurementKernels.hpp
+index 0c00b91516..d1dc389952 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/measurements/MeasurementKernels.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/measurements/MeasurementKernels.hpp
+@@ -470,7 +470,7 @@ auto probs_bitshift(const std::complex<PrecisionT> *arr,
+     std::vector<PrecisionT> probabilities(n_probs, 0);
+     auto *probs = probabilities.data();
+ #if defined PL_LQ_KERNEL_OMP && defined _OPENMP
+-#pragma omp parallel for reduction(+ : probs[ : n_probs])
++#pragma omp parallel for reduction(+ : probs[:n_probs])
+ #endif
+     for (std::size_t k = 0; k < exp2(num_qubits - n_wires); k++) {
+         std::size_t i0;
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/utils/LinearAlgebra.hpp b/pennylane_lightning/core/simulators/lightning_qubit/utils/LinearAlgebra.hpp
+index d430713003..2a5cee4bf9 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/utils/LinearAlgebra.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/utils/LinearAlgebra.hpp
+@@ -96,7 +96,8 @@ omp_innerProd(const std::complex<T> *v1, const std::complex<T> *v2,
+     }
+ 
+ #pragma omp parallel for num_threads(nthreads) default(none)                   \
+-    shared(v1, v2, data_size) reduction(sm : result)
++    shared(v1, v2, data_size) reduction(sm                                     \
++                                        : result)
+ #endif
+     for (std::size_t i = 0; i < data_size; i++) {
+         result = ConstSum(result, ConstMult(*(v1 + i), *(v2 + i)));
+@@ -170,7 +171,8 @@ omp_innerProdC(const std::complex<T> *v1, const std::complex<T> *v2,
+ 
+ #if defined(_OPENMP)
+ #pragma omp parallel for num_threads(nthreads) default(none)                   \
+-    shared(v1, v2, data_size) reduction(sm : result)
++    shared(v1, v2, data_size) reduction(sm                                     \
++                                        : result)
+ #endif
+     for (std::size_t i = 0; i < data_size; i++) {
+         result = ConstSum(result, ConstMultConj(*(v1 + i), *(v2 + i)));
+diff --git a/pennylane_lightning/core/simulators/lightning_tensor/tncuda/gates/TNCudaGateCache.hpp b/pennylane_lightning/core/simulators/lightning_tensor/tncuda/gates/TNCudaGateCache.hpp
+index fd018f9624..ac290dc19e 100644
+--- a/pennylane_lightning/core/simulators/lightning_tensor/tncuda/gates/TNCudaGateCache.hpp
++++ b/pennylane_lightning/core/simulators/lightning_tensor/tncuda/gates/TNCudaGateCache.hpp
+@@ -62,7 +62,7 @@ template <class PrecisionT> class TNCudaGateCache {
+     TNCudaGateCache(const DevTag<int> device_tag)
+         : device_tag_{device_tag}, total_alloc_bytes_{0} {}
+ 
+-    ~TNCudaGateCache() {};
++    ~TNCudaGateCache(){};
+ 
+     /**
+      * @brief Add gate numerical value to the cache, indexed by the id of gate
+diff --git a/pennylane_lightning/core/simulators/lightning_tensor/tncuda/measurements/MeasurementsTNCuda.hpp b/pennylane_lightning/core/simulators/lightning_tensor/tncuda/measurements/MeasurementsTNCuda.hpp
+index eccae7debe..7a56bde1cd 100644
+--- a/pennylane_lightning/core/simulators/lightning_tensor/tncuda/measurements/MeasurementsTNCuda.hpp
++++ b/pennylane_lightning/core/simulators/lightning_tensor/tncuda/measurements/MeasurementsTNCuda.hpp
+@@ -74,7 +74,7 @@ template <class TensorNetT> class MeasurementsTNCuda {
+ 
+   public:
+     explicit MeasurementsTNCuda(const TensorNetT &tensor_network)
+-        : tensor_network_(tensor_network) {};
++        : tensor_network_(tensor_network){};
+ 
+     /**
+      * @brief Probabilities for a subset of the full system.
+diff --git a/pennylane_lightning/core/simulators/lightning_tensor/utils/tncuda_utils/tncudaError.hpp b/pennylane_lightning/core/simulators/lightning_tensor/utils/tncuda_utils/tncudaError.hpp
+index 1e0dda1dc1..b06478d331 100644
+--- a/pennylane_lightning/core/simulators/lightning_tensor/utils/tncuda_utils/tncudaError.hpp
++++ b/pennylane_lightning/core/simulators/lightning_tensor/utils/tncuda_utils/tncudaError.hpp
+@@ -45,9 +45,7 @@ using namespace Pennylane::Util;
+                             .c_str())
+ #else
+ #define PL_CUTENSORNET_IS_SUCCESS(err)                                         \
+-    {                                                                          \
+-        static_cast<void>(err);                                                \
+-    }
++    { static_cast<void>(err); }
+ #endif
+ namespace Pennylane::LightningTensor::TNCuda::Util {
+ static const std::string
+diff --git a/pennylane_lightning/core/utils/TypeTraits.hpp b/pennylane_lightning/core/utils/TypeTraits.hpp
+index 1aed0fcb11..96e0b396cd 100644
+--- a/pennylane_lightning/core/utils/TypeTraits.hpp
++++ b/pennylane_lightning/core/utils/TypeTraits.hpp
+@@ -20,9 +20,7 @@
+ #include <limits>
+ 
+ namespace Pennylane::Util {
+-template <typename T> struct remove_complex {
+-    using type = T;
+-};
++template <typename T> struct remove_complex { using type = T; };
+ template <typename T> struct remove_complex<std::complex<T>> {
+     using type = T;
+ };
+@@ -58,8 +56,6 @@ template <class F> struct FuncReturn {
+ template <class R, class... A> struct FuncReturn<R (*)(A...)> {
+     using Type = R;
+ };
+-template <class R, class... A> struct FuncReturn<R(A...)> {
+-    using Type = R;
+-};
++template <class R, class... A> struct FuncReturn<R(A...)> { using Type = R; };
+ 
+ } // namespace Pennylane::Util
+diff --git a/pennylane_lightning/core/utils/Util.hpp b/pennylane_lightning/core/utils/Util.hpp
+index accd110438..908ccd52bf 100644
+--- a/pennylane_lightning/core/utils/Util.hpp
++++ b/pennylane_lightning/core/utils/Util.hpp
+@@ -42,7 +42,7 @@ namespace Pennylane::Util {
+  * @return constexpr std::complex<T>
+  */
+ template <class T, class U = T>
+-    requires std::integral<U> || std::floating_point<U>
++requires std::integral<U> || std::floating_point<U>
+ inline static constexpr auto ConstMult(U a, std::complex<T> b)
+     -> std::complex<T> {
+     return {a * b.real(), a * b.imag()};
+diff --git a/pennylane_lightning/core/utils/UtilLinearAlg.hpp b/pennylane_lightning/core/utils/UtilLinearAlg.hpp
+index bb2ff90cc3..ac3dbf1eec 100644
+--- a/pennylane_lightning/core/utils/UtilLinearAlg.hpp
++++ b/pennylane_lightning/core/utils/UtilLinearAlg.hpp
+@@ -24,7 +24,11 @@
+ #include <string>
+ #include <vector>
+ 
++#include "Error.hpp"
++
++#ifdef SCIPY_OPENBLAS_ENABLED
+ #include "BLASLibLoaderManager.hpp"
++#endif
+ 
+ /// @cond DEV
+ namespace {
+@@ -52,6 +56,7 @@ namespace Pennylane::Util {
+  * @param unitaries unitary result.
+  */
+ 
++#ifdef SCIPY_OPENBLAS_ENABLED
+ template <typename T>
+ void compute_diagonalizing_gates(int n, int lda,
+                                  const std::vector<std::complex<T>> &Ah,
+@@ -110,4 +115,18 @@ void compute_diagonalizing_gates(int n, int lda,
+                        return std::complex<T>{value.real(), -value.imag()};
+                    });
+ }
++#else
++template <typename T>
++void compute_diagonalizing_gates(
++    [[maybe_unused]] int n, [[maybe_unused]] int lda,
++    [[maybe_unused]] const std::vector<std::complex<T>> &Ah,
++    [[maybe_unused]] std::vector<T> &eigenVals,
++    [[maybe_unused]] std::vector<std::complex<T>> &unitary) {
++    PL_ABORT("Decompose Hermitian matrix into diagonal matrix and unitaries is "
++             "only available"
++             "with scipy-openblas. Consider enabling this feature by setting "
++             "ENABLE_SCIPY_OPENBLAS.");
++}
++#endif
++
+ } // namespace Pennylane::Util
+diff --git a/pennylane_lightning/core/utils/cuda_utils/DataBuffer.hpp b/pennylane_lightning/core/utils/cuda_utils/DataBuffer.hpp
+index d81cb59145..21bc466f5a 100644
+--- a/pennylane_lightning/core/utils/cuda_utils/DataBuffer.hpp
++++ b/pennylane_lightning/core/utils/cuda_utils/DataBuffer.hpp
+@@ -50,8 +50,8 @@ template <class GPUDataT, class DevTagT = int> class DataBuffer {
+ 
+     DataBuffer(std::size_t length, int device_id = 0,
+                cudaStream_t stream_id = 0, bool alloc_memory = true)
+-        : length_{length}, dev_tag_{device_id, stream_id},
+-          gpu_buffer_{nullptr} {
++        : length_{length}, dev_tag_{device_id, stream_id}, gpu_buffer_{
++                                                               nullptr} {
+         if (alloc_memory && (length > 0)) {
+             dev_tag_.refresh();
+             PL_CUDA_IS_SUCCESS(
+diff --git a/pennylane_lightning/core/utils/cuda_utils/cuError.hpp b/pennylane_lightning/core/utils/cuda_utils/cuError.hpp
+index 49bc7e27ea..38cc9b8750 100644
+--- a/pennylane_lightning/core/utils/cuda_utils/cuError.hpp
++++ b/pennylane_lightning/core/utils/cuda_utils/cuError.hpp
+@@ -54,17 +54,11 @@ using namespace Pennylane::Util;
+ 
+ #else
+ #define PL_CUDA_IS_SUCCESS(err)                                                \
+-    {                                                                          \
+-        static_cast<void>(err);                                                \
+-    }
++    { static_cast<void>(err); }
+ #define PL_CUBLAS_IS_SUCCESS(err)                                              \
+-    {                                                                          \
+-        static_cast<void>(err);                                                \
+-    }
++    { static_cast<void>(err); }
+ #define PL_CUSPARSE_IS_SUCCESS(err)                                            \
+-    {                                                                          \
+-        static_cast<void>(err);                                                \
+-    }
++    { static_cast<void>(err); }
+ #endif
+ 
+ namespace Pennylane::LightningGPU::Util {
+diff --git a/pennylane_lightning/core/utils/tests/Test_UtilLinearAlg.cpp b/pennylane_lightning/core/utils/tests/Test_UtilLinearAlg.cpp
+index 9e91a95a24..79a848bc08 100644
+--- a/pennylane_lightning/core/utils/tests/Test_UtilLinearAlg.cpp
++++ b/pennylane_lightning/core/utils/tests/Test_UtilLinearAlg.cpp
+@@ -28,6 +28,7 @@ using namespace Pennylane::Util;
+ } // namespace
+ /// @endcond
+ 
++#ifdef SCIPY_OPENBLAS_ENABLED
+ TEMPLATE_TEST_CASE("Util::compute_diagonalizing_gates", "[Util][LinearAlgebra]",
+                    float, double) {
+     SECTION("For complex type") {
+@@ -57,3 +58,4 @@ TEMPLATE_TEST_CASE("Util::compute_diagonalizing_gates", "[Util][LinearAlgebra]",
+         }
+     }
+ }
++#endif // SCIPY_OPENBLAS_ENABLED
+\ No newline at end of file
+
+From 55eb778a26ed8fe55855a68d1db1759e541b6276 Mon Sep 17 00:00:00 2001
+From: ringo-but-quantum <github-ringo-but-quantum@xanadu.ai>
+Date: Thu, 31 Jul 2025 20:31:11 +0000
+Subject: [PATCH 2/3] Auto update version from '0.43.0-dev9' to '0.43.0-dev11'
+
+---
+ pennylane_lightning/core/_version.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/pennylane_lightning/core/_version.py b/pennylane_lightning/core/_version.py
+index d319f938c5..2038ff65b5 100644
+--- a/pennylane_lightning/core/_version.py
++++ b/pennylane_lightning/core/_version.py
+@@ -16,4 +16,4 @@
+ Version number (major.minor.patch[-label])
+ """
+ 
+-__version__ = "0.43.0-dev9"
++__version__ = "0.43.0-dev11"
+
+From c0096a9d0c7e5a02cd2ceffe920193a028d31fc3 Mon Sep 17 00:00:00 2001
+From: Ali Asadi <10773383+maliasadi@users.noreply.github.com>
+Date: Fri, 3 Oct 2025 12:01:43 -0400
+Subject: [PATCH 3/3] Update format
+
+---
+ .../core/algorithms/JacobianData.hpp          | 12 ++---
+ .../lightning_gpu/StateVectorCudaBase.hpp     |  2 +-
+ .../lightning_gpu/gates/cuGateCache.hpp       |  2 +-
+ .../Test_StateVectorCudaManaged_NonParam.cpp  | 14 +++---
+ .../Test_StateVectorCudaManaged_Param.cpp     |  6 +--
+ .../Test_StateVectorCudaMPI_Generators.cpp    | 40 ++++++----------
+ .../mpi/Test_StateVectorCudaMPI_NonParam.cpp  | 26 ++++-------
+ .../mpi/Test_StateVectorCudaMPI_Param.cpp     | 46 +++++++------------
+ .../lightning_gpu/utils/CSRMatrix.hpp         |  4 +-
+ .../lightning_gpu/utils/cuStateVecError.hpp   |  4 +-
+ .../lightning_kokkos/StateVectorKokkos.hpp    |  2 +-
+ .../lightning_kokkos/StateVectorKokkosMPI.hpp |  4 +-
+ .../measurements/MeasurementsKokkosMPI.hpp    |  4 +-
+ .../lightning_qubit/StateVectorLQubit.hpp     |  4 +-
+ .../lightning_qubit/gates/KernelMap.hpp       |  2 +-
+ .../lightning_qubit/gates/RegisterKernel.hpp  |  5 +-
+ .../cpu_kernels/avx_common/AVX2Concept.hpp    |  8 +++-
+ .../cpu_kernels/avx_common/AVX512Concept.hpp  |  8 +++-
+ .../cpu_kernels/avx_common/AVXConceptType.hpp | 12 +++--
+ .../avx_common/TwoQubitGateHelper.hpp         |  6 +--
+ .../Test_GateImplementations_Nonparam.cpp     | 24 +++++-----
+ .../tests/Test_GateImplementations_Param.cpp  | 10 ++--
+ .../gates/tests/Test_KernelMap.cpp            | 10 ++--
+ .../measurements/MeasurementKernels.hpp       |  2 +-
+ .../lightning_qubit/utils/LinearAlgebra.hpp   |  6 +--
+ .../tncuda/gates/TNCudaGateCache.hpp          |  2 +-
+ .../measurements/MeasurementsTNCuda.hpp       |  2 +-
+ .../utils/tncuda_utils/tncudaError.hpp        |  4 +-
+ pennylane_lightning/core/utils/TypeTraits.hpp |  8 +++-
+ pennylane_lightning/core/utils/Util.hpp       |  2 +-
+ .../core/utils/cuda_utils/DataBuffer.hpp      |  4 +-
+ .../core/utils/cuda_utils/cuError.hpp         | 12 +++--
+ 32 files changed, 146 insertions(+), 151 deletions(-)
+
+diff --git a/pennylane_lightning/core/algorithms/JacobianData.hpp b/pennylane_lightning/core/algorithms/JacobianData.hpp
+index f8f6e89e0d..aede16fa22 100644
+--- a/pennylane_lightning/core/algorithms/JacobianData.hpp
++++ b/pennylane_lightning/core/algorithms/JacobianData.hpp
+@@ -75,8 +75,8 @@ template <class StateVectorT> class OpsData {
+             std::vector<std::vector<bool>> ops_controlled_values)
+         : num_par_ops_{0}, ops_name_{std::move(ops_name)},
+           ops_params_{ops_params}, ops_wires_{std::move(ops_wires)},
+-          ops_inverses_{std::move(ops_inverses)}, ops_matrices_{std::move(
+-                                                      ops_matrices)},
++          ops_inverses_{std::move(ops_inverses)},
++          ops_matrices_{std::move(ops_matrices)},
+           ops_controlled_wires_{std::move(ops_controlled_wires)},
+           ops_controlled_values_{std::move(ops_controlled_values)} {
+         for (const auto &p : ops_params) {
+@@ -104,8 +104,8 @@ template <class StateVectorT> class OpsData {
+             std::vector<std::vector<ComplexT>> ops_matrices)
+         : num_par_ops_{0}, ops_name_{std::move(ops_name)},
+           ops_params_{ops_params}, ops_wires_{std::move(ops_wires)},
+-          ops_inverses_{std::move(ops_inverses)}, ops_matrices_{std::move(
+-                                                      ops_matrices)},
++          ops_inverses_{std::move(ops_inverses)},
++          ops_matrices_{std::move(ops_matrices)},
+           ops_controlled_wires_(ops_name.size()),
+           ops_controlled_values_(ops_name.size()) {
+         for (const auto &p : ops_params) {
+@@ -129,8 +129,8 @@ template <class StateVectorT> class OpsData {
+             std::vector<std::vector<std::size_t>> ops_wires,
+             std::vector<bool> ops_inverses)
+         : num_par_ops_{0}, ops_name_{ops_name}, ops_params_{ops_params},
+-          ops_wires_{std::move(ops_wires)}, ops_inverses_{std::move(
+-                                                ops_inverses)},
++          ops_wires_{std::move(ops_wires)},
++          ops_inverses_{std::move(ops_inverses)},
+           ops_matrices_(ops_name.size()),
+           ops_controlled_wires_(ops_name.size()),
+           ops_controlled_values_(ops_name.size()) {
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/StateVectorCudaBase.hpp b/pennylane_lightning/core/simulators/lightning_gpu/StateVectorCudaBase.hpp
+index 1e454cb54f..f76ef36a92 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/StateVectorCudaBase.hpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/StateVectorCudaBase.hpp
+@@ -232,7 +232,7 @@ class StateVectorCudaBase : public StateVectorBase<Precision, Derived> {
+     StateVectorCudaBase(const StateVectorCudaBase &other) = delete;
+     StateVectorCudaBase(StateVectorCudaBase &&other) = delete;
+ 
+-    virtual ~StateVectorCudaBase(){};
++    virtual ~StateVectorCudaBase() {};
+ 
+     /**
+      * @brief Return the mapping of named gates to amount of control wires they
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/gates/cuGateCache.hpp b/pennylane_lightning/core/simulators/lightning_gpu/gates/cuGateCache.hpp
+index f7e8e08f6a..d71b02dd7c 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/gates/cuGateCache.hpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/gates/cuGateCache.hpp
+@@ -62,7 +62,7 @@ template <class fp_t> class GateCache {
+             defaultPopulateCache();
+         }
+     }
+-    virtual ~GateCache(){};
++    virtual ~GateCache() {};
+ 
+     /**
+      * @brief Add a default gate-set to the given cache. Assumes
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_NonParam.cpp b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_NonParam.cpp
+index 829cf445a7..725539e699 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_NonParam.cpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_NonParam.cpp
+@@ -1338,10 +1338,9 @@ TEMPLATE_TEST_CASE("StateVectorCudaManaged::applyOperation non-param "
+         }
+     }
+ 
+-    DYNAMIC_SECTION("N-controlled S - "
+-                    << "controls = {" << control << "} "
+-                    << ", wires = {" << wire << "} - "
+-                    << PrecisionToName<PrecisionT>::value) {
++    DYNAMIC_SECTION("N-controlled S - " << "controls = {" << control << "} "
++                                        << ", wires = {" << wire << "} - "
++                                        << PrecisionToName<PrecisionT>::value) {
+         if (control != wire) {
+             const auto matrix = getS<std::complex, PrecisionT>();
+ 
+@@ -1374,10 +1373,9 @@ TEMPLATE_TEST_CASE("StateVectorCudaManaged::applyOperation non-param "
+         }
+     }
+ 
+-    DYNAMIC_SECTION("N-controlled T - "
+-                    << "controls = {" << control << "} "
+-                    << ", wires = {" << wire << "} - "
+-                    << PrecisionToName<PrecisionT>::value) {
++    DYNAMIC_SECTION("N-controlled T - " << "controls = {" << control << "} "
++                                        << ", wires = {" << wire << "} - "
++                                        << PrecisionToName<PrecisionT>::value) {
+         if (control != wire) {
+             const std::vector<std::complex<PrecisionT>> matrix =
+                 getT<std::complex, PrecisionT>();
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_Param.cpp b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_Param.cpp
+index ccdfa3fc5c..50f1396592 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_Param.cpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/Test_StateVectorCudaManaged_Param.cpp
+@@ -1448,8 +1448,7 @@ TEMPLATE_TEST_CASE("LightningGPU::applyPCPhase", "[LightningGPU_Param]", float,
+ 
+     std::vector<cp_t> expected_results(1 << num_qubits, expected_value);
+ 
+-    DYNAMIC_SECTION("PCPhase 0.27 1,2"
+-                    << " inverse = " << inverse) {
++    DYNAMIC_SECTION("PCPhase 0.27 1,2" << " inverse = " << inverse) {
+         StateVectorCudaManaged<TestType> sv_direct{init_state.data(),
+                                                    init_state.size()};
+ 
+@@ -1464,8 +1463,7 @@ TEMPLATE_TEST_CASE("LightningGPU::applyPCPhase", "[LightningGPU_Param]", float,
+         CHECK(sv_direct.getDataVector() ==
+               Pennylane::Util::approx(expected_results));
+     }
+-    DYNAMIC_SECTION("PCPhase 0.27 0,2"
+-                    << " inverse = " << inverse) {
++    DYNAMIC_SECTION("PCPhase 0.27 0,2" << " inverse = " << inverse) {
+         StateVectorCudaManaged<TestType> sv_direct{init_state.data(),
+                                                    init_state.size()};
+         sv_direct.applyOperation("PCPhase", {0, 2}, inverse, params);
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Generators.cpp b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Generators.cpp
+index d5254e6eb0..164fed7f01 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Generators.cpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Generators.cpp
+@@ -32,31 +32,21 @@ using namespace Pennylane::LightningGPU::MPI;
+ // evaluation, so excluded from the matrices here.
+ 
+ #define num_qubits 8
+-#define lsb_1qbit                                                              \
+-    { 0 }
+-#define msb_1qbit                                                              \
+-    { num_qubits - 1 }
+-
+-#define lsb_2qbit                                                              \
+-    { 0, 1 }
+-#define msb_2qbit                                                              \
+-    { num_qubits - 2, num_qubits - 1 }
+-#define mlsb_2qbit                                                             \
+-    { 0, num_qubits - 1 }
+-
+-#define lsb_3qbit                                                              \
+-    { 0, 1, 2 }
+-#define msb_3qbit                                                              \
+-    { num_qubits - 3, num_qubits - 2, num_qubits - 1 }
+-#define mlsb_3qbit                                                             \
+-    { 0, num_qubits - 2, num_qubits - 1 }
+-
+-#define lsb_4qbit                                                              \
+-    { 0, 1, 2, 3 }
++#define lsb_1qbit {0}
++#define msb_1qbit {num_qubits - 1}
++
++#define lsb_2qbit {0, 1}
++#define msb_2qbit {num_qubits - 2, num_qubits - 1}
++#define mlsb_2qbit {0, num_qubits - 1}
++
++#define lsb_3qbit {0, 1, 2}
++#define msb_3qbit {num_qubits - 3, num_qubits - 2, num_qubits - 1}
++#define mlsb_3qbit {0, num_qubits - 2, num_qubits - 1}
++
++#define lsb_4qbit {0, 1, 2, 3}
+ #define msb_4qbit                                                              \
+-    { num_qubits - 4, num_qubits - 3, num_qubits - 2, num_qubits - 1 }
+-#define mlsb_4qbit                                                             \
+-    { 0, 1, num_qubits - 2, num_qubits - 1 }
++    {num_qubits - 4, num_qubits - 3, num_qubits - 2, num_qubits - 1}
++#define mlsb_4qbit {0, 1, num_qubits - 2, num_qubits - 1}
+ 
+ #define PLGPU_MPI_TEST_GENERATOR(TestType, NUM_QUBITS, GEN_METHOD, GEN_NAME,   \
+                                  WIRE)                                         \
+@@ -69,7 +59,7 @@ using namespace Pennylane::LightningGPU::MPI;
+         std::size_t nGlobalIndexBits =                                         \
+             std::bit_width(static_cast<std::size_t>(mpi_manager.getSize())) -  \
+             1;                                                                 \
+-        std::size_t nLocalIndexBits = (NUM_QUBITS)-nGlobalIndexBits;           \
++        std::size_t nLocalIndexBits = (NUM_QUBITS) - nGlobalIndexBits;         \
+         std::size_t subSvLength = 1 << nLocalIndexBits;                        \
+         std::size_t svLength = 1 << (NUM_QUBITS);                              \
+         mpi_manager.Barrier();                                                 \
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_NonParam.cpp b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_NonParam.cpp
+index d96e9763c1..672975ea86 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_NonParam.cpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_NonParam.cpp
+@@ -39,22 +39,14 @@ using namespace Pennylane;
+ using namespace Pennylane::LightningGPU;
+ 
+ #define num_qubits 8
+-#define lsb_1qbit                                                              \
+-    { 0 }
+-#define msb_1qbit                                                              \
+-    { num_qubits - 1 }
+-#define lsb_2qbit                                                              \
+-    { 0, 1 }
+-#define msb_2qubit                                                             \
+-    { num_qubits - 2, num_qubits - 1 }
+-#define mlsb_2qubit                                                            \
+-    { 0, num_qubits - 1 }
+-#define lsb_3qbit                                                              \
+-    { 0, 1, 2 }
+-#define msb_3qubit                                                             \
+-    { num_qubits - 3, num_qubits - 2, num_qubits - 1 }
+-#define mlsb_3qubit                                                            \
+-    { 0, num_qubits - 2, num_qubits - 1 }
++#define lsb_1qbit {0}
++#define msb_1qbit {num_qubits - 1}
++#define lsb_2qbit {0, 1}
++#define msb_2qubit {num_qubits - 2, num_qubits - 1}
++#define mlsb_2qubit {0, num_qubits - 1}
++#define lsb_3qbit {0, 1, 2}
++#define msb_3qubit {num_qubits - 3, num_qubits - 2, num_qubits - 1}
++#define mlsb_3qubit {0, num_qubits - 2, num_qubits - 1}
+ 
+ /**
+  * @brief Tests the constructability of the StateVectorCudaMPI class.
+@@ -231,7 +223,7 @@ TEMPLATE_TEST_CASE("StateVectorCudaMPI::SetIthStates",
+         std::size_t nGlobalIndexBits =                                         \
+             std::bit_width(static_cast<std::size_t>(mpi_manager.getSize())) -  \
+             1;                                                                 \
+-        std::size_t nLocalIndexBits = (NUM_QUBITS)-nGlobalIndexBits;           \
++        std::size_t nLocalIndexBits = (NUM_QUBITS) - nGlobalIndexBits;         \
+         std::size_t subSvLength = 1 << nLocalIndexBits;                        \
+         std::size_t svLength = 1 << (NUM_QUBITS);                              \
+         mpi_manager.Barrier();                                                 \
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Param.cpp b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Param.cpp
+index e0f3721ecf..db8f0ef4b5 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Param.cpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/gates/tests/mpi/Test_StateVectorCudaMPI_Param.cpp
+@@ -38,36 +38,24 @@ using namespace Pennylane::LightningGPU;
+ using namespace Pennylane::LightningGPU::MPI;
+ 
+ #define num_qubits 8
+-#define lsb_1qbit                                                              \
+-    { 0 }
+-#define msb_1qbit                                                              \
+-    { num_qubits - 1 }
+-
+-#define lsb_2qbit                                                              \
+-    { 0, 1 }
+-#define msb_2qbit                                                              \
+-    { num_qubits - 2, num_qubits - 1 }
+-#define mlsb_2qbit                                                             \
+-    { 0, num_qubits - 1 }
+-
+-#define lsb_3qbit                                                              \
+-    { 0, 1, 2 }
+-#define msb_3qbit                                                              \
+-    { num_qubits - 3, num_qubits - 2, num_qubits - 1 }
+-#define mlsb_3qbit                                                             \
+-    { 0, num_qubits - 2, num_qubits - 1 }
+-
+-#define lsb_4qbit                                                              \
+-    { 0, 1, 2, 3 }
++#define lsb_1qbit {0}
++#define msb_1qbit {num_qubits - 1}
++
++#define lsb_2qbit {0, 1}
++#define msb_2qbit {num_qubits - 2, num_qubits - 1}
++#define mlsb_2qbit {0, num_qubits - 1}
++
++#define lsb_3qbit {0, 1, 2}
++#define msb_3qbit {num_qubits - 3, num_qubits - 2, num_qubits - 1}
++#define mlsb_3qbit {0, num_qubits - 2, num_qubits - 1}
++
++#define lsb_4qbit {0, 1, 2, 3}
+ #define msb_4qbit                                                              \
+-    { num_qubits - 4, num_qubits - 3, num_qubits - 2, num_qubits - 1 }
+-#define mlsb_4qbit                                                             \
+-    { 0, 1, num_qubits - 2, num_qubits - 1 }
+-
+-#define angle_1param                                                           \
+-    { 0.4 }
+-#define angle_3param                                                           \
+-    { 0.4, 0.3, 0.2 }
++    {num_qubits - 4, num_qubits - 3, num_qubits - 2, num_qubits - 1}
++#define mlsb_4qbit {0, 1, num_qubits - 2, num_qubits - 1}
++
++#define angle_1param {0.4}
++#define angle_3param {0.4, 0.3, 0.2}
+ 
+ #define PLGPU_MPI_TEST_GATE_OPS_PARAM(TestType, NUM_QUBITS, GATE_METHOD,       \
+                                       GATE_NAME, WIRE, ANGLE)                  \
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/utils/CSRMatrix.hpp b/pennylane_lightning/core/simulators/lightning_gpu/utils/CSRMatrix.hpp
+index 7daeb4d467..e81f7974f1 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/utils/CSRMatrix.hpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/utils/CSRMatrix.hpp
+@@ -43,13 +43,13 @@ template <class Precision, class IndexT> class CSRMatrix {
+ 
+   public:
+     CSRMatrix(std::size_t num_rows, std::size_t nnz)
+-        : columns_(nnz, 0), csrOffsets_(num_rows + 1, 0), values_(nnz){};
++        : columns_(nnz, 0), csrOffsets_(num_rows + 1, 0), values_(nnz) {};
+ 
+     CSRMatrix(std::size_t num_rows, std::size_t nnz, IndexT *column_ptr,
+               IndexT *csrOffsets_ptr, std::complex<Precision> *value_ptr)
+         : columns_(column_ptr, column_ptr + nnz),
+           csrOffsets_(csrOffsets_ptr, csrOffsets_ptr + num_rows + 1),
+-          values_(value_ptr, value_ptr + nnz){};
++          values_(value_ptr, value_ptr + nnz) {};
+ 
+     CSRMatrix() = default;
+ 
+diff --git a/pennylane_lightning/core/simulators/lightning_gpu/utils/cuStateVecError.hpp b/pennylane_lightning/core/simulators/lightning_gpu/utils/cuStateVecError.hpp
+index b983e3e793..e754e9bd15 100644
+--- a/pennylane_lightning/core/simulators/lightning_gpu/utils/cuStateVecError.hpp
++++ b/pennylane_lightning/core/simulators/lightning_gpu/utils/cuStateVecError.hpp
+@@ -50,7 +50,9 @@ using namespace Pennylane::Util;
+ 
+ #else
+ #define PL_CUSTATEVEC_IS_SUCCESS(err)                                          \
+-    { static_cast<void>(err); }
++    {                                                                          \
++        static_cast<void>(err);                                                \
++    }
+ #endif
+ namespace Pennylane::LightningGPU::Util {
+ static const std::string
+diff --git a/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkos.hpp b/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkos.hpp
+index d3f1b7d70e..8439a87c4a 100644
+--- a/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkos.hpp
++++ b/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkos.hpp
+@@ -815,7 +815,7 @@ class StateVectorKokkos final
+         PrecisionT squaredNorm = 0.0;
+         Kokkos::parallel_reduce(
+             sv_view.size(),
+-            KOKKOS_LAMBDA(std::size_t i, PrecisionT & sum) {
++            KOKKOS_LAMBDA(std::size_t i, PrecisionT &sum) {
+                 const PrecisionT norm = Kokkos::abs(sv_view(i));
+                 sum += norm * norm;
+             },
+diff --git a/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkosMPI.hpp b/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkosMPI.hpp
+index 97eb0205f0..ed250217f4 100644
+--- a/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkosMPI.hpp
++++ b/pennylane_lightning/core/simulators/lightning_kokkos/StateVectorKokkosMPI.hpp
+@@ -192,7 +192,7 @@ class StateVectorKokkosMPI final
+                          const Kokkos::InitializationSettings &kokkos_args = {})
+         : StateVectorKokkosMPI(MPIManagerKokkos(mpi_communicator),
+                                num_global_qubits, num_local_qubits,
+-                               kokkos_args){};
++                               kokkos_args) {};
+ 
+     /**
+      * @brief Create a new state vector with default MPI_COMM_WORLD
+@@ -514,7 +514,7 @@ class StateVectorKokkosMPI final
+         PrecisionT squaredLocalNorm = 0.0;
+         Kokkos::parallel_reduce(
+             sv_view.size(),
+-            KOKKOS_LAMBDA(std::size_t i, PrecisionT & sum) {
++            KOKKOS_LAMBDA(std::size_t i, PrecisionT &sum) {
+                 const PrecisionT norm = Kokkos::abs(sv_view(i));
+                 sum += norm * norm;
+             },
+diff --git a/pennylane_lightning/core/simulators/lightning_kokkos/measurements/MeasurementsKokkosMPI.hpp b/pennylane_lightning/core/simulators/lightning_kokkos/measurements/MeasurementsKokkosMPI.hpp
+index 8a66cd4384..b8ab118f76 100644
+--- a/pennylane_lightning/core/simulators/lightning_kokkos/measurements/MeasurementsKokkosMPI.hpp
++++ b/pennylane_lightning/core/simulators/lightning_kokkos/measurements/MeasurementsKokkosMPI.hpp
+@@ -66,7 +66,7 @@ class MeasurementsMPI final
+ 
+   public:
+     explicit MeasurementsMPI(StateVectorT &statevector)
+-        : BaseType{statevector}, mpi_manager_(statevector.getMPIManager()){};
++        : BaseType{statevector}, mpi_manager_(statevector.getMPIManager()) {};
+     /**
+      * @brief Expectation value of an observable.
+      *
+@@ -575,7 +575,7 @@ class MeasurementsMPI final
+         PrecisionT local_squared_norm = 0.0;
+         Kokkos::parallel_reduce(
+             local_sv_view.size(),
+-            KOKKOS_LAMBDA(std::size_t i, PrecisionT & sum) {
++            KOKKOS_LAMBDA(std::size_t i, PrecisionT &sum) {
+                 const PrecisionT norm = Kokkos::abs(local_sv_view(i));
+                 sum += norm * norm;
+             },
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/StateVectorLQubit.hpp b/pennylane_lightning/core/simulators/lightning_qubit/StateVectorLQubit.hpp
+index 003f0b277d..4aca1b8867 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/StateVectorLQubit.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/StateVectorLQubit.hpp
+@@ -296,8 +296,8 @@ class StateVectorLQubit : public StateVectorBase<PrecisionT, Derived> {
+   protected:
+     explicit StateVectorLQubit(std::size_t num_qubits, Threading threading,
+                                CPUMemoryModel memory_model)
+-        : BaseType(num_qubits), threading_{threading}, memory_model_{
+-                                                           memory_model} {
++        : BaseType(num_qubits), threading_{threading},
++          memory_model_{memory_model} {
+         setKernels(num_qubits, threading, memory_model);
+     }
+ 
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/KernelMap.hpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/KernelMap.hpp
+index 2d214bc154..7683835665 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/KernelMap.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/KernelMap.hpp
+@@ -138,7 +138,7 @@ class PriorityDispatchSet {
+     PriorityDispatchSet() = default;
+     explicit PriorityDispatchSet(
+         const std::vector<DispatchElement> &ordered_vec)
+-        : ordered_vec_(ordered_vec){};
++        : ordered_vec_(ordered_vec) {};
+     PriorityDispatchSet(const PriorityDispatchSet &other) = default;
+     PriorityDispatchSet(PriorityDispatchSet &&other) = default;
+     PriorityDispatchSet &operator=(const PriorityDispatchSet &other) = default;
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/RegisterKernel.hpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/RegisterKernel.hpp
+index 070f0d7867..7fa43fb32b 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/RegisterKernel.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/RegisterKernel.hpp
+@@ -277,8 +277,9 @@ constexpr auto constructControlledSparseMatrixOpsFunctorTupleIter() {
+  * @tparam GateImplementation Gate implementation class.
+  */
+ template <class PrecisionT, class ParamT, class GateImplementation>
+-constexpr auto gate_op_functor_tuple = constructGateOpsFunctorTupleIter<
+-    PrecisionT, ParamT, GateImplementation, 0>();
++constexpr auto gate_op_functor_tuple =
++    constructGateOpsFunctorTupleIter<PrecisionT, ParamT, GateImplementation,
++                                     0>();
+ 
+ /**
+  * @brief Tuple of controlled gate operation and function pointer pairs.
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX2Concept.hpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX2Concept.hpp
+index 917266f201..d697f92037 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX2Concept.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX2Concept.hpp
+@@ -30,8 +30,12 @@ namespace Internal {
+ template <typename T> struct AVX2Intrinsic {
+     static_assert(std::is_same_v<T, float> || std::is_same_v<T, double>);
+ };
+-template <> struct AVX2Intrinsic<float> { using Type = __m256; };
+-template <> struct AVX2Intrinsic<double> { using Type = __m256d; };
++template <> struct AVX2Intrinsic<float> {
++    using Type = __m256;
++};
++template <> struct AVX2Intrinsic<double> {
++    using Type = __m256d;
++};
+ } // namespace Internal
+ /// @endcond
+ 
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX512Concept.hpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX512Concept.hpp
+index ebcf1a66ef..7e9245e9b5 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX512Concept.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVX512Concept.hpp
+@@ -31,8 +31,12 @@ namespace Internal {
+ template <typename T> struct AVX512Intrinsic {
+     static_assert(std::is_same_v<T, float> || std::is_same_v<T, double>);
+ };
+-template <> struct AVX512Intrinsic<float> { using Type = __m512; };
+-template <> struct AVX512Intrinsic<double> { using Type = __m512d; };
++template <> struct AVX512Intrinsic<float> {
++    using Type = __m512;
++};
++template <> struct AVX512Intrinsic<double> {
++    using Type = __m512d;
++};
+ } // namespace Internal
+ /// @endcond
+ 
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVXConceptType.hpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVXConceptType.hpp
+index 11f8c75b25..f6acacf894 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVXConceptType.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/AVXConceptType.hpp
+@@ -32,12 +32,18 @@ namespace Pennylane::LightningQubit::Gates::AVXCommon {
+ template <class PrecisionT, std::size_t packed_size> struct AVXConcept;
+ 
+ #ifdef PL_USE_AVX2
+-template <> struct AVXConcept<float, 8> { using Type = AVX2Concept<float>; };
+-template <> struct AVXConcept<double, 4> { using Type = AVX2Concept<double>; };
++template <> struct AVXConcept<float, 8> {
++    using Type = AVX2Concept<float>;
++};
++template <> struct AVXConcept<double, 4> {
++    using Type = AVX2Concept<double>;
++};
+ #endif
+ 
+ #ifdef PL_USE_AVX512F
+-template <> struct AVXConcept<float, 16> { using Type = AVX512Concept<float>; };
++template <> struct AVXConcept<float, 16> {
++    using Type = AVX512Concept<float>;
++};
+ template <> struct AVXConcept<double, 8> {
+     using Type = AVX512Concept<double>;
+ };
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/TwoQubitGateHelper.hpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/TwoQubitGateHelper.hpp
+index 866de2e975..a6aea04400 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/TwoQubitGateHelper.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/cpu_kernels/avx_common/TwoQubitGateHelper.hpp
+@@ -136,7 +136,7 @@ concept TwoQubitGateWithParam =
+ 
+ template <class T>
+ concept TwoQubitGateWithoutParam = SymmetricTwoQubitGateWithoutParam<T> ||
+-    AsymmetricTwoQubitGateWithoutParam<T>;
++                                   AsymmetricTwoQubitGateWithoutParam<T>;
+ 
+ namespace Internal {
+ // InternalInternal for two qubit gates with param begin
+@@ -326,7 +326,7 @@ constexpr auto InternalExternalFunctions() -> decltype(auto) {
+  * @brief A helper class for two-qubit gate without parameters.
+  */
+ template <class AVXImpl>
+-requires TwoQubitGateWithoutParam<AVXImpl>
++    requires TwoQubitGateWithoutParam<AVXImpl>
+ class TwoQubitGateWithoutParamHelper {
+   public:
+     using Precision = typename AVXImpl::Precision;
+@@ -451,7 +451,7 @@ class TwoQubitGateWithoutParamHelper {
+  * @brief A helper class for two-qubit gate without parameters.
+  */
+ template <class AVXImpl, class ParamT>
+-requires TwoQubitGateWithParam<AVXImpl>
++    requires TwoQubitGateWithParam<AVXImpl>
+ class TwoQubitGateWithParamHelper {
+   public:
+     using Precision = typename AVXImpl::Precision;
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Nonparam.cpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Nonparam.cpp
+index 93b9781699..1c20709926 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Nonparam.cpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Nonparam.cpp
+@@ -51,11 +51,11 @@ using namespace Pennylane::Util;
+         constexpr static bool value = false;                                   \
+     };                                                                         \
+     template <typename PrecisionT, class GateImplementation>                   \
+-    struct Apply##GATE_NAME##IsDefined<                                        \
+-        PrecisionT, GateImplementation,                                        \
+-        std::enable_if_t<std::is_pointer_v<                                    \
+-            decltype(&GateImplementation::template apply##GATE_NAME<           \
+-                     PrecisionT>)>>> {                                         \
++    struct Apply##GATE_NAME##                                                  \
++        IsDefined<PrecisionT, GateImplementation,                              \
++                  std::enable_if_t<std::is_pointer_v<                          \
++                      decltype(&GateImplementation::template apply##GATE_NAME< \
++                               PrecisionT>)>>> {                               \
+         constexpr static bool value = true;                                    \
+     };                                                                         \
+     template <typename PrecisionT, typename TypeList>                          \
+@@ -834,10 +834,9 @@ TEMPLATE_TEST_CASE("StateVectorLQubitManaged::applyOperation non-param "
+                               LightningException);
+         }
+     }
+-    DYNAMIC_SECTION("N-controlled S - "
+-                    << "controls = {" << control << "} "
+-                    << ", wires = {" << wire << "} - "
+-                    << PrecisionToName<PrecisionT>::value) {
++    DYNAMIC_SECTION("N-controlled S - " << "controls = {" << control << "} "
++                                        << ", wires = {" << wire << "} - "
++                                        << PrecisionToName<PrecisionT>::value) {
+         if (control != wire) {
+             auto st0 = createRandomStateVectorData<PrecisionT>(re, num_qubits);
+             sv0.updateData(st0);
+@@ -856,10 +855,9 @@ TEMPLATE_TEST_CASE("StateVectorLQubitManaged::applyOperation non-param "
+         }
+     }
+ 
+-    DYNAMIC_SECTION("N-controlled T - "
+-                    << "controls = {" << control << "} "
+-                    << ", wires = {" << wire << "} - "
+-                    << PrecisionToName<PrecisionT>::value) {
++    DYNAMIC_SECTION("N-controlled T - " << "controls = {" << control << "} "
++                                        << ", wires = {" << wire << "} - "
++                                        << PrecisionToName<PrecisionT>::value) {
+         if (control != wire) {
+             auto st0 = createRandomStateVectorData<PrecisionT>(re, num_qubits);
+             sv0.updateData(st0);
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Param.cpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Param.cpp
+index faf610acc0..44d748e096 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Param.cpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_GateImplementations_Param.cpp
+@@ -56,11 +56,11 @@ using namespace Pennylane::Gates;
+         constexpr static bool value = false;                                   \
+     };                                                                         \
+     template <typename PrecisionT, typename ParamT, class GateImplementation>  \
+-    struct Apply##GATE_NAME##IsDefined<                                        \
+-        PrecisionT, ParamT, GateImplementation,                                \
+-        std::enable_if_t<std::is_pointer_v<                                    \
+-            decltype(&GateImplementation::template apply##GATE_NAME<           \
+-                     PrecisionT, ParamT>)>>> {                                 \
++    struct Apply##GATE_NAME##                                                  \
++        IsDefined<PrecisionT, ParamT, GateImplementation,                      \
++                  std::enable_if_t<std::is_pointer_v<                          \
++                      decltype(&GateImplementation::template apply##GATE_NAME< \
++                               PrecisionT, ParamT>)>>> {                       \
+         constexpr static bool value = true;                                    \
+     };                                                                         \
+     template <typename PrecisionT, typename ParamT, typename TypeList>         \
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_KernelMap.cpp b/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_KernelMap.cpp
+index 68049e196e..a42cb5118c 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_KernelMap.cpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/gates/tests/Test_KernelMap.cpp
+@@ -195,7 +195,7 @@ TEST_CASE("Test KernelMap is consistent in extreme usecase", "[KernelMap]") {
+ #ifdef _OPENMP
+ #pragma omp parallel default(none)                                             \
+     shared(instance, records, rd, num_qubits, threadings, memory_models)       \
+-        firstprivate(num_iter)
++    firstprivate(num_iter)
+ #endif
+     {
+         std::mt19937 re;
+@@ -203,7 +203,9 @@ TEST_CASE("Test KernelMap is consistent in extreme usecase", "[KernelMap]") {
+ #ifdef _OPENMP
+ #pragma omp critical
+ #endif
+-        { re.seed(rd()); }
++        {
++            re.seed(rd());
++        }
+ 
+         std::uniform_int_distribution<std::size_t> num_qubit_dist(
+             0, num_qubits.size() - 1);
+@@ -228,7 +230,9 @@ TEST_CASE("Test KernelMap is consistent in extreme usecase", "[KernelMap]") {
+ #ifdef _OPENMP
+ #pragma omp critical
+ #endif
+-        { records.insert(records.end(), res.begin(), res.end()); }
++        {
++            records.insert(records.end(), res.begin(), res.end());
++        }
+     }
+     records.push_back(instance.getKernelMap(12, Threading::SingleThread,
+                                             CPUMemoryModel::Aligned256));
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/measurements/MeasurementKernels.hpp b/pennylane_lightning/core/simulators/lightning_qubit/measurements/MeasurementKernels.hpp
+index d1dc389952..0c00b91516 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/measurements/MeasurementKernels.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/measurements/MeasurementKernels.hpp
+@@ -470,7 +470,7 @@ auto probs_bitshift(const std::complex<PrecisionT> *arr,
+     std::vector<PrecisionT> probabilities(n_probs, 0);
+     auto *probs = probabilities.data();
+ #if defined PL_LQ_KERNEL_OMP && defined _OPENMP
+-#pragma omp parallel for reduction(+ : probs[:n_probs])
++#pragma omp parallel for reduction(+ : probs[ : n_probs])
+ #endif
+     for (std::size_t k = 0; k < exp2(num_qubits - n_wires); k++) {
+         std::size_t i0;
+diff --git a/pennylane_lightning/core/simulators/lightning_qubit/utils/LinearAlgebra.hpp b/pennylane_lightning/core/simulators/lightning_qubit/utils/LinearAlgebra.hpp
+index 2a5cee4bf9..d430713003 100644
+--- a/pennylane_lightning/core/simulators/lightning_qubit/utils/LinearAlgebra.hpp
++++ b/pennylane_lightning/core/simulators/lightning_qubit/utils/LinearAlgebra.hpp
+@@ -96,8 +96,7 @@ omp_innerProd(const std::complex<T> *v1, const std::complex<T> *v2,
+     }
+ 
+ #pragma omp parallel for num_threads(nthreads) default(none)                   \
+-    shared(v1, v2, data_size) reduction(sm                                     \
+-                                        : result)
++    shared(v1, v2, data_size) reduction(sm : result)
+ #endif
+     for (std::size_t i = 0; i < data_size; i++) {
+         result = ConstSum(result, ConstMult(*(v1 + i), *(v2 + i)));
+@@ -171,8 +170,7 @@ omp_innerProdC(const std::complex<T> *v1, const std::complex<T> *v2,
+ 
+ #if defined(_OPENMP)
+ #pragma omp parallel for num_threads(nthreads) default(none)                   \
+-    shared(v1, v2, data_size) reduction(sm                                     \
+-                                        : result)
++    shared(v1, v2, data_size) reduction(sm : result)
+ #endif
+     for (std::size_t i = 0; i < data_size; i++) {
+         result = ConstSum(result, ConstMultConj(*(v1 + i), *(v2 + i)));
+diff --git a/pennylane_lightning/core/simulators/lightning_tensor/tncuda/gates/TNCudaGateCache.hpp b/pennylane_lightning/core/simulators/lightning_tensor/tncuda/gates/TNCudaGateCache.hpp
+index ac290dc19e..fd018f9624 100644
+--- a/pennylane_lightning/core/simulators/lightning_tensor/tncuda/gates/TNCudaGateCache.hpp
++++ b/pennylane_lightning/core/simulators/lightning_tensor/tncuda/gates/TNCudaGateCache.hpp
+@@ -62,7 +62,7 @@ template <class PrecisionT> class TNCudaGateCache {
+     TNCudaGateCache(const DevTag<int> device_tag)
+         : device_tag_{device_tag}, total_alloc_bytes_{0} {}
+ 
+-    ~TNCudaGateCache(){};
++    ~TNCudaGateCache() {};
+ 
+     /**
+      * @brief Add gate numerical value to the cache, indexed by the id of gate
+diff --git a/pennylane_lightning/core/simulators/lightning_tensor/tncuda/measurements/MeasurementsTNCuda.hpp b/pennylane_lightning/core/simulators/lightning_tensor/tncuda/measurements/MeasurementsTNCuda.hpp
+index 2e0526aaa4..3ab8994a29 100644
+--- a/pennylane_lightning/core/simulators/lightning_tensor/tncuda/measurements/MeasurementsTNCuda.hpp
++++ b/pennylane_lightning/core/simulators/lightning_tensor/tncuda/measurements/MeasurementsTNCuda.hpp
+@@ -74,7 +74,7 @@ template <class TensorNetT> class MeasurementsTNCuda {
+     using CFP_t = typename TensorNetT::CFP_t;
+ 
+     explicit MeasurementsTNCuda(const TensorNetT &tensor_network)
+-        : tensor_network_(tensor_network){};
++        : tensor_network_(tensor_network) {};
+ 
+     /**
+      * @brief Probabilities for a subset of the full system.
+diff --git a/pennylane_lightning/core/simulators/lightning_tensor/utils/tncuda_utils/tncudaError.hpp b/pennylane_lightning/core/simulators/lightning_tensor/utils/tncuda_utils/tncudaError.hpp
+index b06478d331..1e0dda1dc1 100644
+--- a/pennylane_lightning/core/simulators/lightning_tensor/utils/tncuda_utils/tncudaError.hpp
++++ b/pennylane_lightning/core/simulators/lightning_tensor/utils/tncuda_utils/tncudaError.hpp
+@@ -45,7 +45,9 @@ using namespace Pennylane::Util;
+                             .c_str())
+ #else
+ #define PL_CUTENSORNET_IS_SUCCESS(err)                                         \
+-    { static_cast<void>(err); }
++    {                                                                          \
++        static_cast<void>(err);                                                \
++    }
+ #endif
+ namespace Pennylane::LightningTensor::TNCuda::Util {
+ static const std::string
+diff --git a/pennylane_lightning/core/utils/TypeTraits.hpp b/pennylane_lightning/core/utils/TypeTraits.hpp
+index 96e0b396cd..1aed0fcb11 100644
+--- a/pennylane_lightning/core/utils/TypeTraits.hpp
++++ b/pennylane_lightning/core/utils/TypeTraits.hpp
+@@ -20,7 +20,9 @@
+ #include <limits>
+ 
+ namespace Pennylane::Util {
+-template <typename T> struct remove_complex { using type = T; };
++template <typename T> struct remove_complex {
++    using type = T;
++};
+ template <typename T> struct remove_complex<std::complex<T>> {
+     using type = T;
+ };
+@@ -56,6 +58,8 @@ template <class F> struct FuncReturn {
+ template <class R, class... A> struct FuncReturn<R (*)(A...)> {
+     using Type = R;
+ };
+-template <class R, class... A> struct FuncReturn<R(A...)> { using Type = R; };
++template <class R, class... A> struct FuncReturn<R(A...)> {
++    using Type = R;
++};
+ 
+ } // namespace Pennylane::Util
+diff --git a/pennylane_lightning/core/utils/Util.hpp b/pennylane_lightning/core/utils/Util.hpp
+index 7811af97fa..6fc6f60567 100644
+--- a/pennylane_lightning/core/utils/Util.hpp
++++ b/pennylane_lightning/core/utils/Util.hpp
+@@ -42,7 +42,7 @@ namespace Pennylane::Util {
+  * @return constexpr std::complex<T>
+  */
+ template <class T, class U = T>
+-requires std::integral<U> || std::floating_point<U>
++    requires std::integral<U> || std::floating_point<U>
+ inline static constexpr auto ConstMult(U a, std::complex<T> b)
+     -> std::complex<T> {
+     return {a * b.real(), a * b.imag()};
+diff --git a/pennylane_lightning/core/utils/cuda_utils/DataBuffer.hpp b/pennylane_lightning/core/utils/cuda_utils/DataBuffer.hpp
+index 21bc466f5a..d81cb59145 100644
+--- a/pennylane_lightning/core/utils/cuda_utils/DataBuffer.hpp
++++ b/pennylane_lightning/core/utils/cuda_utils/DataBuffer.hpp
+@@ -50,8 +50,8 @@ template <class GPUDataT, class DevTagT = int> class DataBuffer {
+ 
+     DataBuffer(std::size_t length, int device_id = 0,
+                cudaStream_t stream_id = 0, bool alloc_memory = true)
+-        : length_{length}, dev_tag_{device_id, stream_id}, gpu_buffer_{
+-                                                               nullptr} {
++        : length_{length}, dev_tag_{device_id, stream_id},
++          gpu_buffer_{nullptr} {
+         if (alloc_memory && (length > 0)) {
+             dev_tag_.refresh();
+             PL_CUDA_IS_SUCCESS(
+diff --git a/pennylane_lightning/core/utils/cuda_utils/cuError.hpp b/pennylane_lightning/core/utils/cuda_utils/cuError.hpp
+index 38cc9b8750..49bc7e27ea 100644
+--- a/pennylane_lightning/core/utils/cuda_utils/cuError.hpp
++++ b/pennylane_lightning/core/utils/cuda_utils/cuError.hpp
+@@ -54,11 +54,17 @@ using namespace Pennylane::Util;
+ 
+ #else
+ #define PL_CUDA_IS_SUCCESS(err)                                                \
+-    { static_cast<void>(err); }
++    {                                                                          \
++        static_cast<void>(err);                                                \
++    }
+ #define PL_CUBLAS_IS_SUCCESS(err)                                              \
+-    { static_cast<void>(err); }
++    {                                                                          \
++        static_cast<void>(err);                                                \
++    }
+ #define PL_CUSPARSE_IS_SUCCESS(err)                                            \
+-    { static_cast<void>(err); }
++    {                                                                          \
++        static_cast<void>(err);                                                \
++    }
+ #endif
+ 
+ namespace Pennylane::LightningGPU::Util {
