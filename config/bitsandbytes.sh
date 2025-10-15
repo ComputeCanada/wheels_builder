@@ -3,7 +3,7 @@ PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PACKAGE_DOWNLOAD_METHOD="Git"
 PACKAGE_DOWNLOAD_CMD="git clone --jobs 16 --recursive $PACKAGE_DOWNLOAD_ARGUMENT $PACKAGE_FOLDER_NAME && cd $PACKAGE_FOLDER_NAME && git checkout ${VERSION:?version required} && cd .."
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
-
+PYTHON_DEPS="setuptools>=77.0.3"
 MODULE_BUILD_DEPS='cuda/12.2'
 MODULE_RUNTIME_DEPS='cuda/12'
 # Builds the differents SOs into the source directory
