@@ -14,4 +14,7 @@ PRE_BUILD_COMMANDS='
     export BUILD_SOX=1;
     export BUILD_VERSION=$VERSION;
     export TORCH_CUDA_ARCH_LIST="7.0;8.0;9.0";
+    export TORIO_USE_FFMPEG_VERSION=4;
+    export USE_FFMPEG=ON;
 '
+RPATH_ADD_ORIGIN="yes"
