@@ -1,8 +1,14 @@
 PYTHON_DEPS="fastrlock"
-MODULE_BUILD_DEPS="cuda/12.2 cudnn/8.9 nccl cutensor cython/.0.29.36"
+MODULE_BUILD_DEPS="cuda/12.2 cudn/8.9 nccl cutensor"
 
 # required at runtime, see https://docs.cupy.dev/en/latest/install.html#cupy-always-raises-nvrtc-error-compilation-6
 MODULE_RUNTIME_DEPS='cuda/12'
+
+PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/cupy/cupy.git"
+PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
+PACKAGE_DOWNLOAD_METHOD="Git"
+PACKAGE_DOWNLOAD_CMD="git clone --jobs 8 --depth 1 --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
+POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 
 # needed otherwise it does not find libcuda.so
 PRE_DOWNLOAD_COMMANDS='export LDFLAGS="-L$EBROOTCUDA/lib64/stubs -L$EBROOTNCCL/lib" ; export CFLAGS="-I$EBROOTNCCL/include/"'
@@ -10,8 +16,8 @@ PRE_BUILD_COMMANDS='
     export CUPY_NUM_BUILD_JOBS=${SLURM_CPUS_PER_TASK:-1};
     export CUPY_NUM_NVCC_THREADS=$((${SLURM_CPUS_PER_TASK:-2}/2));
 
-    for arch in 60 70 75 80 86 90; do
-    	export CUPY_CUDA_GENCODE="${CUPY_CUDA_GENCODE}arch=compute_${arch},code=sm_${arch};";
+    for arch in 80 90; do
+    	export CUPY_NVCC_GENERATE_CODE="${CUPY_NVCC_GENERATE_CODE}arch=compute_${arch},code=sm_${arch};";
     done;
 '
 
