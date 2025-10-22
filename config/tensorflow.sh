@@ -1,7 +1,7 @@
 # TF comes from upstream
 
 if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
-    MODULE_RUNTIME_DEPS="cuda/12 cudnn/8.9 tensorrt"
+    MODULE_RUNTIME_DEPS="cuda/12.6 cudacore/.12.6.3 cudnn"
 else
     MODULE_RUNTIME_DEPS="gcc cuda/11.7 cudnn/8.6 tensorrt"
 fi
@@ -10,7 +10,6 @@ RPATHS=(
     '$EBROOTCUDACORE/lib64'
     '$EBROOTCUDACORE/extras/CUPTI/lib64'
     '$EBROOTCUDNN/lib'
-    '$EBROOTTENSORRT/lib'
 )
 RPATHS=${RPATHS[*]}
 
