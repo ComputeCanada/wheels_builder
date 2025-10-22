@@ -1,4 +1,4 @@
-MODULE_RUNTIME_DEPS="cuda/12.6 cudnn/9.10 nccl/2.26"
+MODULE_RUNTIME_DEPS="cuda/12.9 cudnn/9.13 nccl"
 
 RPATHS=(
     '$EBROOTCUDACORE/lib64'
