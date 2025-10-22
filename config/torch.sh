@@ -1,7 +1,7 @@
 PYTHON_DEPS="ninja pyyaml astunparse typing-extensions requests six"
 
 if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
-	MODULE_BUILD_DEPS="gcc/13 openmpi flexiblas cmake fftw eigen protobuf abseil flatbuffers cuda/12.6 cusparselt cudnn/9.5 nccl/2.26 magma opencv/4.11"
+	MODULE_BUILD_DEPS="gcc/13 openmpi flexiblas cmake fftw eigen protobuf abseil flatbuffers cuda/12.6 cudacore/.12.6.3 cusparselt cudnn/9.5 nccl/2.27 magma opencv cudss"
 else
 	# 11.7 and up is required for flash attention
 	MODULE_BUILD_DEPS="gcc cuda/11.7 openmpi magma nccl cudnn ffmpeg cmake flexiblas/3.0.4 eigen protobuf opencv fftw"
