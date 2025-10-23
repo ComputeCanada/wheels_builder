@@ -1,2 +1,4 @@
 MODULE_BUILD_DEPS='rust'
 PYTHON_DEPS='maturin'
+RPATH_TO_ADD='$EBROOTPYTHON/lib/'
+
