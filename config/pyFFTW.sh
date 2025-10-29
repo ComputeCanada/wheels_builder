@@ -1,5 +1,6 @@
-MODULE_BUILD_DEPS="gcc fftw cython/.0.29.36"
+MODULE_BUILD_DEPS="gcc fftw"
 PRE_BUILD_COMMANDS="
 	export PYFFTW_INCLUDE=$EBROOTFFTW/include
 	export PYFFTW_LIB_DIR=$EBROOTFFTW/lib
 "
+PYTHON_DEPS="setuptools>=80"
