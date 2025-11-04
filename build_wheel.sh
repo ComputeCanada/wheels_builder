@@ -145,8 +145,8 @@ else
 fi
 
 # define common cuda compute capabilities
-export TORCH_CUDA_ARCH_LIST="7.0;8.0;9.0;10.0+PTX" # for torch and others using it
-export CUDAARCHS="70;80;90;10" # for cmake, used to set CMAKE_CUDA_ARCHITECTURES
+export TORCH_CUDA_ARCH_LIST="7.0;8.0;9.0+PTX" # for torch and others using it
+export CUDAARCHS="70;80;90" # for cmake, used to set CMAKE_CUDA_ARCHITECTURES
 
 export CARGO_BUILD_JOBS=default
 
