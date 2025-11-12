@@ -1,0 +1,29 @@
+From b5ff86d3dc3e3034eda5c433a467fcb426bef70f Mon Sep 17 00:00:00 2001
+From: Brett <brettgraham@gmail.com>
+Date: Mon, 10 Nov 2025 16:03:24 -0500
+Subject: [PATCH] adjust version_commit parsing
+
+---
+ jwst/__init__.py | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/jwst/__init__.py b/jwst/__init__.py
+index 3def76da71..75ca1c5217 100644
+--- a/jwst/__init__.py
++++ b/jwst/__init__.py
+@@ -7,9 +7,9 @@
+ 
+ __version__ = version(__name__)
+ 
+-_regex_git_hash = re.compile(r".*\+g(\w+)")
+-__version_commit__ = ""
+-if "+" in __version__:
+-    commit = _regex_git_hash.match(__version__).groups()  # type: ignore[union-attr]
+-    if commit:
+-        __version_commit__ = commit[0]
++if _match := re.match(r".*\+g(\w+)", __version__):
++    __version_commit__ = _match.groups()[0]
++    # clean up namespace
++    del _match
++else:
++    __version_commit__ = ""
