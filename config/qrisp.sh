@@ -1,0 +1,2 @@
+MODULE_RUNTIME_DEPS='symengine/0.13.0'
+UPDATE_REQUIREMENTS='symengine==0.13.0'
