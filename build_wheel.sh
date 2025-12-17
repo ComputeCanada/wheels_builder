@@ -630,6 +630,10 @@ else
 		module load arch/${ARCH_TO_LOAD:-sse3}
 	else
 		module load arch/${ARCH_TO_LOAD:-avx2}
+		if [[ "$YEAR" == "2023" ]]; then
+			declare -A archdir=( ["avx2"]="x86-64-v3" ["avx512"]="x86-64-v4" )
+			module use $MODULEPATH_ROOT/$YEAR/${archdir[$EBVERSIONARCH]}/Compiler/gcccore-hidden
+		fi
 	fi
 	log_command module load gentoo/$YEAR gcc/$GCC_VERSION $MODULE_BUILD_DEPS_DEFAULT
 fi
