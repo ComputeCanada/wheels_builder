@@ -1,9 +1,0 @@
-diff --git a/pyproject.toml b/pyproject.toml
-index 837b586..15731e4 100644
---- a/pyproject.toml
-+++ b/pyproject.toml
-@@ -54,3 +54,4 @@ manylinux-x86_64-image = "manylinux_2_28"
- 
- [project.scripts]
- build_data = "alphafold3.build_data:build_data"
-+run_alphafold = "alphafold3.run_alphafold:main"

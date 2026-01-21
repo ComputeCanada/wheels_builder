@@ -9,8 +9,4 @@ PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/google-deepmind/alphafold3.git"
 PACKAGE_DOWNLOAD_CMD="git clone --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf $PACKAGE_DOWNLOAD_NAME $PACKAGE_FOLDER_NAME"
 PYTHON_VERSION='python/3.11 python/3.12'
-PATCHES="alphafold3-pyproject.patch"
-PRE_BUILD_COMMANDS="
-	sed -i -e 's/3.0.0/${VERSION}/' -e '/cmake/d' pyproject.toml;
-	mv -v run_alphafold.py src/alphafold3;
-"
+PRE_BUILD_COMMANDS="sed -i -e 's/3.0.0/${VERSION}/' pyproject.toml"
