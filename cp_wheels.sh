@@ -4,10 +4,10 @@ WHEELHOUSE_ROOT="/cvmfs/soft.computecanada.ca/custom/python/wheelhouse"
 
 function print_usage
 {
-	echo "Usage: $0 [--wheel <wheel_file>] [--arch generic|<rsnt_arch>] [--remove] [--dry-run]"
+	echo "Usage: $0 [--wheel <wheel_file>] [--arch generic|<rsnt_arch>] [--remove] [--dry-run] [--force]"
 }
 
-TEMP=$(getopt -o h --longoptions help,remove,dry-run,arch:,wheel: --name $0 -- "$@")
+TEMP=$(getopt -o h --longoptions help,remove,dry-run,force,arch:,wheel: --name $0 -- "$@")
 if [ $? != 0 ] ; then print_usage; exit 1 ; fi
 eval set -- "$TEMP"
 
@@ -15,6 +15,7 @@ ARG_WHEEL=""
 ARC_ARCH=""
 ARG_REMOVE=""
 ARG_DRY_RUN=""
+ARG_FORCE=""
 while true; do
 	case "$1" in
 		--wheel)
@@ -25,6 +26,8 @@ while true; do
 			ARG_REMOVE=1; shift 1;;
 		--dry-run)
 			ARG_DRY_RUN=1; shift 1;;
+		--force)
+			ARG_FORCE=1; shift 1;;
 		-h|--help)
 			print_usage; exit 0 ;;
 		--)
@@ -93,16 +96,22 @@ function cp_wheel {
 	if [[ "$ARG_DRY_RUN" == "" ]]; then
 		chmod ug+rw,o+r $1
 	fi
+
+	CP_FLAGS="-vn"  # verbose + no clobber (default behavior)
+	if [[ "$ARG_FORCE" == "1" ]]; then
+		CP_FLAGS="-v" # allow overwrite
+	fi
+
 	if [[ "$COMPAT" == "generic" ]]; then
-		echo cp $1 $WHEELHOUSE_ROOT/generic
+		echo cp $CP_FLAGS $1 $WHEELHOUSE_ROOT/generic
 		if [[ "$ARG_DRY_RUN" == "" ]]; then
-			cp $1 $WHEELHOUSE_ROOT/generic
+			cp $CP_FLAGS $1 $WHEELHOUSE_ROOT/generic
 			RESULT=$?
 		fi
 	elif [[ "$COMPAT" == "gentoo" || "$COMPAT" == "nix" || "$COMPAT" == "gentoo2020" || "$COMPAT" == "gentoo2023" ]]; then
-		echo cp $1 $WHEELHOUSE_ROOT/$COMPAT/$ARCHITECTURE
+		echo cp $CP_FLAGS $1 $WHEELHOUSE_ROOT/$COMPAT/$ARCHITECTURE
 		if [[ "$ARG_DRY_RUN" == "" ]]; then
-			cp $1 $WHEELHOUSE_ROOT/$COMPAT/$ARCHITECTURE
+			cp $CP_FLAGS $1 $WHEELHOUSE_ROOT/$COMPAT/$ARCHITECTURE
 			RESULT=$?
 		fi
 	fi
