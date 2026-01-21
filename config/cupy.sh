@@ -1,5 +1,5 @@
 PYTHON_DEPS="fastrlock"
-MODULE_BUILD_DEPS="cuda/12.2 cudn/8.9 nccl cutensor"
+MODULE_BUILD_DEPS="cuda/12.9 cudnn nccl cutensor"
 
 # required at runtime, see https://docs.cupy.dev/en/latest/install.html#cupy-always-raises-nvrtc-error-compilation-6
 MODULE_RUNTIME_DEPS='cuda/12'
@@ -16,9 +16,12 @@ PRE_BUILD_COMMANDS='
     export CUPY_NUM_BUILD_JOBS=${SLURM_CPUS_PER_TASK:-1};
     export CUPY_NUM_NVCC_THREADS=$((${SLURM_CPUS_PER_TASK:-2}/2));
 
-    for arch in 80 90; do
+    last_arch="";
+    for arch in 80 90 100; do
     	export CUPY_NVCC_GENERATE_CODE="${CUPY_NVCC_GENERATE_CODE}arch=compute_${arch},code=sm_${arch};";
+        last_arch="$arch";
     done;
+    export CUPY_NVCC_GENERATE_CODE="${CUPY_NVCC_GENERATE_CODE}arch=compute_${last_arch},code=compute_${last_arch};";
 '
 
 # Since v13, CUPY soft links to libnvrtc.so.12, which fails to load on the systems.
