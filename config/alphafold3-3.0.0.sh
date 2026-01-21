@@ -12,5 +12,6 @@ PYTHON_VERSION='python/3.11 python/3.12'
 PATCHES="alphafold3-pyproject.patch"
 PRE_BUILD_COMMANDS="
 	sed -i -e 's/3.0.0/${VERSION}/' -e '/cmake/d' pyproject.toml;
+	wget https://raw.githubusercontent.com/google-deepmind/alphafold3/23e3d46d4ca126e8731e8c0cbb5673e9a848ceb5/run_alphafold.py -O run_alphafold.py;
 	mv -v run_alphafold.py src/alphafold3;
 "
