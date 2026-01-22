@@ -97,7 +97,8 @@ else
 		if [[ "${EBVERSIONGENTOO:-2017}" != "2023" ]]; then
 			module load pip/.23.0.1
 		fi
-		WHEEL_NAME=$(PYTHONPATH= pip download --no-deps $PACKAGE_DOWNLOAD_ARGUMENT  |& tee download.log | grep "Saved " | awk '{print $2}')
+		# Do not download from our own wheelhouse, ie our own tagged +computecanada wheels, only from PyPI
+		WHEEL_NAME=$(PIP_CONFIG_FILE= PYTHONPATH= pip download --disable-pip-version-check --no-deps $PACKAGE_DOWNLOAD_ARGUMENT  |& tee download.log | grep "Saved " | awk '{print $2}')
 		if [[ $WHEEL_NAME =~ .*-py3-.* || $WHEEL_NAME =~ .*py2.py3.* ]]; then
 			echo "Wheel $WHEEL_NAME is compatible with all further versions of python. Breaking"
 			break
@@ -115,7 +116,10 @@ fi
 for ARCHNAME in *.whl; do
 	eval $setrpaths_cmd
 	eval "$PATCH_WHEEL_COMMANDS"
-	mv $ARCHNAME ${ARCHNAME//$(echo $ARCHNAME | grep -Po 'manylinux.*x86_64')/linux_x86_64}
+	# rename only manylinux wheels, avoid renaming others
+	if [[ "$ARCHNAME" == *manylinux* ]]; then
+		mv $ARCHNAME ${ARCHNAME//$(echo $ARCHNAME | grep -Po 'manylinux.*x86_64')/linux_x86_64}
+	fi
 done
 for ARCHNAME in *.whl; do
 	$SCRIPT_DIR/manipulate_wheels.py --insert_local_version --wheels $ARCHNAME --inplace && rm $ARCHNAME
