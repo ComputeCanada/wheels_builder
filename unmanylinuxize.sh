@@ -106,7 +106,7 @@ else
 	done
 fi
 
-setrpaths_cmd="setrpaths.sh --path \$ARCHNAME"
+setrpaths_cmd="setrpaths --path \$ARCHNAME"
 if [[ ! -z "$ARG_ADD_PATH" ]]; then
 	setrpaths_cmd="${setrpaths_cmd} --add_path ${ARG_ADD_PATH} --any_interpreter"
 fi
