@@ -224,12 +224,7 @@ function test_import {
 		# add a version of all in upper cases
 		NAMES_TO_TEST="$NAMES_TO_TEST ${NAMES_TO_TEST^^}"
 		# remove duplicates
-		for TEST_NAME in $NAMES_TO_TEST; do
-			if [[ ! $NAMES_TO_TEST2 =~ [[:space:]]$TEST_NAME[[:space:]] ]]; then
-				NAMES_TO_TEST2=" $NAMES_TO_TEST2 $TEST_NAME "
-			fi
-		done
-		NAMES_TO_TEST=$NAMES_TO_TEST2
+		NAMES_TO_TEST=$(printf "%s\n" $NAMES_TO_TEST | awk '!seen[$0]++' | tr '\n' ' ')
 		echo "Testing imports with the following names $NAMES_TO_TEST"
 		if [[ $RET -ne 0 ]]; then
 			RET=1
