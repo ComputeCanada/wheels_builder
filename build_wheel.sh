@@ -129,7 +129,7 @@ PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary \$PACKAGE --no-use-
 # not all project are pep621 compliant, remove the license when it is not, else do nothing
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py; sed -i -e "/^\s*license\s*=\s*\"[^\"]*\"\s*$/d" pyproject.toml'
 
-PYTHON_DEPS_DEFAULT="setuptools>70 trove-classifiers>=2025.8.6.13 pip>=25.0,<25.3"
+PYTHON_DEPS_DEFAULT="setuptools>70 pip>=25.0,<25.3"
 MODULE_BUILD_DEPS_DEFAULT="$NUMPY_MODULE python-build-bundle pytest cython/$CYTHON_VERSION rust"
 CARGO_BUILD_JOBS=default
 
