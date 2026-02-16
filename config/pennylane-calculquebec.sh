@@ -1,3 +1,3 @@
 MODULE_RUNTIME_DEPS='julia'
 PRE_TEST_COMMANDS='export IS_USER_CONFIGURED=True'
-PYTHON_DEPS='pennylane<0.40'
+PYTHON_DEPS='pennylane'
