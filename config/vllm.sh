@@ -5,16 +5,17 @@ PACKAGE_DOWNLOAD_METHOD="Git"
 PACKAGE_DOWNLOAD_CMD="git clone --jobs 16 --depth 1 --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 
-MODULE_RUNTIME_DEPS='arrow'
-MODULE_BUILD_DEPS='cuda protobuf abseil nccl/2.26'
+MODULE_RUNTIME_DEPS='arrow opencv'
+MODULE_BUILD_DEPS='cuda/12.9 protobuf abseil nccl'
 PYTHON_DEPS="torch${TORCH_VERSION:+==$TORCH_VERSION}"
 # nvcc uses os.cpu_count() hardcoded threads which returns 16
 PRE_BUILD_COMMANDS='
 	export SETUPTOOLS_SCM_PRETEND_VERSION=${VERSION:?version required};
-	export TORCH_CUDA_ARCH_LIST="7.0;8.0;9.0";
+	export TORCH_CUDA_ARCH_LIST="7.0;8.0;9.0;10.0+PTX";
 	export USE_SCCACHE=1;
-	export MAX_JOBS=2;
-	export NVCC_THREADS=2;
+	export MAX_JOBS=12;
+	export NVCC_THREADS=1;
+    export VLLM_MAIN_CUDA_VERSION=$EBVERSIONCUDA;
 	sed -i -e "0,/MAIN_CUDA_VERSION/{s/MAIN_CUDA_VERSION.*/MAIN_CUDA_VERSION=\"$EBVERSIONCUDA\"/}" setup.py;
 	sed -i -e "s/cupy-cuda12x/cupy/" -e "/vllm-nccl-.*/d" -e "/^cmake/d" -e "$ a triton" requirements*.txt;
 	rm -f requirements-build.txt;
