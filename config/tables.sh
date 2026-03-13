@@ -2,6 +2,7 @@ MODULE_BUILD_DEPS="hdf5 blosc2"
 # PYTHON_DEPS="h5py numexpr six nose mock packaging"
 PYTHON_TESTS="tables.test()"
 
+PATCHES="tables-3.11-fix_blosc2.patch"
 # Tables assumes blosc2 wheel provides libblosc2, but it does not in our case.
 # It also expects the lib to be under `tables/libblosc2.so`, but it does not.
 # Instead of relying on the find_library mechanism, make it already found (it is in the rpath).
@@ -10,7 +11,6 @@ PRE_BUILD_COMMANDS='
 	rm -r c-blosc/{blosc,internal-complibs};
 	sed -i "s@/usr/local@$EBROOTGENTOO@" setup.py;
     sed -i -e "s/blosc2_found = False/blosc2_found = True/" tables/__init__.py;
-    sed -i "/# \"default\"/{n; s|\"\"|\"$EBROOTBLOSC2/lib\"|}" tables/__init__.py;
     export CPATH=$EBROOTGENTOO/include:$CPATH;
     export BLOSC2_DIR=$EBROOTBLOSC2;
     export PYTABLES_NO_BLOSC2_WHEEL=1;
