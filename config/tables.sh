@@ -10,6 +10,7 @@ PRE_BUILD_COMMANDS='
 	rm -r c-blosc/{blosc,internal-complibs};
 	sed -i "s@/usr/local@$EBROOTGENTOO@" setup.py;
     sed -i -e "s/blosc2_found = False/blosc2_found = True/" tables/__init__.py;
+    sed -i "/# \"default\"/{n; s|\"\"|\"$EBROOTBLOSC2/lib\"|}" tables/__init__.py;
     export CPATH=$EBROOTGENTOO/include:$CPATH;
     export BLOSC2_DIR=$EBROOTBLOSC2;
     export PYTABLES_NO_BLOSC2_WHEEL=1;
