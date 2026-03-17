@@ -99,7 +99,7 @@ else
 		fi
 		# Do not download from our own wheelhouse, ie our own tagged +computecanada wheels, only from PyPI
 		WHEEL_NAME=$(PIP_CONFIG_FILE= PYTHONPATH= pip download --disable-pip-version-check --no-deps $PACKAGE_DOWNLOAD_ARGUMENT  |& tee download.log | grep "Saved " | awk '{print $2}')
-		if [[ $WHEEL_NAME =~ .*-py3-.* || $WHEEL_NAME =~ .*py2.py3.* ]]; then
+		if [[ $WHEEL_NAME =~ .*-py3-.* || $WHEEL_NAME =~ .*py2.py3.* || $WHEEL_NAME =~ .*abi3.* ]]; then
 			echo "Wheel $WHEEL_NAME is compatible with all further versions of python. Breaking"
 			break
 		fi
