@@ -1,0 +1,6 @@
+MODULE_BUILD_DEPS='cuda/12.9'
+PRE_BUILD_COMMANDS='
+    export MAX_JOBS=${SLURM_CPUS_PER_TASK:-1};
+    export NO_VERSION_LABEL=ON;
+    export USE_CUDA=ON;
+'
