@@ -11,15 +11,20 @@ PYTHON_DEPS="torch${TORCH_VERSION:+==$TORCH_VERSION}"
 # nvcc uses os.cpu_count() hardcoded threads which returns 16
 PRE_BUILD_COMMANDS='
 	export SETUPTOOLS_SCM_PRETEND_VERSION=${VERSION:?version required};
-	export TORCH_CUDA_ARCH_LIST="7.0;8.0;9.0;10.0+PTX";
+	export TORCH_CUDA_ARCH_LIST="8.0;9.0;10.0+PTX";
 	export USE_SCCACHE=1;
 	export MAX_JOBS=12;
 	export NVCC_THREADS=1;
     export VLLM_MAIN_CUDA_VERSION=$EBVERSIONCUDA;
+    export CMAKE_BUILD_TYPE=Release;
 	sed -i -e "0,/MAIN_CUDA_VERSION/{s/MAIN_CUDA_VERSION.*/MAIN_CUDA_VERSION=\"$EBVERSIONCUDA\"/}" setup.py;
 	sed -i -e "s/cupy-cuda12x/cupy/" -e "/vllm-nccl-.*/d" -e "/^cmake/d" -e "$ a triton" requirements*.txt;
 	rm -f requirements-build.txt;
 	sed -i -e "/license/d" pyproject.toml;
 '
-POST_BUILD_COMMANDS='wheel tags --remove --abi-tag=abi3 --python-tag=cp38 --platform-tag=linux_x86_64 $WHEEL_NAME && WHEEL_NAME=$(ls *.whl)'
+POST_BUILD_COMMANDS='
+        wheel tags --remove --abi-tag=abi3 --python-tag=cp38 --platform-tag=linux_x86_64 $WHEEL_NAME && WHEEL_NAME=$(ls *.whl);
+        zip -d $WHEEL_NAME "vllm/third_party/deep_gemm"
+'
 PYTHON_TESTS='from vllm._C import *'
+
