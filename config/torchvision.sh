@@ -7,7 +7,7 @@ fi
 PACKAGE_DOWNLOAD_ARGUMENT="git+https://github.com/pytorch/vision.git@v${VERSION:?version required}"
 PRE_BUILD_COMMANDS="
 	export BUILD_VERSION=$VERSION;
-	export TORCH_CUDA_ARCH_LIST='7.0;8.0;9.0;10.0+PTX';
+	export TORCH_CUDA_ARCH_LIST='8.0;9.0;10.0+PTX';
 	export FORCE_CUDA=1;
 	export MAX_JOBS=${SLURM_CPUS_PER_TASK:-1};
 	export PYTORCH_VERSION=\$(python -c 'import torch; print(torch.__version__)');

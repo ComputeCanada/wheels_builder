@@ -5,7 +5,7 @@ else
 	MODULE_BUILD_DEPS="gcc/9.3.0 cuda/11.7 metis-64idx/5.1.0" # Must use 64 bits index module
 fi
 PRE_BUILD_COMMANDS="
-	export TORCH_CUDA_ARCH_LIST='7.0;8.0;9.0;10.0+PTX';
+	export TORCH_CUDA_ARCH_LIST='8.0;9.0;10.0+PTX';
 	export FORCE_CUDA=1;
 	export WITH_METIS=1;
 	sed -i -E \"s#'scipy',#'scipy','torch'#\" setup.py;
