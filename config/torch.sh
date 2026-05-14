@@ -1,7 +1,7 @@
 PYTHON_DEPS="ninja pyyaml astunparse typing-extensions requests six"
 
 if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
-	MODULE_BUILD_DEPS="gcc/13 openmpi flexiblas cmake fftw eigen protobuf abseil flatbuffers cuda/12.6 cudacore/.12.6.3 cusparselt cudnn/9.5 nccl/2.27 magma opencv cudss"
+	MODULE_BUILD_DEPS="gcc openmpi flexiblas cmake fftw eigen protobuf abseil flatbuffers cuda/12.9 cusparselt cudnn nccl magma opencv cudss sleef xnnpack"
 else
 	# 11.7 and up is required for flash attention
 	MODULE_BUILD_DEPS="gcc cuda/11.7 openmpi magma nccl cudnn ffmpeg cmake flexiblas/3.0.4 eigen protobuf opencv fftw"
@@ -9,7 +9,7 @@ fi
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/pytorch/pytorch.git"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PACKAGE_DOWNLOAD_METHOD="Git"
-PACKAGE_DOWNLOAD_CMD="git clone --jobs 16 --depth 1 --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
+PACKAGE_DOWNLOAD_CMD="git clone --jobs 16 --depth 1 --shallow-submodules --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 PRE_BUILD_COMMANDS='
 	export PYTORCH_BUILD_VERSION=$VERSION;
@@ -24,7 +24,7 @@ PRE_BUILD_COMMANDS='
 	export DEBUG=OFF;
 	export BUILD_TEST=OFF;
 	export INSTALL_TEST=OFF;
-	export TORCH_CUDA_ARCH_LIST="7.0;8.0;9.0";
+	export TORCH_CUDA_ARCH_LIST="8.0;9.0;10.0+PTX";
 	export NO_CUDA=OFF;
 	export MAGMA_HOME=$EBROOTMAGMA;
 
@@ -47,6 +47,8 @@ PRE_BUILD_COMMANDS='
 	export USE_FFMPEG=ON;
 	export USE_ZSTD=ON;
 	export USE_IBVERBS=ON;
+    export USE_GLOO_IBVERBS=ON;
+    export GLOO_USE_IBVERBS=ON;
 	export USE_MPI=ON;
 
 	export BLAS=FlexiBLAS;
@@ -59,8 +61,12 @@ PRE_BUILD_COMMANDS='
 	export USE_MEM_EFF_ATTENTION=ON;
 
 	export USE_CUSPARSELT=ON;
+    export USE_SYSTEM_SLEEF=ON;
+    export USE_SYSTEM_XNNPACK=ON;
 
-	export CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=ON"
+	export CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=ON";
+
+	sed -i "/#include <c10\/util\/env.h>/a #include <torch/csrc/distributed/c10d/Utils.hpp>"  torch/csrc/distributed/c10d/GlooDeviceFactory.cpp;
 '
 
 	# export USE_TENSORRT=ON;
