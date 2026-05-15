@@ -1,8 +1,8 @@
 PYTHON_DEPS="fastrlock"
-MODULE_BUILD_DEPS="cuda/12.9 cudnn nccl cutensor"
+MODULE_BUILD_DEPS="cuda/13.2 cudnn nccl cutensor cusparselt"
 
 # required at runtime, see https://docs.cupy.dev/en/latest/install.html#cupy-always-raises-nvrtc-error-compilation-6
-MODULE_RUNTIME_DEPS='cuda/12'
+MODULE_RUNTIME_DEPS='cuda/13'
 
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/cupy/cupy.git"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
@@ -28,6 +28,6 @@ PRE_BUILD_COMMANDS='
 # Patch the wheel to need libnvrtc.so.12 explicitly...
 POST_BUILD_COMMANDS='
     unzip $WHEEL_NAME cupy_backends/cuda/_softlink$(python3-config --extension-suffix) &&
-    patchelf --add-needed libnvrtc.so.12 cupy_backends/cuda/_softlink$(python3-config --extension-suffix) &&
+    patchelf --add-needed libnvrtc.so.13 cupy_backends/cuda/_softlink$(python3-config --extension-suffix) &&
     zip $WHEEL_NAME cupy_backends/cuda/_softlink$(python3-config --extension-suffix);
 '
