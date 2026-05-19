@@ -1,6 +1,6 @@
 PYTHON_DEPS="pillow-simd torch${TORCH_VERSION:+==$TORCH_VERSION} setuptools~=80.0.0"
 if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
-	MODULE_BUILD_DEPS="gcc cuda/12.9 cmake"
+	MODULE_BUILD_DEPS="gcc cuda/13.2 cmake"
 else
 	MODULE_BUILD_DEPS="gcc/9.3.0 cuda/11.7 cmake"
 fi
