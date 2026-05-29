@@ -1,0 +1,21 @@
+From 1d79decc9145ee2624f36ae173dccf7d10c216c3 Mon Sep 17 00:00:00 2001
+From: Charles Coulombe <ccoulombe@users.noreply.github.com>
+Date: Fri, 29 May 2026 10:06:20 -0400
+Subject: [PATCH] Fix version info parsing to handle local version/tags
+
+---
+ src/pympo/__version__.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/pympo/__version__.py b/src/pympo/__version__.py
+index 479951b..fc39c6f 100644
+--- a/src/pympo/__version__.py
++++ b/src/pympo/__version__.py
+@@ -2,4 +2,6 @@
+ 
+ _DISTRIBUTION_METADATA = importlib.metadata.metadata("pympo")
+ __version__ = _DISTRIBUTION_METADATA["Version"]
+-__version_info__ = tuple(map(int, __version__.split(".")))
++__version_info__ = tuple(
++    map(int, __version__.partition("+")[0].split("."))
++)
