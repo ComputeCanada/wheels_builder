@@ -1,4 +1,4 @@
-MODULE_BUILD_DEPS='cuda/12.9'
+MODULE_BUILD_DEPS='cuda/13.2'
 PACKAGE_DOWNLOAD_ARGUMENT="git+https://github.com/NVIDIA/cutile-python.git@v${VERSION:?version required}"
 PRE_BUILD_COMMANDS="
 	sed -i '/-DCMAKE_BUILD_TYPE=/a\\                     f\"-DCUDAToolkit_ROOT=${CUDA_HOME}\",' setup.py;
