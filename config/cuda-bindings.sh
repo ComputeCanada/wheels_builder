@@ -4,7 +4,8 @@ PACKAGE_DOWNLOAD_METHOD="Git"
 PACKAGE_DOWNLOAD_CMD="git clone --jobs 16 --depth 1 --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 PYTHON_DEPS="pyclibrary>=0.1.7"
-MODULE_BUILD_DEPS='cuda/12.9'
+MODULE_BUILD_DEPS="cuda/${VERSION%.*}" # 12.9.6 -> 12.9
 PRE_BUILD_COMMANDS="
+    export SETUPTOOLS_SCM_PRETEND_VERSION=${VERSION:?version required};
     cd cuda_bindings;
 "
