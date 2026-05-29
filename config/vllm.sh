@@ -6,7 +6,7 @@ PACKAGE_DOWNLOAD_CMD="git clone --jobs 16 --depth 1 --recursive $PACKAGE_DOWNLOA
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 
 MODULE_RUNTIME_DEPS='arrow opencv'
-MODULE_BUILD_DEPS='cuda/12.9 protobuf abseil nccl'
+MODULE_BUILD_DEPS='cuda/13.2 protobuf abseil nccl'
 PYTHON_DEPS="torch${TORCH_VERSION:+==$TORCH_VERSION}"
 # nvcc uses os.cpu_count() hardcoded threads which returns 16
 PRE_BUILD_COMMANDS='
