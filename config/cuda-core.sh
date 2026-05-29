@@ -4,8 +4,9 @@ PACKAGE_DOWNLOAD_METHOD="Git"
 PACKAGE_DOWNLOAD_CMD="git clone --jobs 16 --depth 1 --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch cuda-core-v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 PYTHON_DEPS="cuda-bindings"
-MODULE_BUILD_DEPS='cuda/12.9'
+MODULE_BUILD_DEPS='cuda/13.2'
 PRE_BUILD_COMMANDS="
     cd cuda_core;
     export SETUPTOOLS_SCM_PRETEND_VERSION=$VERSION;
 "
+PATCHES="cuda-core-fix-versionparsing.patch"
