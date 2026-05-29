@@ -1,4 +1,4 @@
-PYTHON_DEPS="torch"
+PYTHON_DEPS="torch apache-tvm-ffi"
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/mlc-ai/xgrammar.git"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PACKAGE_DOWNLOAD_METHOD="Git"
