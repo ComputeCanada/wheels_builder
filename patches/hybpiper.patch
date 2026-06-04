@@ -1,0 +1,15 @@
+Patch to fix the Biopython version check when encountering our local version.
+stuekero, 2026-06-03
+
+diff -ru HybPiper-2.3.4.orig/hybpiper/hybpiper_main.py HybPiper-2.3.4/hybpiper/hybpiper_main.py
+--- HybPiper-2.3.4.orig/hybpiper/hybpiper_main.py	2026-01-09 00:45:57.000000000 -0330
++++ HybPiper-2.3.4/hybpiper/hybpiper_main.py	2026-06-03 17:41:28.781960509 -0230
+@@ -100,7 +100,7 @@
+ 
+ # Check that user has the minimum required version of Biopython (1.80):
+ biopython_version_print = importlib.metadata.version('biopython')
+-biopython_version = [int(value) for value in re.split('[.]', biopython_version_print)[:2]]
++biopython_version = [int(value) for value in re.split('[.+]', biopython_version_print)[:2]]
+ if biopython_version[0:2] < [1, 80]:
+     sys.exit(f'HybPiper requires Biopython version 1.80 or above. You are using version {biopython_version_print}. '
+              f'Please update your Biopython for the Python installation used to run HybPiper!')
