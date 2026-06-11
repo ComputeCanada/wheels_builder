@@ -11,9 +11,16 @@ PRE_BUILD_COMMANDS='
     cmake -G Ninja  -B _build_cpu -S . -DCOMPUTE_BACKEND=cpu -DCMAKE_BUILD_TYPE=Release;
     cmake --build _build_cpu --parallel ${SLURM_CPUS_PER_TASK:-4} --config Release;
 
-    for cudaver in 12.2 12.6 12.9; do
+    for cudaver in 12.2 12.6 12.9 13.2; do
         module load cuda/$cudaver &&
-        compute_caps=$(awk -v v="$cudaver" "BEGIN{print (v>=12.9?\"70;80;90;100\":\"70;80;90\")}");
+        compute_caps=$(awk -v v="$cudaver" '\''BEGIN{
+            if (v >= 13.0)
+                print "80;90;100";
+            else if (v >= 12.9)
+                print "70;80;90;100";
+            else
+                print "70;80;90";
+        }'\'');
         cmake -G Ninja -B _build-$EBVERSIONCUDACORE -S . -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY="$compute_caps" -DCMAKE_BUILD_TYPE=Release;
         cmake --build _build-$EBVERSIONCUDACORE --parallel ${SLURM_CPUS_PER_TASK:-4} --config Release;
     done
