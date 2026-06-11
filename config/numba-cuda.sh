@@ -4,4 +4,4 @@ PACKAGE_DOWNLOAD_METHOD="Git"
 PACKAGE_DOWNLOAD_CMD="git clone --jobs 16 --depth 1 --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
 PYTHON_DEPS="cuda-bindings cuda-core"
-MODULE_BUILD_DEPS='cuda/12.9'
+MODULE_BUILD_DEPS='cuda/13.2'
