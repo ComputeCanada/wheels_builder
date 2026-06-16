@@ -118,6 +118,9 @@ def main():
         return
 
     for w in args.wheels:
+        if not w.endswith('.whl'):
+            print(f'Skipping {w} since not a wheel')
+            continue
         wf_basename = os.path.basename(w)
         wf_dirname = os.path.dirname(w)
         if args.print_req:
