@@ -1,5 +1,5 @@
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/Qiskit/qiskit-aer/archive/refs/tags/${VERSION:?version required}.tar.gz"
-MODULE_BUILD_DEPS='flexiblas openmpi spdlog muparserx cuda/12.9 cuquantum cutensor'
+MODULE_BUILD_DEPS='flexiblas openmpi spdlog muparserx cuda/12.9 cuquantum cutensor nlohmann_json/3.10.2'
 MODULE_RUNTIME_DEPS="openmpi symengine"
 PRE_BUILD_COMMANDS='
     rm -f pyproject.toml;
