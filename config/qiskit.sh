@@ -1,4 +1,4 @@
 MODULE_BUILD_DEPS='rust'
 MODULE_RUNTIME_DEPS="symengine"
-PYTHON_DEPS='maturin'
+PYTHON_DEPS='maturin setuptools_rust>=1.13.0'
 PRE_DOWNLOAD_COMMANDS='export CARGO_BUILD_JOBS=${SLURM_CPUS_PER_TASK:-1}'
