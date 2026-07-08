@@ -1,0 +1,2 @@
+MODULE_BUILD_DEPS='java ant'
+PYTHON_IMPORT_NAME='jpype'
