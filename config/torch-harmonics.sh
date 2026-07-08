@@ -1,0 +1,8 @@
+MODULE_BUILD_DEPS='cuda/13'
+PACKAGE_DOWNLOAD_ARGUMENT="git+https://github.com/NVIDIA/torch-harmonics.git@v${VERSION:?version required}"
+PRE_BUILD_COMMANDS='
+	export FORCE_CUDA_EXTENSION=1;
+	export TORCH_CUDA_ARCH_LIST="8.0;9.0;10.0+PTX";
+	export SETUPTOOLS_SCM_PRETEND_VERSION=${VERSION:?version required};
+'
+PYTHON_DEPS="torch${TORCH_VERSION:+==$TORCH_VERSION}"
