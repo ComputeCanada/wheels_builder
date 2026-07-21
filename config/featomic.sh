@@ -1,0 +1,5 @@
+PYTHON_DEPS='metatensor'
+PRE_BUILD_COMMANDS='
+    export CARGO_BUILD_JOBS=${SLURM_CPUS_PER_TASK:-1};
+'
+
