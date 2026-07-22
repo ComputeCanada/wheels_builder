@@ -1,20 +1,13 @@
-diff -ur a/jaxtyping/__init__.py b/jaxtyping/__init__.py
---- a/jaxtyping/__init__.py	2025-08-11 15:53:18.371605552 +0000
-+++ b/jaxtyping/__init__.py	2025-08-11 15:54:31.954404381 +0000
-@@ -22,6 +22,7 @@
- import typing
- import warnings
- from typing import TypeAlias, Union
-+import re
- 
- from ._array_types import (
-     AbstractArray as AbstractArray,
-@@ -225,7 +226,7 @@
+diff --git a/jaxtyping/__init__.py b/jaxtyping/__init__.py
+index 991f1b1..3abc6c5 100644
+--- a/jaxtyping/__init__.py
++++ b/jaxtyping/__init__.py
+@@ -220,7 +220,7 @@ if check_equinox_version:
      except importlib.metadata.PackageNotFoundError:
          pass
      else:
 -        major, minor, patch = eqx_version.split(".")
-+        major, minor, patch = re.split(r'[.+]', eqx_version)[:3]
++        major, minor, patch = eqx_version.partition("+")[0].split(".")
          equinox_version = (int(major), int(minor), int(patch))
          if equinox_version < (0, 11, 0):
              warnings.warn(
