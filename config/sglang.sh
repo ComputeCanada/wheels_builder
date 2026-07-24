@@ -5,7 +5,7 @@ PRE_BUILD_COMMANDS='
 	cd python;
 	export CARGO_BUILD_JOBS=${SLURM_CPUS_PER_TASK:-1};
 	export PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1;
-	sed -i -e "s/sglang-kernel==/sglang-kernel~=/" -e "s/nvidia-cutlass-dsl\[cu13\]/nvidia-cutlass-dsl/" -e "s/flashinfer_python\[cu13\]/flashinfer_python/" pyproject.toml
+	sed -i -e "s/nvidia-cutlass-dsl\[cu13\]/nvidia-cutlass-dsl/" -e "s/flashinfer_python\[cu13\]/flashinfer_python/" pyproject.toml
 '
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/sgl-project/sglang.git"
 PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
