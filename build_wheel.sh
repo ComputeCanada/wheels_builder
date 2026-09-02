@@ -540,11 +540,6 @@ function adjust_numpy_requirements_based_on_link_info()
 				return
 			fi
 			echo "Found $num_links shared objects that mention a specific version of API of numpy. Pinning the minimum required version of numpy to $numpy_build_version"
-			if [[ $(grep -ic $PACKAGE $SCRIPT_DIR/packages_w_numpy_api.txt) -eq 0 ]]; then
-				echo "Recording '$PACKAGE' in 'packages_w_numpy_api.txt'."
-				echo "$PACKAGE" >> $SCRIPT_DIR/packages_w_numpy_api.txt
-				echo -e "${COL_YEL}Please commit the file 'packages_w_numpy_api.txt'.${COL_RST}"
-			fi
 			log_command $SCRIPT_DIR/manipulate_wheels.py --print_req --wheels $TMP_WHEELHOUSE/$WHEEL_NAME
 			if [[ $numpy_build_version =~ ^1.* ]]; then
 				echo "Built with numpy 1.x; pinning numpy lower than 2.0"
