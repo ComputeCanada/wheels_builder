@@ -139,12 +139,12 @@ for fname in $(find . -type f); do
 		else
 			COMPATIBILITY_LAYER="gentoo"
 		fi
-	elif [[ $WORKS_ON_GENTOO2026 -eq 1 ]]; then
-		COMPATIBILITY_LAYER="gentoo2026"
-	elif [[ $WORKS_ON_GENTOO2023 -eq 1 ]]; then
-		COMPATIBILITY_LAYER="gentoo2023"
 	elif [[ $WORKS_ON_GENTOO2020 -eq 1 ]]; then
 		COMPATIBILITY_LAYER="gentoo2020"
+	elif [[ $WORKS_ON_GENTOO2023 -eq 1 ]]; then
+		COMPATIBILITY_LAYER="gentoo2023"
+	elif [[ $WORKS_ON_GENTOO2026 -eq 1 ]]; then
+		COMPATIBILITY_LAYER="gentoo2026"
 	elif [[ $WORKS_ON_NIX -eq 1 ]]; then
 		COMPATIBILITY_LAYER="nix"
 	else
