@@ -5,6 +5,8 @@ SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$THIS_SCRIPT")")
 EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[5678]"
 if [[ "${EBVERSIONGENTOO:-2017}" == "2023" ]]; then
 	EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[56789]\|3.10"
+elif [[ "${EBVERSIONGENTOO:-2017}" == "2026" ]]; then
+	EXCLUDE_PYTHON_VERSIONS="/2\.\|/3\.[5-9]\.\|/3\.1[0-3]\."
 fi
 
 function ls_pythons()
@@ -94,7 +96,7 @@ if [[ ! -z "$ARG_URL" ]]; then
 else
 	for pv in $(echo ${ARG_PYTHON_VERSIONS-$(ls_pythons)} | tr ',' ' '); do
 		module load python/$pv
-		if [[ "${EBVERSIONGENTOO:-2017}" != "2023" ]]; then
+		if [[ "${EBVERSIONGENTOO:-2017}" -lt 2023 ]]; then
 			module load pip/.23.0.1
 		fi
 		# Do not download from our own wheelhouse, ie our own tagged +computecanada wheels, only from PyPI
