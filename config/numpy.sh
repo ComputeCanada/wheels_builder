@@ -6,7 +6,7 @@ fi
 MODULE_BUILD_DEPS="arch/$GENERIC_ARCH flexiblas"
 
 # From 1.26, strictly use meson.
-PYTHON_DEPS="pytest hypothesis meson-python setuptools pytest-timeout"
+PYTHON_DEPS="pytest hypothesis==6.155.7 meson-python setuptools pytest-timeout"
 PIP_WHEEL_ARGS='
     -Csetup-args=-Dblas=flexiblas
     -Csetup-args=-Dlapack=flexiblas
@@ -24,4 +24,4 @@ elif [[ $EBVERSIONGENTOO == 2023 ]]; then
 fi
 PRE_TEST_COMMANDS='ulimit -s 8192'
 # test_xerbla_override spinlock under StdEnv/2026. `np.linalg.lapack_lite` is now deprecated.
-PYTHON_TESTS="numpy.__config__.show(); numpy.test(extra_argv=['--timeout=30', '--timeout-method=signal', '-k', 'not test_xerbla_override'])"
+PYTHON_TESTS="numpy.__config__.show(); numpy.test(extra_argv=['--timeout=30', '--timeout-method=signal'])"
