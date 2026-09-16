@@ -92,12 +92,7 @@ function cp_wheel {
 		echo "Please specify <rsnt_arch> as generic|sse3|avx|avx2|avx512"
 		exit
 	fi
-	if [[ "$EBVERSIONGENTOO" == "2023" && ! "$ARCHITECTURE" =~ ^(generic|x86-64-v3|x86-64-v4)$ ]]; then
-		echo "The choice of --arch $ARCHITECTURE is not valid for this StdEnv."
-		echo "Please specify <rsnt_arch> as generic|x86-64-v3|x86-64-v4"
-		exit
-	fi
-	if [[ "$EBVERSIONGENTOO" == "2026" && ! "$ARCHITECTURE" =~ ^(generic|x86-64-v3|x86-64-v4)$ ]]; then
+	if [[ "$EBVERSIONGENTOO" -ge 2023 && ! "$ARCHITECTURE" =~ ^(generic|x86-64-v3|x86-64-v4)$ ]]; then
 		echo "The choice of --arch $ARCHITECTURE is not valid for this StdEnv."
 		echo "Please specify <rsnt_arch> as generic|x86-64-v3|x86-64-v4"
 		exit
