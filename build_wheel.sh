@@ -11,11 +11,16 @@ elif [[ "$YEAR" == "2020" ]]; then
 	GCC_VERSION=9.3.0
 	CYTHON_VERSION=.0.29.36
 	NUMPY_MODULE="oldest-supported-numpy/.2022a"
-else
+elif [[ "$YEAR" == "2023" ]]; then
 	GCC_VERSION=12.3
 	EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[56789]\|3.10"
 	CYTHON_VERSION=.3.2.4
 	NUMPY_MODULE="numpy/.2.4.2" # oldest-supported-numpy is now depcrecated with v2.0+
+else
+	GCC_VERSION=15.3
+	EXCLUDE_PYTHON_VERSIONS="/2\.\|/3\.[5-9]\.\|/3\.1[0-3]\."
+	CYTHON_VERSION=.3.3.0
+	NUMPY_MODULE="numpy/.2.5.3"
 fi
 
 if [[ -z "$PYTHON_VERSIONS" ]]; then
@@ -388,7 +393,7 @@ function verify_and_patch_arch_flags()
 		)
 		target=${gcc_targets[$RSNT_ARCH]}
 		ARCH_PRESENCE=$RSNT_ARCH
-		if [[ "$YEAR" == "2023" ]]; then
+		if [[ "$YEAR" -ge 2023 ]]; then
 			gcc_targets["avx2"]="x86-64-v3"
 			gcc_targets["avx512"]="x86-64-v4"
 			target=${gcc_targets[$RSNT_ARCH]}
@@ -620,7 +625,7 @@ else
 		module load arch/${ARCH_TO_LOAD:-sse3}
 	else
 		module load arch/${ARCH_TO_LOAD:-avx2}
-		if [[ "$YEAR" == "2023" ]]; then
+		if [[ "$YEAR" -ge 2023 ]]; then
 			declare -A archdir=( ["avx2"]="x86-64-v3" ["avx512"]="x86-64-v4" )
 			module use $MODULEPATH_ROOT/$YEAR/${archdir[$EBVERSIONARCH]}/Compiler/gcccore-hidden
 		fi
