@@ -77,14 +77,9 @@ function cp_wheel {
 		# wheels might be incompatible with the older glibc in Nix.
 		COMPAT=gentoo
 	fi
-	if [[ "$EBVERSIONGENTOO" == "2026" && "$COMPAT" == "gentoo" && "$ARCHITECTURE" != "generic" ]]; then
+	if [[ "$EBVERSIONGENTOO" -ge 2023 && "$COMPAT" == "gentoo" && "$ARCHITECTURE" != "generic" ]]; then
 		# Similar reasoning as above for wheels classified as either
-		# "generic" or "gentoo" for the 2026 stack
-		COMPAT=gentoo$EBVERSIONGENTOO
-	fi
-	if [[ "$EBVERSIONGENTOO" == "2023" && "$COMPAT" == "gentoo" && "$ARCHITECTURE" != "generic" ]]; then
-		# Similar reasoning as above for wheels classified as either
-		# "generic" or "gentoo" for the 2023 stack
+		# "generic" or "gentoo" for the 2023/2026 stack
 		COMPAT=gentoo$EBVERSIONGENTOO
 	fi
 	if [[ "$EBVERSIONGENTOO" == "2020" && ! "$ARCHITECTURE" =~ ^(generic|sse3|avx|avx2|avx512)$ ]]; then
