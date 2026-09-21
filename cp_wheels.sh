@@ -77,9 +77,9 @@ function cp_wheel {
 		# wheels might be incompatible with the older glibc in Nix.
 		COMPAT=gentoo
 	fi
-	if [[ "$EBVERSIONGENTOO" == "2023" && "$COMPAT" == "gentoo" && "$ARCHITECTURE" != "generic" ]]; then
+	if [[ "$EBVERSIONGENTOO" -ge 2023 && "$COMPAT" == "gentoo" && "$ARCHITECTURE" != "generic" ]]; then
 		# Similar reasoning as above for wheels classified as either
-		# "generic" or "gentoo" for the 2023 stack
+		# "generic" or "gentoo" for the 2023/2026 stack
 		COMPAT=gentoo$EBVERSIONGENTOO
 	fi
 	if [[ "$EBVERSIONGENTOO" == "2020" && ! "$ARCHITECTURE" =~ ^(generic|sse3|avx|avx2|avx512)$ ]]; then
@@ -87,7 +87,7 @@ function cp_wheel {
 		echo "Please specify <rsnt_arch> as generic|sse3|avx|avx2|avx512"
 		exit
 	fi
-	if [[ "$EBVERSIONGENTOO" == "2023" && ! "$ARCHITECTURE" =~ ^(generic|x86-64-v3|x86-64-v4)$ ]]; then
+	if [[ "$EBVERSIONGENTOO" -ge 2023 && ! "$ARCHITECTURE" =~ ^(generic|x86-64-v3|x86-64-v4)$ ]]; then
 		echo "The choice of --arch $ARCHITECTURE is not valid for this StdEnv."
 		echo "Please specify <rsnt_arch> as generic|x86-64-v3|x86-64-v4"
 		exit
@@ -108,7 +108,7 @@ function cp_wheel {
 			cp $CP_FLAGS $1 $WHEELHOUSE_ROOT/generic
 			RESULT=$?
 		fi
-	elif [[ "$COMPAT" == "gentoo" || "$COMPAT" == "nix" || "$COMPAT" == "gentoo2020" || "$COMPAT" == "gentoo2023" ]]; then
+	elif [[ "$COMPAT" == "gentoo" || "$COMPAT" == "nix" || "$COMPAT" == "gentoo2020" || "$COMPAT" == "gentoo2023" || "$COMPAT" == "gentoo2026" ]]; then
 		echo cp $CP_FLAGS $1 $WHEELHOUSE_ROOT/$COMPAT/$ARCHITECTURE
 		if [[ "$ARG_DRY_RUN" == "" ]]; then
 			cp $CP_FLAGS $1 $WHEELHOUSE_ROOT/$COMPAT/$ARCHITECTURE
@@ -129,19 +129,19 @@ fi
 
 if [ -z "$ARG_WHEEL" ]
 then
-    WHEEL_LIST=*computecanada*.whl
+	WHEEL_LIST=*computecanada*.whl
 else
-    case "$ARG_WHEEL" in
-        *.whl)
-            WHEEL_LIST=$ARG_WHEEL
-            ;;
-        *)
-            echo "Error: argument must be a .whl file" >&2
-            exit 1
-            ;;
-    esac
+	case "$ARG_WHEEL" in
+		*.whl)
+			WHEEL_LIST=$ARG_WHEEL
+			;;
+		*)
+			echo "Error: argument must be a .whl file" >&2
+			exit 1
+			;;
+	esac
 fi
 
 for w in $WHEEL_LIST; do
-        cp_wheel $w $(bash wheel_architecture.sh $w 2>/dev/null) $ARG_REMOVE
+		cp_wheel $w $(bash wheel_architecture.sh $w 2>/dev/null) $ARG_REMOVE
 done

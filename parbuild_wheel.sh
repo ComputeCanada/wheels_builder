@@ -8,6 +8,8 @@ YEAR="${EBVERSIONGENTOO:-2017}"
 EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[5678]"
 if [[ "$YEAR" == "2023" ]]; then
 	EXCLUDE_PYTHON_VERSIONS="/2\.\|/3.[56789]\|3.10"
+elif [[ "${EBVERSIONGENTOO:-2017}" == "2026" ]]; then
+	EXCLUDE_PYTHON_VERSIONS="/2\.\|/3\.[5-9]\.\|/3\.1[0-3]\."
 fi
 
 function ls_pythons()
