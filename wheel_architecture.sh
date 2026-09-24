@@ -70,7 +70,13 @@ for fname in $(find . -type f); do
 	# remove rpath from python itself from consideration
 	rpath=$(echo $rpath | sed -e "s;[^:]*/Core/python[^:]*;;g")
 	
-	if [[ $WORKS_ON_NIX -eq 1 && $rpath =~ 'nix' || $rpath =~ 'easybuild/software/2017' ]]; then
+	if [[ $rpath =~ /home/ && $rpath =~ /\.local/ ]]; then
+		WORKS_ON_NIX=0
+		WORKS_ON_GENTOO2020=0
+		WORKS_ON_GENTOO2023=0
+		WORKS_ON_GENTOO2026=0
+		echo "$fname" contains a local rpath, rpath=$rpath  >&2
+	elif [[ $WORKS_ON_NIX -eq 1 && $rpath =~ 'nix' || $rpath =~ 'easybuild/software/2017' ]]; then
 		WORKS_ON_GENTOO2020=0
 		WORKS_ON_GENTOO2023=0
 		WORKS_ON_GENTOO2026=0
