@@ -147,7 +147,7 @@ PYTHON_DEPS_DEFAULT="setuptools>70 pip>=25.0,<25.3"
 MODULE_BUILD_DEPS_DEFAULT="$NUMPY_MODULE python-build-bundle pytest cython/$CYTHON_VERSION rust"
 CARGO_BUILD_JOBS=default
 
-PYTHON27_ONLY="cogent OBITools gdata qcli emperor RSeQC preprocess Amara pysqlite IPTest ipaddress functools32 blmath bamsurgeon"
+PYTHON27_ONLY="cogent OBITools gdata qcli emperor preprocess Amara pysqlite IPTest ipaddress functools32 blmath bamsurgeon"
 if [[ $PYTHON27_ONLY =~ " $PACKAGE " ]]; then
 	PYTHON_VERSIONS="python/2.7"
 fi
