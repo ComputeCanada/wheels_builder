@@ -272,7 +272,7 @@ function wrapped_pip_install {
 		for w in $DOWNLOADED_DEPS; do
 			echo "========================================================="
 			wheel_name=$(basename $w | grep -Po '^([\w_-]+|[\w\.]*)-' | sed 's/.$//')
-			wheel_version=$(basename $w | cut -d'-' -f2 | cut -d'+' -f1 | sed -e "s/.tar.gz$//")
+			wheel_version=$(basename $w | sed -e "s/^${wheel_name}-//" | cut -d'-' -f1 | cut -d'+' -f1")
 			echo Building $wheel_name
 			log_command pushd $STARTING_DIRECTORY
 			echo $w
