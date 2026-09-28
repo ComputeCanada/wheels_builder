@@ -598,7 +598,7 @@ function adjust_torch_requirements_based_on_link_info()
 
 			# Does it need to be tagged, would it override an existing wheel of the same version?
 			local wheel_pattern=$(echo ${WHEEL_NAME//+computecanada/-} | sed -e 's/--/\*/')
-			if [[ $(find /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/ -name "${wheel_pattern}" | wc -l) -gt 0 ]]; then
+			if [[ $(find  /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/{generic,gentoo$EBVERSIONGENTOO} -name "${wheel_pattern}" | wc -l) -gt 0 ]]; then
 				echo "Found existing wheel that would have been overriden. Tagging the wheel."
 				local tag="torch${torch_build_version//./}"
 				log_command $SCRIPT_DIR/manipulate_wheels.py --inplace --force --wheels $TMP_WHEELHOUSE/$WHEEL_NAME --add_tag $tag
