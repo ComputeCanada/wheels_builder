@@ -1,5 +1,5 @@
 PYTHON_DEPS="fastrlock"
-MODULE_BUILD_DEPS="cuda/13.2 cudnn nccl cutensor cusparselt"
+MODULE_BUILD_DEPS="cuda/13 cudnn nccl cutensor cusparselt"
 
 # required at runtime, see https://docs.cupy.dev/en/latest/install.html#cupy-always-raises-nvrtc-error-compilation-6
 MODULE_RUNTIME_DEPS='cuda/13'
