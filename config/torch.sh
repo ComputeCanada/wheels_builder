@@ -1,7 +1,7 @@
-PYTHON_DEPS="ninja pyyaml astunparse typing-extensions requests six"
+PYTHON_DEPS="ninja pyyaml astunparse typing-extensions requests six scikit-build-core>=1.0"
 
-if [[ "$EBVERSIONGENTOO" == "2023" ]]; then
-	MODULE_BUILD_DEPS="gcc openmpi flexiblas cmake fftw eigen protobuf abseil flatbuffers cuda/13.2 cusparselt cudnn nccl opencv cudss sleef xnnpack"
+if [[ "$EBVERSIONGENTOO" -ge 2023 ]]; then
+	MODULE_BUILD_DEPS="gcc openmpi flexiblas cmake fftw eigen protobuf abseil flatbuffers cuda/13 cusparselt cudnn nccl opencv cudss/0.7 sleef xnnpack"
 else
 	# 11.7 and up is required for flash attention
 	MODULE_BUILD_DEPS="gcc cuda/11.7 openmpi magma nccl cudnn ffmpeg cmake flexiblas/3.0.4 eigen protobuf opencv fftw"
@@ -63,10 +63,9 @@ PRE_BUILD_COMMANDS='
 	export USE_CUSPARSELT=ON;
     export USE_SYSTEM_SLEEF=ON;
     export USE_SYSTEM_XNNPACK=ON;
+    export USE_NNPACK=OFF;
 
-	export CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=ON";
-
-	sed -i "/#include <c10\/util\/env.h>/a #include <torch/csrc/distributed/c10d/Utils.hpp>"  torch/csrc/distributed/c10d/GlooDeviceFactory.cpp;
+	export CMAKE_ARGS="-DCMAKE_CXX_FLAGS=\"-Wno-restrict -Wno-error=restrict\" -DONNX_USE_PROTOBUF_SHARED_LIBS=ON"
 '
 
 	# export USE_TENSORRT=ON;
