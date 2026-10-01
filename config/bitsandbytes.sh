@@ -7,11 +7,17 @@ PYTHON_DEPS="setuptools>=77.0.3 kernels>=0.11.1"
 # MODULE_BUILD_DEPS='cuda/12.2'
 # MODULE_RUNTIME_DEPS='cuda/12'
 # Builds the differents SOs into the source directory
+
+if [[ "$EBVERSIONGENTOO" == "2026" ]]; then
+        _cudaversions='13.3'
+elif [[ "$EBVERSIONGENTOO" == "2023" ]]; then
+        _cudaversions='12.2 12.6 12.9 13.2'
+fi
 PRE_BUILD_COMMANDS='
     cmake -G Ninja  -B _build_cpu -S . -DCOMPUTE_BACKEND=cpu -DCMAKE_BUILD_TYPE=Release;
     cmake --build _build_cpu --parallel ${SLURM_CPUS_PER_TASK:-4} --config Release;
 
-    for cudaver in 12.2 12.6 12.9 13.2; do
+    for cudaver in $_cudaversions; do
         module load cuda/$cudaver &&
         compute_caps=$(awk -v v="$cudaver" '\''BEGIN{
             if (v >= 13.0)
@@ -27,4 +33,7 @@ PRE_BUILD_COMMANDS='
 '
 
 # pypi wheel is py3
-POST_BUILD_COMMANDS='wheel tags --remove --abi-tag=none --python-tag=py3 --platform-tag=linux_x86_64 $WHEEL_NAME && WHEEL_NAME=$(ls *.whl)'
+POST_BUILD_COMMANDS='
+    wheel tags --remove --abi-tag=none --python-tag=py3 --platform-tag=linux_x86_64 $WHEEL_NAME && WHEEL_NAME=$(ls *.whl);
+    $SCRIPT_DIR/manipulate_wheels.py --inplace --force --add_req "kernels>=0.11.1" -w $WHEEL_NAME;
+'
