@@ -10,3 +10,4 @@ $SCRIPT_DIR/manipulate_wheels.py --inplace --force --remove_req \
     'nvidia-cuda-nvrtc; extra == \"cu13\"' \
     -w \$WHEEL_NAME
 "
+PYTHON_IMPORT_NAME='humming'
