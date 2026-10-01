@@ -82,12 +82,12 @@ function cp_wheel {
 		# "generic" or "gentoo" for the 2023/2026 stack
 		COMPAT=gentoo$EBVERSIONGENTOO
 	fi
-	if [[ "$EBVERSIONGENTOO" == "2026" && ( "$COMPAT" == "gentoo2023" || "$COMPAT" == "gentoo2020" ) ]]; then
-		# Strictly copy wheels built under 2026 to 2026
+	if [[ "$EBVERSIONGENTOO" == "2026" && ( "$COMPAT" == "gentoo2023" || "$COMPAT" == "gentoo2020" ) && "$ARCHITECTURE" == "generic" ]]; then
+		# Strictly copy generic wheels built under 2026 to 2026
 		COMPAT=gentoo2026
 	fi
-	if [[ "$EBVERSIONGENTOO" == "2023" && "$COMPAT" == "gentoo2020" ]]; then
-		# Strictly copy wheels built under 2023 to 2023
+	if [[ "$EBVERSIONGENTOO" == "2023" && "$COMPAT" == "gentoo2020" && "$ARCHITECTURE" == "generic" ]]; then
+		# Strictly copy generic wheels built under 2023 to 2023
 		COMPAT=gentoo2023
 	fi
 	if [[ "$EBVERSIONGENTOO" == "2020" && ! "$ARCHITECTURE" =~ ^(generic|sse3|avx|avx2|avx512)$ ]]; then
