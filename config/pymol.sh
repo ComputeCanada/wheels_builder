@@ -1,3 +1,9 @@
-MODULE_BUILD_DEPS="glm/0.9.9.8 netcdf/4.9.0 glew/2.1.0"
+MODULE_BUILD_DEPS="netcdf glew"
 PRE_BUILD_COMMANDS="sed -i "s@/usr@$EBROOTGENTOO@" setup.py"
-PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/schrodinger/pymol-open-source/archive/refs/tags/v${VERSION:?version required}.tar.gz"
+PIP_WHEEL_ARGS='--config-settings=no-libxml=true'
+# Must avoid download shenanigans
+PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/schrodinger/pymol-open-source"
+PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
+PACKAGE_DOWNLOAD_METHOD="Git"
+PACKAGE_DOWNLOAD_CMD="git clone --jobs 16 --depth 1 $PACKAGE_DOWNLOAD_ARGUMENT --branch v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
+POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
