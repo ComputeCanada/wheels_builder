@@ -1,4 +1,4 @@
-MODULE_BUILD_DEPS="flexiblas libxc/6 qcint/6 fftw"
+MODULE_BUILD_DEPS="flexiblas libxc qcint/6 fftw"
 PACKAGE_DOWNLOAD_ARGUMENT="https://github.com/pyscf/pyscf/archive/refs/tags/v${VERSION:?version required}.zip"
 # Trick build into avx2 or avx512 since we patch march=native flag.
 PRE_BUILD_COMMANDS='
