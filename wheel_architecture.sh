@@ -169,7 +169,10 @@ for fname in $(find . -type f); do
 	elif [[ $rpath =~ '/avx512/' ]]; then
 		ARCHITECTURE="avx512"
 		echo "$fname" is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
-	elif [[ $rpath =~ '/x86-64-v3/' && ! $rpath =~ '/x86-64-v3/Core/' ]]; then
+	# Strip '/x86-64-v3/Core/' from the string before checking. If only the Core path is present,
+	# the remaining won't match '/x86-64-v3/' and it stays generic. If other x86-64-v3 paths
+	# are present, they are left untouched and match correctly.
+	elif [[ ${rpath//\/x86-64-v3\/Core\//} =~ '/x86-64-v3/' ]]; then
 		ARCHITECTURE="x86-64-v3"
 		echo "$fname" is $COMPATIBILITY_LAYER $ARCHITECTURE, rpath=$rpath  >&2
 	elif [[ $rpath =~ '/x86-64-v4/' ]]; then
