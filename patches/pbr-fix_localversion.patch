@@ -1,0 +1,12 @@
+diff --git a/pbr/version.py b/pbr/version.py
+index 474faf1..bb2adf4 100644
+--- a/pbr/version.py
++++ b/pbr/version.py
+@@ -148,6 +148,7 @@ class SemanticVersion(object):
+ 
+     @classmethod
+     def _from_pip_string_unsafe(klass, version_string):
++        version_string = version_string.partition('+')[0]
+         # Versions need to start numerically, ignore if not
+         if not version_string[:1].isdigit():
+             raise ValueError("Invalid version %r" % version_string)
