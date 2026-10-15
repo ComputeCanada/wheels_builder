@@ -1,2 +1,3 @@
 PYTHON_DEPS=" pysam"
+PYTHON_IMPORT_NAME='HTSeq'
 
