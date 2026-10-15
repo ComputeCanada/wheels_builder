@@ -1,8 +1,8 @@
-MODULE_BUILD_DEPS="gcc suitesparse fftw imkl"
+MODULE_BUILD_DEPS="gcc suitesparse fftw flexiblas"
 PRE_BUILD_COMMANDS='
-export CVXOPT_LAPACK_LIB=mkl_rt; 
-export CVXOPT_BLAS_LIB=mkl_rt; 
-export CVXOPT_BLAS_LIB_DIR=$MKLROOT/lib; 
+export CVXOPT_LAPACK_LIB=flexiblas; 
+export CVXOPT_BLAS_LIB=flexiblas; 
+export CVXOPT_BLAS_LIB_DIR=$EBROOTFLEXIBLAS/lib; 
 export CVXOPT_SUITESPARSE_LIB_DIR=$EBROOTSUITESPARSE/lib; 
 export CVXOPT_SUITESPARSE_INC_DIR=$EBROOTSUITESPARSE/include/suitesparse; 
 export CVXOPT_BUILD_FFTW=1; 
