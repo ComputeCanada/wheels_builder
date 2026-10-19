@@ -1,4 +1,4 @@
-if [[ "$EBVERSIONGENTOO" != "2023" ]]; then
+if [[ "$EBVERSIONGENTOO" -lt 2023 ]]; then
     MODULE_BUILD_DEPS="sdl2 cmake"
 fi
 PYTHON_DEPS='gymnasium jax'
