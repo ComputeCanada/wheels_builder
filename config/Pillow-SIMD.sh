@@ -5,7 +5,7 @@ else
 		sed -i -e "s;\"-msse4\";;" setup.py;
 		CPATH=$EBROOTGENTOO/include:$CPATH;
 		LIBRARY_PATH=$EBROOTGENTOO/lib:$LIBRARY_PATH;
-		python setup.py build_ext --inplace --enable-raqm;
+		python setup.py build build_ext --inplace --enable-raqm;
 	'
 fi
 PYTHON_IMPORT_NAME="PIL"
