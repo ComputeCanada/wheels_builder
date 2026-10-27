@@ -34,9 +34,26 @@ theme:
         icon: material/brightness-4
         name: Switch to system preference
 
+nav:
+  - Overview: index.md
+  - Building Wheels:
+      - build_wheel.sh: build_wheels.md
+      - parbuild_wheel.sh: parbuild_wheel.md
+      - Configuration Recipes: config.md
+  - Binary (manylinux) Wheels:
+      - unmanylinuxize.sh: unmanylinuxize.md
+  - Inspection & Deployment:
+      - wheel_architecture.sh: wheel_architecture.md
+      - cp_wheels.sh: cp_wheels.md
+      - manipulate_wheels.py: manipulate_wheels.md
+
 markdown_extensions:
   - def_list
   - abbr
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format

@@ -1,67 +1,76 @@
 # `unmanylinuxize.sh`
 
-This script allow one to download a `manylinux` wheel and patch it.
+Downloads a pre-built `manylinux` wheel from PyPI, an external wheel index, or a direct URL, and patches its RPATH and metadata to make it compatible with the DRAC software stack.
 
-!!! tip "optimization"
-    Prefer to build with `build_wheels.sh` (and source) when possible.
+!!! tip "Build from source when possible"
+    Prefer building from source using `build_wheel.sh` when possible to benefit from optimization and consistent library linkage.
 
-A number of (difficult to build) Python packages are distributed as binary wheels
-that are compatible with many common Linux distributions and therefore tagged 
-with `manylinux` in the filename. These are -- out of the box -- incompatible
-with the software stack, because most of our libraries live in different locations.
+Packages distributed as binary wheels often carry `manylinux` tags in their filenames. Out of the box, these wheels are typically incompatible with our software stack because libraries reside in custom CVMFS paths rather than standard system directories.
 
-However this script can download and patch `manylinux` wheels (basically by 
-treating them with the `setrpaths.sh` script), thereby trying to make them 
-compatible with the software stack.
+`unmanylinuxize.sh` downloads the wheel, patches RPATHs using `setrpaths`, applies optional package-specific patch commands, renames the `manylinux` platform tag to `linux_x86_64`, and appends the `+computecanada` local version tag.
 
 ## Usage
-```
+
+```bash
 Usage: unmanylinuxize.sh 
   --package <package name> 
   [--version <version>]
   [--python <comma separated list of python versions>]
-  [--add_path <add rpath>]
-  [--add_origin <add origin to rpath>]
-  [--find_links https://index.url | --url https://direct.url.to.wheel.whl ]
+  [--add_path <rpath>]
+  [--add_origin]
+  [--find_links https://index.url | --url https://direct.url.to.wheel.whl]
 ```
 
-`--find-links` set `PIP_FIND_LINKS` and can be useful to search an alternative index then PyPI.
+### Options
 
-`--url` allows one to directly download a specific wheel file with `wget`
+| Option | Description |
+| :--- | :--- |
+| `--package <name>` | Python package name (**required** unless `--url` is specified). |
+| `--version <version>` | Package version to download (defaults to latest if omitted). |
+| `--python <versions>` | Comma-separated list of Python versions to download for. Defaults to all active Python versions in the current StdEnv. |
+| `--add_path <rpath>` | Additional directory path(s) to append to the RPATH using `setrpaths --add_path <rpath> --any_interpreter`. |
+| `--add_origin` | Flag to add `$ORIGIN` to the RPATH via `setrpaths --add_origin`. |
+| `--find_links <url>` | Custom index URL to search for wheels (sets `PIP_FIND_LINKS`). |
+| `--url <url>` | Direct URL to download a specific `.whl` file using `wget`. |
+
+## Standard Environment & Behavior
+
+- **StdEnv 2026 (`2026`)**: Excludes Python versions <=3.13, downloading for Python 3.14+.
+- **StdEnv 2023 (`2023`)**: Excludes Python versions <=3.10, downloading for Python 3.11, 3.12, and 3.13.
+- **Pure Python & ABI3 Early Exit**: If a downloaded wheel is `py3-none-any`, `py2.py3-none-any`, or ABI3 compatible (`cp*-abi3`), downloading terminates after the first Python version since the artifact is compatible across all versions.
+- **Configuration Recipes**: Sources configuration recipes from `config/` (`config/<package>-<version>.sh` or `config/<package>.sh`), executing any defined `PATCH_WHEEL_COMMANDS`.
 
 ## Examples
-## Specific version
+
+### Download and patch specific version
 ```bash
-bash unmanylinuxize.sh --package sktime --version 0.21.1
+$ bash unmanylinuxize.sh --package sktime --version 0.21.1
 ```
 
-## Specific python version
+### Specific Python version
 ```bash
-bash unmanylinuxize.sh --package sktime --version 0.21.1 --python 3.11
+$ bash unmanylinuxize.sh --package sktime --version 0.21.1 --python 3.11
 ```
 
-## Add rpath
+### Add specific library RPATH
+Preload required modules and add library directories to RPATH:
 ```bash
-$ module load cuda/12 cudnn/9  # important to load prior
+$ module load cuda/12 cudnn/9
 $ bash unmanylinuxize.sh --package open3d --add_path $EBROOTCUDACORE/lib/:$EBROOTCUDNN/lib
 ```
 
-## With config file
-Some package may benefit from having a configuration, ie jaxlib
+### Add `$ORIGIN` to RPATH
+Useful for wheels that bundle shared libraries in internal directories and locate them relative to `$ORIGIN`:
 ```bash
-$ bash unmanylinuxize.sh --package ray 
-INFO: Sourced configuration /home/coulombc/wheels_builder/config/ray.sh
-...
+$ bash unmanylinuxize.sh --package mypkg --version 1.0.0 --add_origin
 ```
 
-## With extra index
-### find-links
-If a package is available on an extra index, such as nvidia index
+### Download from alternative index
 ```bash
-$ bash unmanylinuxize.sh --package <name> --find-links https://pypi.nvidia.com
+$ bash unmanylinuxize.sh --package cupy-cuda12x --find_links https://pypi.nvidia.com
 ```
-### Direct URL
-If a package is available from a release on Github, it can be downloaded with:
+
+### Download from direct URL
 ```bash
-$ bash unmanylinuxize.sh --package <name> --url <url>/<name>.whl
+$ bash unmanylinuxize.sh --url https://github.com/example/pkg/releases/download/v1.0.0/pkg-1.0.0-cp311-cp311-manylinux2014_x86_64.whl
 ```

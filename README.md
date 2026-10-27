@@ -1,33 +1,53 @@
 # wheels_builder
 
-Scripts to automate building Python wheels for DRAC's wheelhouse.
+Scripts to automate building and managing Python wheels for the Digital Research Alliance of Canada (DRAC) wheelhouse.
 
-**Documentation:**
-  * [`build_wheels.sh`](docs/build_wheels.md) <br />
-  Build wheel(s) for a Python package.
+## Workflow Overview
+
+1. **Build or Adapt**: Compile wheels from source with [`build_wheel.sh`](docs/build_wheels.md) (or batch build with [`parbuild_wheel.sh`](docs/parbuild_wheel.md)). For binary-only distributions, adapt pre-built wheels with [`unmanylinuxize.sh`](docs/unmanylinuxize.md).
+2. **Inspect Compatibility**: Use [`wheel_architecture.sh`](docs/wheel_architecture.md) to verify library linkage, glibc compatibility, and detect target architecture.
+3. **Deploy**: Copy wheels into the appropriate wheelhouse directory and adjust permissions with [`cp_wheels.sh`](docs/cp_wheels.md).
+
+---
+
+## Documentation
+
+- [`build_wheel.sh`](docs/build_wheels.md)
+  : Build wheel(s) for a Python package from source across standard Python versions.
     
-  * [`wheel_architecture.sh`](docs/wheel_architecture.md)<br />
-  Analyzes the content of the wheel and tries to predict into which sub-directory of our wheelhouse the wheel needs to be placed.
+- [`wheel_architecture.sh`](docs/wheel_architecture.md)
+  : Analyzes wheel contents, checks glibc and library dependencies, and predicts the destination wheelhouse directory.
    
-  * [`cp_wheels.sh`](docs/cp_wheels.md)<br />
-  Copy wheels in the current directory to the wheelhouse.
+- [`cp_wheels.sh`](docs/cp_wheels.md)
+  : Copies built wheels to their target location in the CVMFS wheelhouse with proper permissions.
  
-  * [`parbuild_wheel.sh`](docs/parbuild_wheel.md)<br />
-  Build multiple versions and/or multiple wheels in parallel.
+- [`parbuild_wheel.sh`](docs/parbuild_wheel.md)
+  : Builds multiple packages or versions in parallel across available CPU cores.
  
-  * [`unmanylinuxize.sh`](docs/unmanylinuxize.md)<br />
-  Download a `manylinux` wheel and patch it.
+- [`unmanylinuxize.sh`](docs/unmanylinuxize.md)
+  : Downloads pre-built `manylinux` wheels and patches RPATHs and metadata for the DRAC stack.
  
-  * [`config/<package>.sh`](docs/config.md)<br />
-  Configuration file to provide customization or specific steps/actions needed to build a wheel.
+- [`config/<package>.sh`](docs/config.md)
+  : Configuration recipes providing custom hooks and build variables for specific packages.
  
-  * [`manipulate_wheels.py`](docs/manipulate_wheels.md)<br />
-  Manipulate a wheel, mainly to update its metadata and requirements.
+- [`manipulate_wheels.py`](docs/manipulate_wheels.md)
+  : Inspects and modifies wheel metadata, requirements, and local tags without rebuilding.
 
+---
 
-## TLDR
+## Quickstart
 
-1. Build a wheel for a specific version:
+### Build a wheel for a specific version
 ```bash
-bash build_wheels.sh --package <name> --version <version> --verbose 3
+$ bash build_wheel.sh --package <name> --version <version> --verbose 3
+```
+
+### Inspect wheel placement
+```bash
+$ bash wheel_architecture.sh <wheel_file>.whl
+```
+
+### Deploy to wheelhouse
+```bash
+$ bash cp_wheels.sh --remove --wheel <wheel_file>.whl
 ```
