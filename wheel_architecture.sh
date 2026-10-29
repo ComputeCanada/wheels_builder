@@ -101,15 +101,15 @@ for fname in $(find . -type f); do
 		WORKS_ON_NIX=0
 		echo "$fname" requires a glibc more recent than that provided by Nix: $min_required_glibc ">" $NIX_GLIBC_VERSION >&2
 	fi
-	if [[ "$(version_lte $min_required_glibc $GENTOO2020_GLIBC_VERSION)" == "no" ]]; then
+	if [[ $WORKS_ON_GENTOO2020 -eq 1 && "$(version_lte $min_required_glibc $GENTOO2020_GLIBC_VERSION)" == "no" ]]; then
 		WORKS_ON_GENTOO2020=0
 		echo "$fname" requires a glibc more recent than that provided by Gentoo 2020: $min_required_glibc ">" $GENTOO2020_GLIBC_VERSION >&2
 	fi
-	if [[ "$(version_lte $min_required_glibc $GENTOO2023_GLIBC_VERSION)" == "no" ]]; then
+	if [[ $WORKS_ON_GENTOO2023 -eq 1 && "$(version_lte $min_required_glibc $GENTOO2023_GLIBC_VERSION)" == "no" ]]; then
 		WORKS_ON_GENTOO2023=0
 		echo "$fname" requires a glibc more recent than that provided by Gentoo 2023: $min_required_glibc ">" $GENTOO2023_GLIBC_VERSION >&2
 	fi
-	if [[ "$(version_lte $min_required_glibc $GENTOO2026_GLIBC_VERSION)" == "no" ]]; then
+	if [[ $WORKS_ON_GENTOO2026 -eq 1 && "$(version_lte $min_required_glibc $GENTOO2026_GLIBC_VERSION)" == "no" ]]; then
 		WORKS_ON_GENTOO2026=0
 		echo "$fname" requires a glibc more recent than that provided by Gentoo 2026: $min_required_glibc ">" $GENTOO2026_GLIBC_VERSION >&2
 	fi
@@ -117,25 +117,31 @@ for fname in $(find . -type f); do
 		$NIX_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
 		NIX_HAVE_LIBS=$?
 	fi
-	$GENTOO2020_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
-	GENTOO2020_HAVE_LIBS=$?
-	$GENTOO2023_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
-	GENTOO2023_HAVE_LIBS=$?
-	$GENTOO2026_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
-	GENTOO2026_HAVE_LIBS=$?
+	if [[ $WORKS_ON_GENTOO2020 -eq 1 ]]; then
+		$GENTOO2020_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
+		GENTOO2020_HAVE_LIBS=$?
+	fi
+	if [[ $WORKS_ON_GENTOO2023 -eq 1 ]]; then
+		$GENTOO2023_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
+		GENTOO2023_HAVE_LIBS=$?
+	fi
+	if [[ $WORKS_ON_GENTOO2026 -eq 1 ]]; then
+		$GENTOO2026_LDD "$fname" | grep -E -v $self_contained_shared_objects | grep "not found" >&2
+		GENTOO2026_HAVE_LIBS=$?
+	fi
 	if [[ $WORKS_ON_NIX -eq 1 && $NIX_HAVE_LIBS -eq 0 ]]; then
 		WORKS_ON_NIX=0
 		echo "$fname" is missing some libraries in Nix >&2
 	fi
-	if [[ $GENTOO2020_HAVE_LIBS -eq 0 ]]; then
+	if [[ $WORKS_ON_GENTOO2020 -eq 1 && $GENTOO2020_HAVE_LIBS -eq 0 ]]; then
 		WORKS_ON_GENTOO2020=0
 		echo "$fname" is missing some libraries in Gentoo 2020 >&2
 	fi
-	if [[ $GENTOO2023_HAVE_LIBS -eq 0 ]]; then
+	if [[ $WORKS_ON_GENTOO2023 -eq 1 && $GENTOO2023_HAVE_LIBS -eq 0 ]]; then
 		WORKS_ON_GENTOO2023=0
 		echo "$fname" is missing some libraries in Gentoo 2023 >&2
 	fi
-	if [[ $GENTOO2026_HAVE_LIBS -eq 0 ]]; then
+	if [[ $WORKS_ON_GENTOO2026 -eq 1 && $GENTOO2026_HAVE_LIBS -eq 0 ]]; then
 		WORKS_ON_GENTOO2026=0
 		echo "$fname" is missing some libraries in Gentoo 2026 >&2
 	fi
