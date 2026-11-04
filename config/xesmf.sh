@@ -1,1 +1,1 @@
-MODULE_RUNTIME_DEPS='esmf'
+MODULE_RUNTIME_DEPS='openmpi esmf'
