@@ -1,0 +1,4 @@
+MODULE_BUILD_DEPS='cuda/13'
+PYTHON_DEPS="torch"
+PRE_BUILD_COMMANDS="export TORCH_CUDA_ARCH_LIST='8.0;9.0;10.0+PTX';"
+PATCHES='hqq-0.2.8-build_cuda.patch'

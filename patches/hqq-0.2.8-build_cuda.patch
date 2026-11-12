@@ -1,0 +1,82 @@
+diff --git a/setup.py b/setup.py
+index 9770d84..e068832 100755
+--- a/setup.py
++++ b/setup.py
+@@ -1,45 +1,29 @@
+ # Written by Dr. Hicham Badri @Mobius Labs GmbH - 2023
+ #####################################################
+ 
+-from setuptools import setup, find_packages
+-from setuptools.command.install import install
+-from setuptools.command.develop import develop
+-from setuptools.command.egg_info import egg_info
+ import os
++from setuptools import setup, find_packages
+ 
+-def install_cuda_cmd() -> str:
+-    cmd = "cd hqq/kernels; "
+-    cmd += "python setup_cuda.py install; "
+-    cmd += "cd ../..;"
+-    return cmd
+-
+-def run_setup_cuda():
+-    #Skip building cuda kernels for ATEN backend
+-    if os.environ.get('DISABLE_CUDA', '0') == '1': 
+-        return 
++ext_modules = []
++cmdclass = {}
+ 
+-    print("Running setup_cuda.py...")
++if os.environ.get("DISABLE_CUDA", "0") != "1":
+     try:
+-        os.system(install_cuda_cmd())
++        from torch.utils.cpp_extension import CUDAExtension, BuildExtension
++
++        ext_modules = [
++            CUDAExtension(
++                "hqq_aten",
++                [
++                    "hqq/kernels/hqq_aten_cuda.cpp",
++                    "hqq/kernels/hqq_aten_cuda_kernel.cu",
++                ],
++                extra_compile_args={"cxx": ["-O3"], "nvcc": ["-O3", "--use_fast_math"]},
++            )
++        ]
++        cmdclass = {"build_ext": BuildExtension}
+     except Exception as e:
+-        print("Error while running setup_cuda.py:", e)
+-
+-class InstallCommand(install):
+-    def run(self):
+-        install.run(self)
+-        run_setup_cuda()
+-
+-class DevelopCommand(develop):
+-    def run(self):
+-        develop.run(self)
+-        run_setup_cuda()
+-
+-
+-class EgginfoCommand(egg_info):
+-    def run(self):
+-        egg_info.run(self)
+-        run_setup_cuda()
+-
++        print("Error while configuring CUDAExtension:", e)
+ 
+ setup(
+     name="hqq",
+@@ -54,11 +38,8 @@ setup(
+         "hqq": ["kernels/*.cpp", "kernels/*.cu"],
+     },
+     include_package_data=True,
+-    cmdclass={
+-        "install": InstallCommand,
+-        "develop": DevelopCommand,
+-        "egg_info": EgginfoCommand,
+-    },
++    ext_modules=ext_modules,
++    cmdclass=cmdclass,
+     install_requires=[
+         "numpy>=1.24.4",
+         "tqdm>=4.64.1",
