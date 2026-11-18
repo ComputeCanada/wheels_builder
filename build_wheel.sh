@@ -28,7 +28,7 @@ if [[ -z "$PYTHON_VERSIONS" ]]; then
 fi
 
 function print_usage {
-	echo "Usage: $0 --package <python package name> "
+	echo "Usage: $0 --package <python package name>[==<version>] "
 	echo "         [--version <specific version]"
 	echo "         [--recursive=<1|0>]"
 	echo "         [--python=<comma separated list of python versions>]"
@@ -94,8 +94,13 @@ while true; do
 	esac
 done
 STARTING_DIRECTORY=$(pwd)
-PACKAGE=$ARG_PACKAGE
-VERSION=$ARG_VERSION
+if [[ "$ARG_PACKAGE" == *"=="* ]]; then
+	PACKAGE="${ARG_PACKAGE%%==*}"
+	VERSION="${ARG_VERSION:-${ARG_PACKAGE#*==}}"
+else
+	PACKAGE="$ARG_PACKAGE"
+	VERSION="$ARG_VERSION"
+fi
 RECURSIVE=$ARG_RECURSIVE
 
 if [[ -z "$PACKAGE" ]]; then
