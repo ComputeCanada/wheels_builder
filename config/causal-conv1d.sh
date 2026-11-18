@@ -1,7 +1,7 @@
-MODULE_BUILD_DEPS="cuda/12.6"
+MODULE_BUILD_DEPS="cuda/13"
 PYTHON_DEPS="torch${TORCH_VERSION:+==$TORCH_VERSION}"
 PRE_BUILD_COMMANDS="
     export CAUSAL_CONV1D_FORCE_BUILD=TRUE;
-    export TORCH_CUDA_ARCH_LIST='8.0;9.0';
+    export TORCH_CUDA_ARCH_LIST='8.0;9.0;10.0+PTX';
 "
 PACKAGE_DOWNLOAD_ARGUMENT="git+https://github.com/Dao-AILab/causal-conv1d@v${VERSION:?version required}"
