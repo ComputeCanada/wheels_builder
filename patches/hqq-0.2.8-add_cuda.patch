@@ -1,0 +1,45 @@
+--- a/setup.py
++++ b/setup.py
+@@ -1,15 +1,27 @@
+ import os
+-from setuptools import setup, find_packages
++from setuptools import find_packages, setup
++
++ext_modules = []
++cmdclass = {}
+ 
+-# Build CUDA kernels
+ if os.environ.get("DISABLE_CUDA", "0") != "1":
+     try:
+         import torch
++        from torch.utils.cpp_extension import BuildExtension, CUDAExtension
+ 
+         if torch.cuda.is_available() or os.environ.get("TORCH_CUDA_ARCH_LIST", None) is not None:
+-            print("Running setup_cuda.py...")
+-            os.system("cd hqq/kernels && python setup_cuda.py install")
++            ext_modules.append(
++                CUDAExtension(
++                    name="hqq_aten",
++                    sources=[
++                        "hqq/kernels/hqq_aten_cuda.cpp",
++                        "hqq/kernels/hqq_aten_cuda_kernel.cu",
++                    ],
++                    extra_compile_args={
++                        "cxx": ["-O3"],
++                        "nvcc": ["-O3", "--use_fast_math"],
++                    },
++                )
++            )
++            cmdclass["build_ext"] = BuildExtension
+     except Exception as e:
+         print("Skipping CUDA build:", e)
+ 
+ setup(
+     name="hqq",
+@@ -26,4 +38,6 @@
+     packages=find_packages(),
+     package_data={"hqq": ["kernels/*.cpp", "kernels/*.cu", "kernels/*.py"]},
+     include_package_data=True,
++    ext_modules=ext_modules,
++    cmdclass=cmdclass,
+ )
