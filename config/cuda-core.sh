@@ -3,7 +3,7 @@ PACKAGE_DOWNLOAD_NAME="$PACKAGE-$VERSION.tar.gz"
 PACKAGE_DOWNLOAD_METHOD="Git"
 PACKAGE_DOWNLOAD_CMD="git clone --jobs 16 --depth 1 --recursive $PACKAGE_DOWNLOAD_ARGUMENT --branch cuda-core-v${VERSION:?version required} $PACKAGE_FOLDER_NAME"
 POST_DOWNLOAD_COMMANDS="tar -zcf ${PACKAGE}-${VERSION}.tar.gz $PACKAGE_FOLDER_NAME"
-PYTHON_DEPS="cuda-bindings"
+PYTHON_DEPS="cuda-bindings cuda-pathfinder>=1.5"
 MODULE_BUILD_DEPS='cuda/13'
 PRE_BUILD_COMMANDS="
     cd cuda_core;
