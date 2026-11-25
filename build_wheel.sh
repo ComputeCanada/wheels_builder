@@ -148,7 +148,7 @@ PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary :all: --no-use-pep5
 # not all project are pep621 compliant, remove the license when it is not, else do nothing
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py; sed -i -e "/^\s*license\s*=\s*\"[^\"]*\"\s*$/d" pyproject.toml'
 
-PYTHON_DEPS_DEFAULT="setuptools>70 pip>=25.0,<25.3"
+PYTHON_DEPS_DEFAULT="setuptools>=80 pip>=25.3"
 MODULE_BUILD_DEPS_DEFAULT="$NUMPY_MODULE python-build-bundle pytest cython/$CYTHON_VERSION rust"
 CARGO_BUILD_JOBS=default
 
@@ -354,14 +354,18 @@ function download()
 	fi
 	echo "Downloading source"
 	mkdir $PVDIR
+	local pip_ver=$(pip --version 2>/dev/null | awk '{print $2}')
+	if [[ -n "$pip_ver" && $(translate_version "$pip_ver") -ge $(translate_version "25.3") ]]; then
+		PACKAGE_DOWNLOAD_CMD=${PACKAGE_DOWNLOAD_CMD//--no-use-pep517/}
+	fi
 	ARCHNAME=$(PIP_CONFIG_FILE= eval $PACKAGE_DOWNLOAD_CMD |& tee download.log | grep "Saved " | awk '{print $2}')
 	if [[ $PACKAGE_DOWNLOAD_METHOD == "Git" ]]; then
 		ARCHNAME=$PACKAGE_DOWNLOAD_NAME
 	fi
 	if [[ -z "$ARCHNAME" ]]; then
-		grep -l "Disabling PEP 517 processing" $PWD/download.log
+		grep -Eq "Disabling PEP 517 processing|no such option: --no-use-pep517" $PWD/download.log
 		if [[ $? -eq 0 ]]; then
-			echo "Package $PACKAGE_DOWNLOAD_NAME does not support disabling PEP 517. Trying again without --no-use-pep517"
+			echo "Package $PACKAGE_DOWNLOAD_NAME does not support disabling PEP 517 or pip does not support --no-use-pep517. Trying again without --no-use-pep517"
 			PACKAGE_DOWNLOAD_CMD=${PACKAGE_DOWNLOAD_CMD//--no-use-pep517/}
 			ARCHNAME=$(PIP_CONFIG_FILE= eval $PACKAGE_DOWNLOAD_CMD |& tee download.log | grep "Saved " | awk '{print $2}')
 		fi
