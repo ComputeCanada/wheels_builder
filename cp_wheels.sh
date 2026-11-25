@@ -49,6 +49,14 @@ function cp_wheel {
 		echo "bash wheel_architecture.sh $NAME"
 		exit
 	fi
+	if [[ "$EBVERSIONGENTOO" == "2026" && ( "$COMPAT" == "gentoo2023" || "$COMPAT" == "gentoo2020" ) && "$ARCHITECTURE" == "generic" ]]; then
+		# Strictly copy generic wheels built under 2026 to 2026
+		COMPAT=gentoo2026
+	fi
+	if [[ "$EBVERSIONGENTOO" == "2023" && "$COMPAT" == "gentoo2020" && "$ARCHITECTURE" == "generic" ]]; then
+		# Strictly copy generic wheels built under 2023 to 2023
+		COMPAT=gentoo2023
+	fi
 	if [[ "$ARG_ARCH" != "" ]]; then
 		ARCHITECTURE="$ARG_ARCH"
 	fi
@@ -81,14 +89,6 @@ function cp_wheel {
 		# Similar reasoning as above for wheels classified as either
 		# "generic" or "gentoo" for the 2023/2026 stack
 		COMPAT=gentoo$EBVERSIONGENTOO
-	fi
-	if [[ "$EBVERSIONGENTOO" == "2026" && ( "$COMPAT" == "gentoo2023" || "$COMPAT" == "gentoo2020" ) && "$ARCHITECTURE" == "generic" ]]; then
-		# Strictly copy generic wheels built under 2026 to 2026
-		COMPAT=gentoo2026
-	fi
-	if [[ "$EBVERSIONGENTOO" == "2023" && "$COMPAT" == "gentoo2020" && "$ARCHITECTURE" == "generic" ]]; then
-		# Strictly copy generic wheels built under 2023 to 2023
-		COMPAT=gentoo2023
 	fi
 	if [[ "$EBVERSIONGENTOO" == "2020" && ! "$ARCHITECTURE" =~ ^(generic|sse3|avx|avx2|avx512)$ ]]; then
 		echo "The choice of --arch $ARCHITECTURE is not valid for this StdEnv."
