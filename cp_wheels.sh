@@ -12,7 +12,7 @@ if [ $? != 0 ] ; then print_usage; exit 1 ; fi
 eval set -- "$TEMP"
 
 ARG_WHEEL=""
-ARC_ARCH=""
+ARG_ARCH=""
 ARG_REMOVE=""
 ARG_DRY_RUN=""
 ARG_FORCE=""
