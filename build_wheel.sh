@@ -143,7 +143,7 @@ TMP_WHEELHOUSE=$(pwd)
 PATCHES=""
 # Make sure $PACKAGE_DOWNLOAD_ARGUMENT is not expanded right away
 # Do not collect binaries and don't install dependencies
-PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary \$PACKAGE --no-use-pep517 --no-build-isolation --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
+PACKAGE_DOWNLOAD_CMD="pip download -v --no-cache --no-binary :all: --no-use-pep517 --no-build-isolation --no-deps \$PACKAGE_DOWNLOAD_ARGUMENT"
 
 # not all project are pep621 compliant, remove the license when it is not, else do nothing
 PRE_BUILD_COMMANDS_DEFAULT='sed -i -e "s/\([^\.]\)distutils.core/\1setuptools/g" setup.py; sed -i -e "/^\s*license\s*=\s*\"[^\"]*\"\s*$/d" pyproject.toml'
@@ -368,7 +368,7 @@ function download()
 	fi
 	if [[ -z "$ARCHNAME" ]]; then
 		echo "Trying to download without --no-binary to see if it is a py3-none-any wheel."
-		PACKAGE_DOWNLOAD_CMD=${PACKAGE_DOWNLOAD_CMD//--no-binary \$PACKAGE/}
+		PACKAGE_DOWNLOAD_CMD=${PACKAGE_DOWNLOAD_CMD//--no-binary :all:/}
 		PACKAGE_DOWNLOAD_CMD=${PACKAGE_DOWNLOAD_CMD//--no-use-pep517/}
 		ARCHNAME=$(PIP_CONFIG_FILE= eval $PACKAGE_DOWNLOAD_CMD |& tee download.log | grep "Saved " | awk '{print $2}')
 		if [[ $ARCHNAME =~ .*-py3-none-any.* ]]; then
