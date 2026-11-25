@@ -164,8 +164,13 @@ else
 fi
 
 # define common cuda compute capabilities
-export TORCH_CUDA_ARCH_LIST="8.0;9.0+PTX" # for torch and others using it
-export CUDAARCHS="80;90;90-virtual" # for cmake, used to set CMAKE_CUDA_ARCHITECTURES
+if [[ "$EBVERSIONGENTOO" -ge 2026 ]]; then
+	export TORCH_CUDA_ARCH_LIST="8.0;9.0;10.0+PTX" # for torch and others using it
+	export CUDAARCHS="80-real;90-real;100" # for cmake, used to set CMAKE_CUDA_ARCHITECTURES
+else
+	export TORCH_CUDA_ARCH_LIST="8.0;9.0+PTX" # for torch and others using it
+	export CUDAARCHS="80-real;90" # for cmake, used to set CMAKE_CUDA_ARCHITECTURES
+fi
 
 export CARGO_BUILD_JOBS=default
 
